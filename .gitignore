@@ -1,0 +1,15 @@
+# Composer
+/vendor/
+
+# Environment
+.env
+.env.local
+
+# IDE
+.idea/
+.vscode/
+
+# Application
+/storage/
+*.log
+*.cache

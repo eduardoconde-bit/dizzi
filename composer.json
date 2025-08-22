@@ -1,0 +1,17 @@
+{
+    "name": "dizzi/dizzi",
+    "description": "Sistema de Votação Distribuído",
+    "type": "project",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Dizzi\\": "app/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Eduardo Conde at el."
+        }
+    ],
+    "require": {}
+}
