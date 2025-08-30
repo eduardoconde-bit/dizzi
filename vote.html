@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Votação</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f9f9f9;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        input {
+            width: 100%;
+            padding: 8px;
+            margin: 8px 0;
+        }
+
+        .option {
+            display: flex;
+            align-items: center;
+            margin: 10px 0;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .option:hover {
+            background: #f1f1f1;
+        }
+
+        .option img {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            margin-right: 10px;
+            object-fit: cover;
+        }
+
+        button {
+            display: block;
+            margin: 20px auto;
+            padding: 10px 20px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:disabled {
+            background: #ccc;
+        }
+
+        #message {
+            text-align: center;
+            margin-top: 15px;
+            font-weight: bold;
+        }
+
+        #election-info {
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h2>Votação</h2>
+        <input id="pollCode" placeholder="Digite o código da eleição">
+        <button onclick="loadPoll()">Carregar Votação</button>
+
+        <div id="election-info"></div>
+        <div id="options"></div>
+        <button id="voteBtn" disabled>Votar</button>
+        <p id="message"></p>
+        <p><a href="create.html">Criar Votação</a></p>
+    </div>
+
+    <script>
+        let selectedOption = null;
+        let pollId = null;
+        let uuid = null;
+
+        window.addEventListener("pageshow", async function (event) {
+            // Payload arbitrário para teste
+            const payload = {
+                action: "login",
+                username: "usuario_teste",
+                password: "senha_teste" 
+            };
+
+            try {
+                const response = await fetch("https://localhost/app/Routes/api.php", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    credentials: "include",
+                    body: JSON.stringify(payload)
+                });
+
+                const result = await response.json();
+                console.log(result);
+
+                console.log(result)
+                if (!result.success) {
+                    window.location.href = "login.html";
+                }
+
+            } catch (error) {
+                console.error("Erro na requisição:", error);
+            }
+        });
+
+        async function loadPoll() {
+            const code = document.getElementById("pollCode").value.trim();
+            if (!code) { alert("Digite o código da eleição"); return; }
+
+            selectedOption = null;
+            document.getElementById("voteBtn").disabled = true;
+            document.getElementById("options").innerHTML = "";
+            document.getElementById("election-info").innerHTML = "";
+            document.getElementById("message").innerText = "";
+
+            try {
+                const res = await fetch(`https://localhost/app/Routes/api.php?code_poll=${code}`, { credentials: "include" });
+                const data = await res.json();
+
+                if (!data.success || !data.poll) {
+                    alert("Código inválido ou eleição não encontrada");
+                    return;
+                }
+
+                const poll = data.poll;
+                pollId = poll.id;
+                uuid = poll.code; // uuid/código do eleitor
+
+                // Renderiza info da eleição
+                document.getElementById("election-info").innerHTML = `
+            <h3>${poll.title}</h3>
+            <p>${poll.description || ""}</p>
+            <small>Duração: ${poll.duration}</small>
+        `;
+
+                // Renderiza opções
+                const optionsDiv = document.getElementById("options");
+                const urls = poll.urls || [];
+                let index = 0;
+
+                Object.entries(poll.options).forEach(([optionId, optionName]) => {
+                    const div = document.createElement("div");
+                    div.className = "option";
+                    const imgUrl = urls[index] || "";
+                    div.innerHTML = `
+                ${imgUrl ? `<img src="${imgUrl}" alt="">` : ""}
+                <span>${optionName}</span>
+            `;
+                    div.onclick = () => {
+                        selectedOption = optionId;
+                        document.querySelectorAll(".option").forEach(o => o.style.background = "#fff");
+                        div.style.background = "#d0f0d0";
+                        document.getElementById("voteBtn").disabled = false;
+                    };
+                    optionsDiv.appendChild(div);
+                    index++;
+                });
+
+            } catch (e) {
+                alert("Erro ao carregar votação: " + e.message);
+            }
+        }
+
+        // Função para pegar cookie pelo nome
+        function getCookie(name) {
+            const cookies = document.cookie.split('; ');
+            const cookie = cookies.find(c => c.startsWith(name + '='));
+            return cookie ? decodeURIComponent(cookie.split('=')[1]) : null;
+        }
+
+
+        async function sendVote() {
+            const userData = getCookie('user_data');
+            sessionStorage.setItem('user_data', userData);
+            const parsedData = JSON.parse(userData);
+            if (!selectedOption || !pollId) return;
+
+            try {
+                const response = await fetch("https://localhost/app/Routes/api.php", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    credentials: "include",
+                    body: JSON.stringify({
+                        action: "vote",
+                        user_id: parsedData.userName,
+                        code: document.getElementById("pollCode").value.trim(),
+                        election_id: pollId,
+                        option_id: selectedOption
+                    })
+                });
+
+                const data = await response.json();
+                console.log(data);
+                // Verifica se há chave "success" ou "error"
+                if (data.success) {
+                    document.getElementById("message").innerText = "✅ " + (data.message || "Voto registrado!");
+                    document.getElementById("voteBtn").disabled = true;
+                } else {
+                    document.getElementById("message").innerText = "❌ " + (data.message || "Erro ao votar");
+                }
+
+            } catch (e) {
+                alert("Erro ao enviar voto: " + e.message);
+            }
+        }
+
+        document.getElementById("voteBtn").onclick = sendVote;
+    </script>
+</body>
+
+</html>

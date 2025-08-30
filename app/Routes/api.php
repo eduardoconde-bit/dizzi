@@ -2,62 +2,76 @@
 
 namespace Dizzi\Routes;
 
+use Dizzi\Controllers\AuthController;
 use Dizzi\Controllers\PollController;
 
 require_once('../Controllers/PollController.php');
-/**
- * API Base for the Application
- * 
- */
 
-
-// Permitir solicitações de qualquer origem
-header("Access-Control-Allow-Origin: *");
-
-// Permitir solicitações GET, POST, PUT e DELETE
+// CORS
+header("Access-Control-Allow-Origin: http://localhost:8000");
+header("Access-Control-Allow-Credentials: true");
 header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE");
-
-// Permitir os cabeçalhos personalizados necessários
 header("Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Accept");
+header("Content-Type: application/json");
 
-//header("Content-Type: application/json");
-
-//Endpoints
-
-if ($_SERVER["REQUEST_METHOD"] === "GET") {
-    echo "<p>Index<p>";
+// OPTIONS preflight
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    exit(0);
 }
 
-// Create Voting
-if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    $data = json_decode(file_get_contents("php://input"), true);
-    if ($data["action"] === "create_poll") {
-        echo "Criando Votação!<br>";
+$method = $_SERVER["REQUEST_METHOD"];
 
-        $pollController = new PollController();
+// Recupera dados do body apenas se POST
+$data = ($method === "POST") ? json_decode(file_get_contents("php://input"), true) : null;
 
-        if (!$pollController->initPoll()) {
-            echo "Erro ao criar Votação!";
-        } else {
-            echo "Sucesso ao criar Votação! em andamento!";
+switch ($method) {
+
+    case "POST":
+        if (!isset($data["action"])) {
+            http_response_code(400);
+            echo json_encode(["error" => "Action not specified"]);
+            exit;
         }
-    }
-}
 
-// Insert Code
-if ($_SERVER["REQUEST_METHOD"] === "GET" && isset($_GET["code_poll_options"])) {
-    $pollController = new PollController();
+        switch ($data["action"]) {
 
-    echo "<p>Página de Votação sobre o código: " . $_GET["code_poll_options"] . "<p>";
+            case "register":
+                (new AuthController())->register($data);
+                break;
 
-    $pollController->getOptions($_GET["code_poll_options"]);
-}
+            case "login":
+                (new AuthController())->login($data);
+                break;
 
+            case "create_poll":
+                echo json_encode(["success" => (new PollController())->initPoll()]);
+                break;
 
-if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    $data = json_decode(file_get_contents("php://input"), true);
-    if ($data["action"] === "vote") {
-        $pollController = new PollController();
-        $pollController->vote($data);
-    }
+            case "vote":
+                (new PollController())->vote($data);
+                break;
+
+            case "profile":
+                (new PollController())->vote($data);
+                break;
+
+            default:
+                http_response_code(400);
+                echo json_encode(["error" => "Invalid action"]);
+        }
+        break;
+
+    case "GET":
+        if (isset($_GET['code_poll'])) {
+            (new PollController())->getPoll($_GET['code_poll']);
+        } elseif (isset($_GET['action']) && $_GET['action'] === 'get_polls' && isset($_GET['user_id'])) {
+            (new PollController())->userPolls($_GET['user_id']);
+        } else {
+            http_response_code(400);
+            echo json_encode(['error' => 'Parâmetros inválidos']);
+        }
+        break;
+    default:
+        http_response_code(405);
+        echo json_encode(["error" => "Method not allowed"]);
 }

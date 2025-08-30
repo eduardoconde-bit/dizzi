@@ -2,17 +2,25 @@
 
 namespace Dizzi\Models;
 
+require "../../vendor/autoload.php";
+
+use Dizzi\Models\User;
+
 class Poll
 {
     public string  $id;
+    public User    $user;
     public string  $title;
     public ?string $description;
     public string  $duration;
     public array   $options;
     public ?array  $urls;
+    public ?string $code;
 
-    public function __construct($title, $description, $duration, $options, $urls)
+    public function __construct(User $user, $title, $description, $duration, $options, $urls)
     {
+        $this->user = $user;
+
         if (empty(trim($title))) {
             throw new \InvalidArgumentException("O título é obrigatório.");
         }
@@ -35,12 +43,16 @@ class Poll
         if ($duration < 1000) {
             throw new \InvalidArgumentException("Duração Mínima da Votação (1000ms) não alcançada");
         }
+        
         $this->duration = $duration;
+        
         $this->options = $options;
+        
+        if (empty($urls)) {
+            throw new \InvalidArgumentException("Duração Mínima da Votação (1000ms) não alcançada");
+        }
         $this->urls = $urls;
-    }
 
-    public function vote($votante) {
-
+        return $this;
     }
 }

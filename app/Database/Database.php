@@ -3,17 +3,18 @@
 namespace Dizzi\Database;
 
 use PDO;
+use Dizzi\Config\Config;
 
 class Database
 {
-    private ?PDO $connection = null;
+    private ?PDO    $connection = null;
+    private Config  $env;
 
-    // Configurações (idealmente viriam de .env ou config externo)
-    private string $host = 'localhost';
-    private string $dbname = 'votacao';
-    private string $username = 'eduardo';
-    private string $password = '102030';
-    private int $port = 3306; // porta padrão do MariaDB
+    private string $host;
+    private string $dbname;
+    private string $username;
+    private string $password;
+    private int $port; 
 
     private array $options = [
         PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
@@ -22,18 +23,14 @@ class Database
         PDO::ATTR_PERSISTENT         => false, // true pode melhorar performance em alguns casos
     ];
 
-    public function __construct(
-        string $host = '',
-        string $dbname = '',
-        string $username = '',
-        string $password = '',
-        int $port = 0
-    ) {
-        if (!empty($host))     $this->host = $host;
-        if (!empty($dbname))   $this->dbname = $dbname;
-        if (!empty($username)) $this->username = $username;
-        if (!empty($password)) $this->password = $password;
-        if ($port > 0)         $this->port = $port;
+    public function __construct()
+    {
+        $this->env = new Config();
+        $this->host = $this->env->dbHost;
+        $this->dbname = $this->env->dbName;
+        $this->username = $this->env->dbUser;
+        $this->password = $this->env->dbPass;
+        $this->port = $this->env->dbPort;
     }
 
     /**

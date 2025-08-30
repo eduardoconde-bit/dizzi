@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Dizzi - Votação</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f6f8;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .container {
+      background: #fff;
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      text-align: center;
+      width: 320px;
+    }
+
+    h1 {
+      margin-bottom: 1.5rem;
+      color: #333;
+    }
+
+    input {
+      width: 92%;
+      padding: 0.75rem;
+      margin: auto;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 1rem;
+    }
+
+    button {
+      width: 100%;
+      padding: 0.75rem;
+      margin: 0.5rem 0;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .btn-primary {
+      background: #4a90e2;
+      color: #fff;
+    }
+
+    .btn-primary:hover {
+      background: #357abd;
+    }
+
+    .btn-secondary {
+      background: #eee;
+    }
+
+    .btn-secondary:hover {
+      background: #ddd;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Dizzi</h1>
+    <form id="voteForm">
+      <input type="text" id="code" placeholder="Digite o código da votação" required>
+      <button type="submit" class="btn-primary">Entrar</button>
+    </form>
+
+    <button class="btn-secondary" onclick="window.location.href='login.html'">Login</button>
+    <button class="btn-secondary" onclick="window.location.href='register.html'">Registrar</button>
+  </div>
+
+  <script>
+    document.getElementById("voteForm").addEventListener("submit", function(e) {
+      e.preventDefault();
+      const code = document.getElementById("code").value.trim();
+      if (code) {
+        // redireciona para outra página com o código
+        window.location.href = `vote.html?code=${encodeURIComponent(code)}`;
+      }
+    });
+  </script>
+</body>
+</html>

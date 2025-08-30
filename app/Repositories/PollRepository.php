@@ -5,6 +5,7 @@ namespace Dizzi\Repositories;
 use Dizzi\Repositories\IPollRepository;
 use Dizzi\Models\Poll;
 use Dizzi\Database\Database;
+use Dizzi\Models\User;
 use Dizzi\Models\Vote;
 
 require_once("IPollRepository.php");
@@ -12,6 +13,11 @@ require_once("../Database/Database.php");
 
 class PollRepository implements IPollRepository
 {
+
+    public function __construct()
+    {
+        return $this;
+    }
 
     public function create_poll(Poll $poll): string|false
     {
@@ -32,14 +38,15 @@ class PollRepository implements IPollRepository
 
             // Insere na tabela elections
             $stmtElection = $pdo->prepare("
-            INSERT INTO elections (title, description, start_time, end_time)
-            VALUES (:title, :description, :start_time, :end_time)
+            INSERT INTO elections (user_id, title, description, start_time, end_time)
+            VALUES (:user_id, :title, :description, :start_time, :end_time)
         ");
             $stmtElection->execute([
-                ':title'       => $poll->title,
-                ':description' => $poll->description,
-                ':start_time'  => $startTime->format('Y-m-d H:i:s'),
-                ':end_time'    => $endTime->format('Y-m-d H:i:s'),
+                ':user_id'       => $poll->user->getUserName(),
+                ':title'         => $poll->title,
+                ':description'   => $poll->description,
+                ':start_time'    => $startTime->format('Y-m-d H:i:s'),
+                ':end_time'      => $endTime->format('Y-m-d H:i:s'),
             ]);
 
             $electionId = $pdo->lastInsertId();
@@ -75,7 +82,7 @@ class PollRepository implements IPollRepository
 
             $pdo->commit();
 
-            echo "Poll criada com sucesso, ID {$electionId}, CODE {$code}";
+            //echo "Poll criada com sucesso, ID {$electionId}, CODE {$code}";
             return $electionId;
         } catch (\Exception $e) {
             if ($pdo->inTransaction()) {
@@ -86,113 +93,147 @@ class PollRepository implements IPollRepository
     }
 
 
-    public function createGenesisBlock($poll_id): bool
+    public function createGenesisBlock(int $poll_id): bool
     {
         try {
             $db = new Database();
             $pdo = $db->getConnection();
 
+            // Busca o user_id dono da eleição
+            $stmt = $pdo->prepare("SELECT user_id FROM elections WHERE id = :poll_id");
+            $stmt->execute([':poll_id' => $poll_id]);
+            $election = $stmt->fetch(\PDO::FETCH_ASSOC);
 
-            // Criar hash inicial (genesis block)
+            if (!$election) {
+                throw new \RuntimeException("Eleição não encontrada: $poll_id");
+            }
+
+            $userId = $election['user_id'];
+
+            // Hash inicial do genesis block
             $previousHash = str_repeat('0', 64); // 64 zeros
-            $hash = hash('sha256', $poll_id . $previousHash . time());
+            $hash = hash('sha256', $userId . $poll_id . $previousHash . time());
 
+            // Inserir genesis block seguindo a ordem física da tabela
             $stmt = $pdo->prepare("
-            INSERT INTO ledger (election_id, option_id, voter_hash, previous_hash, hash) 
-            VALUES (:poll_id, NULL, 'GENESIS', :previous_hash, :hash)
+            INSERT INTO ledger (user_id, election_id, option_id, previous_hash, hash)
+            VALUES (:user_id, :poll_id, :option_id, :previous_hash, :hash)
         ");
 
-
             $success = $stmt->execute([
+                ':user_id' => $userId,
                 ':poll_id' => $poll_id,
+                ':option_id' => null,
                 ':previous_hash' => $previousHash,
                 ':hash' => $hash
             ]);
 
-            if ($success) {
-                echo "Sucesso ao criar Genesis!";
-            } else {
-                echo "Erro ao criar Genesis!";
-            }
-
             return $success;
         } catch (\Exception $e) {
-            // Apenas retorna false em caso de erro
-            echo $e;
+            error_log($e->getMessage());
             return false;
         }
     }
 
-    public function getVotingOptionsByCode(string $code): array|false
+
+
+    public function getPoll(string $code): array|false
     {
         try {
-            // Instancia a conexão
             $db = new Database();
             $pdo = $db->getConnection();
 
-            // Seleciona as opções de voto da eleição correspondente ao código
+            // Seleciona eleição, dono (somente user_id), opções e URLs associadas ao código
             $sql = "
             SELECT 
+                e.id AS election_id,
+                e.user_id,
+                e.title,
+                e.description,
+                TIMESTAMPDIFF(SECOND, e.start_time, COALESCE(e.end_time, NOW())) AS duration_seconds,
                 vo.id AS option_id,
                 vo.option_name,
-                vo.image_url,
-                e.id AS election_id,
-                e.title AS election_title,
-                e.description AS election_description
-            FROM voting_options vo
-            INNER JOIN elections e ON e.id = vo.election_id
+                vo.image_url
+            FROM elections e
             INNER JOIN poll_codes pc ON pc.election_id = e.id
+            LEFT JOIN voting_options vo ON vo.election_id = e.id
             WHERE pc.code = :code
-            ";
+        ";
 
             $stmt = $pdo->prepare($sql);
             $stmt->execute([':code' => $code]);
 
-            $options = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+            $rows = $stmt->fetchAll(\PDO::FETCH_ASSOC);
 
-            return $options ?: false; // retorna false se não houver opções
+            if (!$rows) {
+                return false; // não encontrou eleição
+            }
+
+            // Monta o objeto agregado
+            $poll = [
+                'id' => (string) $rows[0]['election_id'],
+                'user' => [
+                    'user_id' => $rows[0]['user_id']
+                ],
+                'title' => $rows[0]['title'],
+                'description' => $rows[0]['description'] ?? null,
+                'duration' => (string) $rows[0]['duration_seconds'] . 's',
+                'options' => [],
+                'urls' => [],
+                'code' => $code
+            ];
+
+            foreach ($rows as $row) {
+                if ($row['option_id']) {
+                    // options no formato id => option_name
+                    $poll['options'][(string)$row['option_id']] = $row['option_name'];
+
+                    // urls num array separado
+                    if ($row['image_url']) {
+                        $poll['urls'][] = $row['image_url'];
+                    }
+                }
+            }
+
+            // Remove duplicados das URLs
+            //$poll['urls'] = array_values(array_unique($poll['urls']));
+
+            return $poll;
         } catch (\PDOException $e) {
-            // Aqui você pode logar o erro se quiser
+            error_log($e->getMessage());
             return false;
         }
     }
 
-    public function validVote(Vote $vote): bool
+    public function getAllPollsByUser(User $user): array
     {
         try {
-            // Instancia a conexão
             $db = new Database();
             $pdo = $db->getConnection();
 
-            // Consulta para verificar se o option_id realmente pertence à eleição do code
-            $sql = "
-            SELECT 1
-            FROM voting_options vo
-            INNER JOIN elections e ON e.id = vo.election_id
-            INNER JOIN poll_codes pc ON pc.election_id = e.id
-            WHERE pc.code = :code
-              AND vo.id = :option_id
-            LIMIT 1
-        ";
+            $stmt = $pdo->prepare("
+            SELECT id, user_id, title, description, start_time, end_time
+            FROM elections
+            WHERE user_id = :user_id
+            ORDER BY start_time DESC
+        ");
 
-            $stmt = $pdo->prepare($sql);
-            $stmt->execute([
-                ':code'      => $vote->code,
-                ':option_id' => $vote->option_id,
-            ]);
+            $stmt->bindValue(':user_id', $user->getUserName(), \PDO::PARAM_STR);
+            $stmt->execute();
 
-            // Se encontrou, é válido
-            return (bool) $stmt->fetchColumn();
-        } catch (\PDOException $e) {
-            // Aqui você pode logar o erro se quiser
-            return false;
+            $polls = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+            return $polls ?: [];
+        } catch (\Exception $e) {
+            error_log($e->getMessage());
+            return [];
         }
     }
+
 
     public function persistVote(Vote $vote): bool
     {
         try {
-            // Instancia a conexão
             $db = new Database();
             $pdo = $db->getConnection();
 
@@ -205,9 +246,7 @@ class PollRepository implements IPollRepository
             LIMIT 1
         ";
             $stmt = $pdo->prepare($sql);
-            $stmt->execute([
-                ':election_id' => $vote->election_id,
-            ]);
+            $stmt->execute([':election_id' => $vote->election_id]);
             $lastBlock = $stmt->fetch(\PDO::FETCH_ASSOC);
 
             // 2. Definir previous_hash
@@ -218,40 +257,64 @@ class PollRepository implements IPollRepository
             // 3. Timestamp atual
             $timestamp = date("Y-m-d H:i:s");
 
-            // 4. Gerar voter_hash simulado (apenas para testes)
-            $voterHash = hash('sha256', uniqid("test_voter_", true));
-
-            // 5. Montar dados que compõem o hash atual
+            // 4. Montar dados que compõem o hash atual
             $blockData = implode("|", [
+                $vote->user->getUserName(), // <- usar user_id, não nome
                 $vote->election_id,
                 $vote->option_id,
-                $voterHash,
                 $timestamp,
                 $previousHash
             ]);
 
             $currentHash = hash('sha256', $blockData);
 
-            // 6. Inserir no ledger
+            // 5. Inserir no ledger seguindo a ordem física da tabela
             $sql = "
-            INSERT INTO ledger (
-                election_id, option_id, voter_hash, timestamp, previous_hash, hash
-            ) VALUES (
-                :election_id, :option_id, :voter_hash, :timestamp, :previous_hash, :hash
-            )
+            INSERT INTO ledger (user_id, election_id, option_id, timestamp, previous_hash, hash)
+            VALUES (:user_id, :election_id, :option_id, :timestamp, :previous_hash, :hash)
         ";
             $stmt = $pdo->prepare($sql);
 
             return $stmt->execute([
+                ':user_id'       => $vote->user->getUserName(),
                 ':election_id'   => $vote->election_id,
                 ':option_id'     => $vote->option_id,
-                ':voter_hash'    => $voterHash,
                 ':timestamp'     => $timestamp,
                 ':previous_hash' => $previousHash,
                 ':hash'          => $currentHash,
             ]);
         } catch (\PDOException $e) {
-            // Aqui você pode logar o erro se quiser
+            error_log($e->getMessage());
+            return false;
+        }
+    }
+
+    public function searchVote(Vote $vote): array|false
+    {
+        try {
+            $db = new Database();
+            $pdo = $db->getConnection();
+
+            $sql = "SELECT * 
+                    FROM ledger 
+                    WHERE user_id = :user_id 
+                    AND election_id = :election_id 
+                    AND previous_hash != :genesis
+                    LIMIT 1";
+
+
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute([
+                ":user_id"   => $vote->user->getUserName(),
+                ":election_id"   => $vote->election_id,
+                ":genesis"   => str_repeat("0", 64) // 64 zeros
+            ]);
+
+            $result = $stmt->fetch(\PDO::FETCH_ASSOC);
+
+            return $result ?: false;
+        } catch (\PDOException $e) {
+            error_log("Erro em searchVote: " . $e->getMessage());
             return false;
         }
     }

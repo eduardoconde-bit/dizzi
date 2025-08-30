@@ -2,21 +2,20 @@
 
 namespace Dizzi\Models;
 
+require "../../vendor/autoload.php";
+
 use InvalidArgumentException;
+use Dizzi\Models\User;
 
 class Vote
 {
-    public string $uuid;
+    public User $user;
     public string $code;
     public string $election_id;
     public string $option_id;
 
-    public function __construct(string $uuid, string $code, string $election_id, string $option_id)
+    public function __construct(User $user, string $code, string $election_id, string $option_id)
     {
-        // validação de UUID (simples: 36 caracteres com hifens nos lugares certos)
-        if (!preg_match('/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i', $uuid)) {
-            throw new InvalidArgumentException("UUID inválido: $uuid");
-        }
 
         // validação de código (exemplo: pelo menos 3 chars, ajusta conforme sua regra)
         if (empty(trim($code)) || strlen($code) < 3) {
@@ -33,7 +32,7 @@ class Vote
             throw new InvalidArgumentException("Option ID inválido: deve ser numérico.");
         }
 
-        $this->uuid          = $uuid;
+        $this->user          = $user;
         $this->code          = $code;
         $this->election_id   = $election_id;
         $this->option_id     = $option_id;

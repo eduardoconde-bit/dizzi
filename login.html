@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Dizzi - Login</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background: #eef2f7;
+    }
+
+    .container {
+      background: #fff;
+      padding: 2rem;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+      width: 320px;
+      text-align: center;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px;
+      margin: 8px 0;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+      background: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #388E3C;
+    }
+
+    a {
+      display: block;
+      margin-top: 15px;
+      color: #333;
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h2>Login</h2>
+    <form id="loginForm">
+      <input type="text" id="user_name" placeholder="Nome de usuário" required>
+      <input type="password" id="password" placeholder="Senha" required>
+      <button type="submit">Entrar</button>
+    </form>
+    <a href="register.html">Não tem conta? Registre-se</a>
+    <a href="index.html">Voltar</a>
+  </div>
+
+  <script>
+    window.addEventListener("pageshow", async function (event) {
+      // Payload arbitrário para teste
+      const payload = {
+        action: "login",
+        username: "usuario_teste",
+        password: "senha_teste"
+      };
+
+      try {
+        const response = await fetch("https://localhost/app/Routes/api.php", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify(payload)
+        });
+
+        const result = await response.json();
+        console.log(result);
+
+        if (result.success) {
+          window.location.href = "profile.html";
+        }
+
+      } catch (error) {
+        console.error("Erro na requisição:", error);
+      }
+    });
+
+    document.getElementById("loginForm").addEventListener("submit", async function (event) {
+      event.preventDefault();
+
+      const user_name = document.getElementById("user_name").value;
+      const password = document.getElementById("password").value;
+
+      // JSON no padrão que você pediu
+      const payload = {
+        action: "login",
+        user_name: user_name,
+        password: password
+      };
+
+      try {
+        const response = await fetch("https://localhost/app/Routes/api.php", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(payload)
+        });
+
+        const result = await response.json();
+        console.log(result);
+
+        if (result.success) {
+          alert("Login realizado com sucesso!");
+          window.location.href = "vote.html"; // <- ajuste conforme sua aplicação
+        } else {
+          alert("Erro: " + (result.message || "Credenciais inválidas."));
+        }
+      } catch (error) {
+        console.error("Erro na requisição:", error);
+        alert("Erro na conexão com o servidor.");
+      }
+    });
+
+  </script>
+</body>
+
+</html>
