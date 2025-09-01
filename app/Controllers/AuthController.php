@@ -12,16 +12,32 @@ use Dizzi\Services\TokenService;
 class AuthController
 {
 
+    private UserRepository $userRep;
+    private array $invalidCredentials = ["success" => false, "message" => "Username or Password Invalid"];
+    private array $userAuthenticated = ["success" => true, "message" => "The user has already authenticated"];
+    private array $userValid = ["success" => true, "message" => "Login Successful"];
+    private array $userAlreadyExists = ["success" => false, "message" => "User already exists"];
+
+    public function __construct()
+    {
+        $this->userRep = new UserRepository();
+    }
+
+
+    /**
+     * Register a new user
+     *
+     * @param array|null $data The user data containing 'user_name' and 'password'
+     * @return void
+     */
     public function register(?array $data): void
     {
         if (!isset($data["user_name"]) && !isset($data["password"])) {
-            echo json_encode(["success" => false, "message" => "Data Invalid!"]);
+            echo json_encode($this->invalidCredentials);
         }
 
-        $userRep = new UserRepository();
-
-        if ($userRep->existsById($data["user_name"])) {
-            echo json_encode(["success" => false, "message" => "User already exists"]);
+        if ($this->userRep->existsById($data["user_name"])) {
+            echo json_encode($this->userAlreadyExists);
             exit;
         }
 
@@ -29,24 +45,30 @@ class AuthController
         echo json_encode(["success" => RegisterService::register($user)]);
     }
 
+    /**
+     * Login a user
+     *
+     * @param array|null $data The user data containing 'user_name' and 'password'
+     * @return void
+     */
     public function login(?array $data): void
     {
         if (isset($_COOKIE['auth_token'])) {
             $jwt = $_COOKIE['auth_token'];
-            echo json_encode(["success" => "The user has already authenticated"]);
+            echo json_encode($this->userAuthenticated);
             exit;
         }
 
         if (!isset($data["user_name"]) || !isset($data["password"])) {
-            echo json_encode(["success" => false, "message" => "Username or Password Invalid"]);
+            echo json_encode($this->invalidCredentials);
             exit;
         }
         $token = TokenService::issueToken(new User($data["user_name"], $data["password"]));
 
         if (!$token) {
-            echo json_encode(["success" => false, "message" => "Username or Password Invalid"]);
+            echo json_encode($this->invalidCredentials);
             exit;
         }
-        echo json_encode(["success" => true, "message" => "Login Successful"]);
+        echo json_encode($this->userValid);
     }
 }

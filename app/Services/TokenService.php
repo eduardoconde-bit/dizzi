@@ -92,4 +92,14 @@ class TokenService
             exit;
         }
     }
+
+    public static function decodeToken(string $token): ?array
+    {
+        try {
+            $decoded = JWT::decode($token, new Key(self::SECRET, 'HS256'));
+            return (array)$decoded;
+        } catch (\Exception $e) {
+            return null;
+        }
+    }
 }

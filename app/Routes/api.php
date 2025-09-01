@@ -54,6 +54,9 @@ switch ($method) {
             case "profile":
                 (new PollController())->vote($data);
                 break;
+            case "finish_poll":
+                (new PollController())->finishPoll($data["poll_id"]);
+                break;
 
             default:
                 http_response_code(400);

@@ -22,10 +22,23 @@ class VoteService
     public static function validVote(Vote $vote, UserRepository $userRep, PollRepository $pollRep): bool
     {
         //Adicionar regra opcional de voto por CRIADOR da votação.
-        $isValid = $userRep->existsById($vote->user->getUserName());
-        $isValid = $pollRep->getPoll($vote->code);
-        $isValid = $isValid ? in_array($vote->option_id, $isValid["options"]) : false;
-        $isValid = $pollRep->searchVote($vote);
-        return !((bool) $isValid);
+        if (!$userRep->existsById($vote->user->getUserName())) {
+            return false;
+        }
+
+        $poll = $pollRep->getPoll($vote->code);
+        if (!$poll) {
+            return false;
+        }
+
+        if (!in_array($vote->option_id, $poll["options"])) {
+            return false;
+        }
+
+        if ($pollRep->searchVote($vote)) {
+            return false;
+        }
+
+        return true;
     }
 }

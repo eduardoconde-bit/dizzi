@@ -4,101 +4,36 @@
 <head>
     <meta charset="UTF-8">
     <title>Votação</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #f9f9f9;
-            padding: 20px;
-        }
-
-        .container {
-            max-width: 600px;
-            margin: auto;
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-        }
-
-        input {
-            width: 100%;
-            padding: 8px;
-            margin: 8px 0;
-        }
-
-        .option {
-            display: flex;
-            align-items: center;
-            margin: 10px 0;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-
-        .option:hover {
-            background: #f1f1f1;
-        }
-
-        .option img {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            margin-right: 10px;
-            object-fit: cover;
-        }
-
-        button {
-            display: block;
-            margin: 20px auto;
-            padding: 10px 20px;
-            background: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        button:disabled {
-            background: #ccc;
-        }
-
-        #message {
-            text-align: center;
-            margin-top: 15px;
-            font-weight: bold;
-        }
-
-        #election-info {
-            margin-bottom: 15px;
-        }
-    </style>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
 
-<body>
-    <div class="container">
-        <h2>Votação</h2>
-        <input id="pollCode" placeholder="Digite o código da eleição">
-        <button onclick="loadPoll()">Carregar Votação</button>
+<body class="bg-gray-100 font-sans p-5">
+    <div class="max-w-xl mx-auto bg-white p-8 rounded-xl shadow">
+        <h2 class="text-2xl font-bold mb-4 text-center">Votação</h2>
+        <input id="pollCode" placeholder="Digite o código da eleição"
+            class="w-full p-2 border border-gray-300 rounded mb-3 focus:outline-none focus:ring-2 focus:ring-green-300" />
+        <button onclick="loadPoll()"
+            class="w-full bg-green-500 hover:bg-green-600 text-white font-semibold py-2 rounded mb-4 transition">Carregar Votação</button>
 
-        <div id="election-info"></div>
+        <div id="election-info" class="mb-4"></div>
         <div id="options"></div>
-        <button id="voteBtn" disabled>Votar</button>
-        <p id="message"></p>
-        <p><a href="create.html">Criar Votação</a></p>
+        <button id="voteBtn" disabled
+            class="w-full bg-green-500 text-white font-semibold py-2 rounded mt-4 disabled:bg-gray-300 disabled:cursor-not-allowed transition">Votar</button>
+        <p id="message" class="text-center mt-4 font-bold"></p>
+        <p class="mt-4 text-center"><a href="create.html" class="text-blue-500 hover:underline">Criar Votação</a></p>
     </div>
 
     <script>
         let selectedOption = null;
         let pollId = null;
-        let uuid = null;
+        let pollCode = null;
 
         window.addEventListener("pageshow", async function (event) {
             // Payload arbitrário para teste
             const payload = {
                 action: "login",
                 username: "usuario_teste",
-                password: "senha_teste" 
+                password: "senha_teste"
             };
 
             try {
@@ -110,9 +45,6 @@
                 });
 
                 const result = await response.json();
-                console.log(result);
-
-                console.log(result)
                 if (!result.success) {
                     window.location.href = "login.html";
                 }
@@ -143,13 +75,13 @@
 
                 const poll = data.poll;
                 pollId = poll.id;
-                uuid = poll.code; // uuid/código do eleitor
+                pollCode = poll.code; // código da eleição
 
                 // Renderiza info da eleição
                 document.getElementById("election-info").innerHTML = `
-            <h3>${poll.title}</h3>
-            <p>${poll.description || ""}</p>
-            <small>Duração: ${poll.duration}</small>
+            <h3 class="text-xl font-semibold mb-1">${poll.title}</h3>
+            <p class="mb-1">${poll.description || ""}</p>
+            <small class="text-gray-500">Duração: ${poll.duration}</small>
         `;
 
                 // Renderiza opções
@@ -159,16 +91,16 @@
 
                 Object.entries(poll.options).forEach(([optionId, optionName]) => {
                     const div = document.createElement("div");
-                    div.className = "option";
+                    div.className = "option flex items-center gap-3 mb-3 p-3 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-100 transition";
                     const imgUrl = urls[index] || "";
                     div.innerHTML = `
-                ${imgUrl ? `<img src="${imgUrl}" alt="">` : ""}
-                <span>${optionName}</span>
+                ${imgUrl ? `<img src="${imgUrl}" alt="" class="w-12 h-12 rounded-full object-cover">` : ""}
+                <span class="font-medium">${optionName}</span>
             `;
                     div.onclick = () => {
                         selectedOption = optionId;
-                        document.querySelectorAll(".option").forEach(o => o.style.background = "#fff");
-                        div.style.background = "#d0f0d0";
+                        document.querySelectorAll(".option").forEach(o => o.classList.remove("bg-green-100"));
+                        div.classList.add("bg-green-100");
                         document.getElementById("voteBtn").disabled = false;
                     };
                     optionsDiv.appendChild(div);
@@ -209,8 +141,6 @@
                 });
 
                 const data = await response.json();
-                console.log(data);
-                // Verifica se há chave "success" ou "error"
                 if (data.success) {
                     document.getElementById("message").innerText = "✅ " + (data.message || "Voto registrado!");
                     document.getElementById("voteBtn").disabled = true;

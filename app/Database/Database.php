@@ -14,7 +14,7 @@ class Database
     private string $dbname;
     private string $username;
     private string $password;
-    private int $port; 
+    private int    $port; 
 
     private array $options = [
         PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,

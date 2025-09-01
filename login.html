@@ -4,71 +4,26 @@
 <head>
   <meta charset="UTF-8">
   <title>Dizzi - Login</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      background: #eef2f7;
-    }
-
-    .container {
-      background: #fff;
-      padding: 2rem;
-      border-radius: 10px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-      width: 320px;
-      text-align: center;
-    }
-
-    input {
-      width: 100%;
-      padding: 10px;
-      margin: 8px 0;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-    }
-
-    button {
-      width: 100%;
-      padding: 10px;
-      margin-top: 10px;
-      background: #4CAF50;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-
-    button:hover {
-      background: #388E3C;
-    }
-
-    a {
-      display: block;
-      margin-top: 15px;
-      color: #333;
-      text-decoration: none;
-    }
-
-    a:hover {
-      text-decoration: underline;
-    }
-  </style>
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
 
-<body>
-  <div class="container">
-    <h2>Login</h2>
-    <form id="loginForm">
-      <input type="text" id="user_name" placeholder="Nome de usuário" required>
-      <input type="password" id="password" placeholder="Senha" required>
-      <button type="submit">Entrar</button>
+<body class="font-sans flex justify-center items-center min-h-screen bg-[#eef2f7]">
+  <div class="bg-white p-8 rounded-xl shadow-lg w-80 text-center">
+    <h2 class="text-2xl font-semibold mb-6">Login</h2>
+    <form id="loginForm" class="flex flex-col gap-3 text-left">
+      <div class="flex flex-col gap-1">
+        <input type="text" id="user_name" placeholder="Nome de usuário" required
+          class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-green-400" />
+      </div>
+      <div class="flex flex-col gap-1">
+        <input type="password" id="password" placeholder="Senha" required
+          class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-green-400" />
+      </div>
+      <button type="submit"
+        class="w-full py-2 mt-2 bg-green-600 text-white rounded hover:bg-green-700 transition-colors">Entrar</button>
     </form>
-    <a href="register.html">Não tem conta? Registre-se</a>
-    <a href="index.html">Voltar</a>
+    <a href="register.html" class="block mt-4 text-gray-700 hover:underline">Não tem conta? Registre-se</a>
+    <a href="index.html" class="block mt-2 text-gray-700 hover:underline">Voltar</a>
   </div>
 
   <script>
@@ -127,7 +82,7 @@
 
         if (result.success) {
           alert("Login realizado com sucesso!");
-          window.location.href = "vote.html"; // <- ajuste conforme sua aplicação
+          window.location.href = "profile.html"; // <- ajuste conforme sua aplicação
         } else {
           alert("Erro: " + (result.message || "Credenciais inválidas."));
         }

@@ -12,6 +12,7 @@ use Dizzi\Models\Vote;
 use Dizzi\Repositories\UserRepository;
 use Dizzi\Services\TokenService;
 use Dizzi\Services\VoteService;
+use Dizzi\Services\FinishPollService;
 
 require_once('../Models/Poll.php');
 require_once('../Repositories/PollRepository.php');
@@ -64,6 +65,14 @@ class PollController
             'success' => true,
             'poll' => $poll
         ]);
+    }
+
+    public function finishPoll(string $pollCode): void
+    {
+        TokenService::protect();
+
+        $finishPollService = new FinishPollService();
+        echo json_encode(["success" => $finishPollService->finishPoll($pollCode, new PollRepository())]);
     }
 
     public function userPolls(string $user_id): void

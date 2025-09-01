@@ -4,63 +4,23 @@
 <head>
     <meta charset="UTF-8">
     <title>Criar Eleição</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #f5f5f5;
-            padding: 20px;
-        }
-
-        .container {
-            max-width: 600px;
-            margin: auto;
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-        }
-
-        input,
-        textarea {
-            width: 100%;
-            padding: 8px;
-            margin: 8px 0;
-        }
-
-        button {
-            padding: 10px 15px;
-            background: #2196F3;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        .option-field {
-            display: flex;
-            gap: 10px;
-            margin: 5px 0;
-        }
-
-        .option-field input {
-            flex: 1;
-        }
-    </style>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
 
-<body>
-    <div class="container">
-        <h2>Criar Votação</h2>
-        <input id="title" placeholder="Título da eleição">
-        <textarea id="description" placeholder="Descrição"></textarea>
-        <input id="duration" placeholder="Duração em ms">
+<body class="bg-gray-100 font-sans p-5">
+    <div class="max-w-xl mx-auto bg-white p-6 rounded-xl shadow">
+        <h2 class="text-2xl font-bold mb-4">Criar Votação</h2>
+        <input id="title" placeholder="Título da eleição" class="w-full p-2 mb-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400">
+        <textarea id="description" placeholder="Descrição" class="w-full p-2 mb-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400"></textarea>
+        <input id="duration" placeholder="Duração em ms" class="w-full p-2 mb-4 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400">
 
-        <h3>Opções de Voto</h3>
+        <h3 class="text-lg font-semibold mb-2">Opções de Voto</h3>
         <div id="options"></div>
-        <button type="button" onclick="addOption()">+ Adicionar opção</button>
+        <button type="button" onclick="addOption()" class="mt-2 mb-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition">+ Adicionar opção</button>
 
-        <hr>
-        <button type="button" onclick="createElection()">Criar Votação</button>
-        <pre id="message" style="background:#eee; padding:10px;"></pre>
+        <hr class="my-4">
+        <button type="button" onclick="createElection()" class="w-full px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition">Criar Votação</button>
+        <pre id="message" class="bg-gray-200 p-3 mt-4 rounded text-sm"></pre>
     </div>
 
     <script>
@@ -69,7 +29,7 @@
             const payload = {
                 action: "login",
                 username: "usuario_teste",
-                password: "senha_teste" 
+                password: "senha_teste"
             };
 
             try {
@@ -83,7 +43,6 @@
                 const result = await response.json();
                 console.log(result);
 
-                console.log(result)
                 if (!result.success) {
                     window.location.href = "login.html";
                 }
@@ -95,11 +54,11 @@
 
         function addOption(name = '') {
             const div = document.createElement("div");
-            div.className = "option-field";
+            div.className = "option-field flex gap-2 items-center mb-2";
             div.innerHTML = `
-                <input placeholder="Nome da opção" value="${name}">
-                <input type="file" accept="image/*">
-                <button type="button" onclick="removeOption(this)">❌</button>
+                <input placeholder="Nome da opção" value="${name}" class="flex-1 p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400">
+                <input type="file" accept="image/*" class="flex-1">
+                <button type="button" onclick="removeOption(this)" class="px-2 py-1 bg-red-500 text-white rounded hover:bg-red-600 transition">❌</button>
             `;
             document.getElementById("options").appendChild(div);
         }

@@ -1,130 +1,167 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
+    <!DOCTYPE html>
+    <html lang="pt-BR">
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Perfil - Dizzi</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-</head>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Perfil - Dizzi</title>
+        <script src="https://cdn.tailwindcss.com"></script>
+    </head>
 
-<body class="bg-gray-100 font-sans">
+    <body class="bg-gray-100 font-sans">
 
-    <!-- Header -->
-    <header class="bg-blue-600 text-white p-4 flex justify-between items-center">
-        <h1 class="text-xl font-bold">Dizzi</h1>
-        <nav class="space-x-4">
-            <a href="index.html" class="hover:underline">Home</a>
-            <a href="create.html" class="hover:underline">Criar Votação</a>
-            <a href="vote.html" class="hover:underline">Votar</a>
-            <a href="#" id="logoutLink" class="hover:underline">Sair</a>
-        </nav>
-    </header>
+        <!-- Header -->
+        <header class="bg-blue-600 text-white p-4 flex justify-between items-center">
+            <h1 class="text-xl font-bold">Dizzi</h1>
+            <nav class="space-x-4">
+                <a href="index.html" class="hover:underline">Home</a>
+                <a href="create.html" class="hover:underline">Criar Votação</a>
+                <a href="vote.html" class="hover:underline">Votar</a>
+                <a href="#" id="logoutLink" class="hover:underline">Sair</a>
+            </nav>
+        </header>
 
-    <!-- Container -->
-    <main class="max-w-lg mx-auto mt-8 bg-white p-6 rounded-lg shadow-md">
-        <h2 class="text-2xl font-semibold mb-4">Perfil do Usuário</h2>
-        <div class="mb-4"><strong>Nome de usuário:</strong> <span id="userName"
-                class="text-blue-600 font-medium"></span></div>
+        <!-- Container -->
+        <main class="max-w-lg mx-auto mt-8 bg-white p-6 rounded-lg shadow-md">
+            <h2 class="text-2xl font-semibold mb-4">Perfil do Usuário</h2>
+            <div class="mb-4"><strong>Nome de usuário:</strong> <span id="userName"
+                    class="text-blue-600 font-medium"></span></div>
 
-        <h3 class="text-xl font-semibold mt-6 mb-2">Minhas Votações</h3>
-        <ul id="pollsList" class="space-y-4">
-            <!-- Polls serão inseridas aqui -->
-        </ul>
-    </main>
+            <h3 class="text-xl font-semibold mt-6 mb-2">Minhas Votações</h3>
+            <ul id="pollsList" class="space-y-4">
+                <!-- Polls serão inseridas aqui -->
+            </ul>
+        </main>
 
-    <script>
-        window.addEventListener("pageshow", async function (event) {
-            // Payload arbitrário para teste
-            const payload = {
-                action: "login",
-                username: "usuario_teste",
-                password: "senha_teste" 
-            };
+        <script>
+            window.addEventListener("pageshow", async function (event) {
+                // Payload arbitrário para teste
+                const payload = {
+                    action: "login",
+                    username: "usuario_teste",
+                    password: "senha_teste" 
+                };
 
-            try {
-                const response = await fetch("https://localhost/app/Routes/api.php", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    credentials: "include",
-                    body: JSON.stringify(payload)
-                });
-
-                const result = await response.json();
-                console.log(result);
-
-                console.log(result)
-                if (!result.success) {
-                    window.location.href = "login.html";
-                }
-
-            } catch (error) {
-                console.error("Erro na requisição:", error);
-            }
-        });
-
-        function getCookie(name) {
-            const cookies = document.cookie.split('; ');
-            const cookie = cookies.find(c => c.startsWith(name + '='));
-            return cookie ? decodeURIComponent(cookie.split('=')[1]) : null;
-        }
-
-        function loadUserData() {
-            const userData = getCookie('user_data');
-            if (!userData) {
-                console.warn('Cookie user_data não encontrado');
-                return null;
-            }
-            try {
-                const parsedData = JSON.parse(userData);
-                document.getElementById('userName').innerText = parsedData.userName || '';
-                return parsedData.userName; // retornamos o username como userId
-            } catch (err) {
-                console.error('Erro ao parsear user_data:', err);
-                return null;
-            }
-        }
-
-        async function loadPolls(userId) {
-            if (!userId) return;
-            try {
-                const res = await fetch(`https://localhost/app/Routes/api.php?action=get_polls&user_id=${userId}`, {
-                    method: 'GET',
-                    credentials: 'include'
-                });
-                const data = await res.json();
-
-                const list = document.getElementById('pollsList');
-                list.innerHTML = '';
-
-                if (data.success && data.polls.length) {
-                    data.polls.forEach(poll => {
-                        const li = document.createElement('li');
-                        li.className = "bg-blue-50 p-4 rounded-lg shadow hover:shadow-md transition";
-
-                        li.innerHTML = `
-                            <p><strong>Título:</strong> ${poll.title}</p>
-                            ${poll.description ? `<p><strong>Descrição:</strong> ${poll.description}</p>` : ''}
-                            <p><strong>Início:</strong> ${poll.start_time}</p>
-                            <p><strong>Fim:</strong> ${poll.end_time}</p>
-                        `;
-
-                        list.appendChild(li);
+                try {
+                    const response = await fetch("https://localhost/app/Routes/api.php", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        credentials: "include",
+                        body: JSON.stringify(payload)
                     });
-                } else {
-                    list.innerHTML = '<li class="text-gray-600">Nenhuma votação encontrada.</li>';
+
+                    const result = await response.json();
+                    console.log(result);
+
+                    console.log(result)
+                    if (!result.success) {
+                        window.location.href = "login.html";
+                    }
+
+                } catch (error) {
+                    console.error("Erro na requisição:", error);
                 }
-            } catch (err) {
-                console.error('Erro ao carregar polls:', err);
+            });
+
+            function getCookie(name) {
+                const cookies = document.cookie.split('; ');
+                const cookie = cookies.find(c => c.startsWith(name + '='));
+                return cookie ? decodeURIComponent(cookie.split('=')[1]) : null;
             }
-        }
 
-        // Inicialização
-        const userId = loadUserData();
-        console.log("userId:", userId);
-        loadPolls(userId);
-    </script>
+            function loadUserData() {
+                const userData = getCookie('user_data');
+                if (!userData) {
+                    console.warn('Cookie user_data não encontrado');
+                    return null;
+                }
+                try {
+                    const parsedData = JSON.parse(userData);
+                    document.getElementById('userName').innerText = parsedData.userName || '';
+                    return parsedData.userName; // retornamos o username como userId
+                } catch (err) {
+                    console.error('Erro ao parsear user_data:', err);
+                    return null;
+                }
+            }
 
-</body>
+            async function finishPoll(pollId) {
+                if (!pollId) return;
+                if (!confirm("Tem certeza que deseja finalizar esta votação?")) return;
+                try {
+                    const res = await fetch("https://localhost/app/Routes/api.php", {
+                        method: 'POST',
+                        credentials: 'include',
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                            action: "finish_poll",
+                            poll_id: pollId
+                        })
+                    });
+                    const data = await res.json();
 
-</html>
+                    if (data.success) {
+                        alert(`Votação finalizada com sucesso.`);
+                        loadPolls(loadUserData());
+                    } else {
+                        alert(`Erro ao finalizar votação: ${data.message}`);
+                        console.error(`Erro ao finalizar poll ${pollId}:`, data.message);
+                    }
+                } catch (err) {
+                    alert('Erro ao finalizar votação.');
+                    console.error('Erro ao finalizar poll:', err);
+                }
+            }
+
+            async function loadPolls(userId) {
+                if (!userId) return;
+                try {
+                    const res = await fetch(`https://localhost/app/Routes/api.php?action=get_polls&user_id=${userId}`, {
+                        method: 'GET',
+                        credentials: 'include'
+                    });
+                    const data = await res.json();
+
+                    const list = document.getElementById('pollsList');
+                    list.innerHTML = '';
+
+                    console.log(data.polls);
+
+                    if (data.success && data.polls.length) {
+                        data.polls.forEach(poll => {
+                            const li = document.createElement('li');
+                            li.className = "bg-blue-50 p-4 rounded-lg shadow hover:shadow-md transition";
+
+                            li.innerHTML = `
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p><strong>Título:</strong> ${poll.title}</p>
+                                        ${poll.description ? `<p><strong>Descrição:</strong> ${poll.description}</p>` : ''}
+                                        <p><strong>Início:</strong> ${poll.start_time}</p>
+                                        <p><strong>Fim:</strong> ${poll.end_time}</p>
+                                        <p><strong>Status:</strong> ${poll.is_finished ? "Finalizada" : "Em andamento"}</p>
+                                    </div>
+                                    <button onclick="finishPoll('${poll.id}')" class="ml-4 bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition">
+                                        Finalizar Votação
+                                    </button>
+                                </div>    `;
+
+                            list.appendChild(li);
+                        });
+                    } else {
+                        list.innerHTML = '<li class="text-gray-600">Nenhuma votação encontrada.</li>';
+                    }
+                } catch (err) {
+                    console.error('Erro ao carregar polls:', err);
+                }
+            }
+
+            // Inicialização
+            const userId = loadUserData();
+            console.log("userId:", userId);
+            loadPolls(userId);
+        </script>
+
+    </body>
+
+    </html>
