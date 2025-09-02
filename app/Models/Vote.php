@@ -11,10 +11,10 @@ class Vote
 {
     public User $user;
     public string $code;
-    public string $election_id;
+    public string $poll_id;
     public string $option_id;
 
-    public function __construct(User $user, string $code, string $election_id, string $option_id)
+    public function __construct(User $user, string $code, string $poll_id, string $option_id)
     {
 
         // validação de código (exemplo: pelo menos 3 chars, ajusta conforme sua regra)
@@ -23,8 +23,8 @@ class Vote
         }
 
         // validação de option_id (aqui supondo que seja um identificador numérico)
-        if (!ctype_digit($election_id)) {
-            throw new InvalidArgumentException("Election ID inválido: deve ser numérico.");
+        if (!ctype_digit($poll_id)) {
+            throw new InvalidArgumentException("Poll ID inválido: deve ser numérico.");
         }
 
         // validação de option_id (aqui supondo que seja um identificador numérico)
@@ -34,7 +34,7 @@ class Vote
 
         $this->user          = $user;
         $this->code          = $code;
-        $this->election_id   = $election_id;
+        $this->poll_id       = $poll_id;
         $this->option_id     = $option_id;
     }
 }

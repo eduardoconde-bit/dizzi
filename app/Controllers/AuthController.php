@@ -53,10 +53,12 @@ class AuthController
      */
     public function login(?array $data): void
     {
+        //Poderia também revalidar o token a cada requisição que se mostre legítima como na condição abaixo
         if (isset($_COOKIE['auth_token'])) {
-            $jwt = $_COOKIE['auth_token'];
-            echo json_encode($this->userAuthenticated);
-            exit;
+            if(new UserRepository()->existsById($data["user_name"])) {
+                echo json_encode($this->userAuthenticated);
+                exit;
+            }
         }
 
         if (!isset($data["user_name"]) || !isset($data["password"])) {

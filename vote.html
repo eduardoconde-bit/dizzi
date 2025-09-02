@@ -13,7 +13,8 @@
         <input id="pollCode" placeholder="Digite o código da eleição"
             class="w-full p-2 border border-gray-300 rounded mb-3 focus:outline-none focus:ring-2 focus:ring-green-300" />
         <button onclick="loadPoll()"
-            class="w-full bg-green-500 hover:bg-green-600 text-white font-semibold py-2 rounded mb-4 transition">Carregar Votação</button>
+            class="w-full bg-green-500 hover:bg-green-600 text-white font-semibold py-2 rounded mb-4 transition">Carregar
+            Votação</button>
 
         <div id="election-info" class="mb-4"></div>
         <div id="options"></div>
@@ -28,12 +29,35 @@
         let pollId = null;
         let pollCode = null;
 
+        function getCookie(name) {
+            const cookies = document.cookie.split('; ');
+            const cookie = cookies.find(c => c.startsWith(name + '='));
+            return cookie ? decodeURIComponent(cookie.split('=')[1]) : null;
+        }
+
+        function loadUserData() {
+            const userData = getCookie('user_data');
+            if (!userData) {
+                console.warn('Cookie user_data não encontrado');
+                return null;
+            }
+            try {
+                const parsedData = JSON.parse(userData);
+                return parsedData.userName; // retornamos o username como userId
+            } catch (err) {
+                console.error('Erro ao parsear user_data:', err);
+                return null;
+            }
+        }
+
         window.addEventListener("pageshow", async function (event) {
-            // Payload arbitrário para teste
+            //Valida com cookie
+            const user = loadUserData();
+
             const payload = {
                 action: "login",
-                username: "usuario_teste",
-                password: "senha_teste"
+                username: user,
+                password: user
             };
 
             try {
@@ -97,6 +121,7 @@
                 ${imgUrl ? `<img src="${imgUrl}" alt="" class="w-12 h-12 rounded-full object-cover">` : ""}
                 <span class="font-medium">${optionName}</span>
             `;
+                    console.log(optionId);
                     div.onclick = () => {
                         selectedOption = optionId;
                         document.querySelectorAll(".option").forEach(o => o.classList.remove("bg-green-100"));
@@ -135,12 +160,13 @@
                         action: "vote",
                         user_id: parsedData.userName,
                         code: document.getElementById("pollCode").value.trim(),
-                        election_id: pollId,
+                        poll_id: pollId,
                         option_id: selectedOption
                     })
                 });
 
                 const data = await response.json();
+                console.log(data);
                 if (data.success) {
                     document.getElementById("message").innerText = "✅ " + (data.message || "Voto registrado!");
                     document.getElementById("voteBtn").disabled = true;
@@ -149,6 +175,7 @@
                 }
 
             } catch (e) {
+                console.log(e);
                 alert("Erro ao enviar voto: " + e.message);
             }
         }

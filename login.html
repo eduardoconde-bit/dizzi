@@ -27,13 +27,38 @@
   </div>
 
   <script>
+    function getCookie(name) {
+      const cookies = document.cookie.split('; ');
+      const cookie = cookies.find(c => c.startsWith(name + '='));
+      return cookie ? decodeURIComponent(cookie.split('=')[1]) : null;
+    }
+
+    function loadUserData() {
+      const userData = getCookie('user_data');
+      if (!userData) {
+        console.warn('Cookie user_data não encontrado');
+        return null;
+      }
+      try {
+        const parsedData = JSON.parse(userData);
+        return parsedData.userName; // retornamos o username como userId
+      } catch (err) {
+        console.error('Erro ao parsear user_data:', err);
+        return null;
+      }
+    }
+
     window.addEventListener("pageshow", async function (event) {
       // Payload arbitrário para teste
+      const user = loadUserData();
+
       const payload = {
         action: "login",
-        username: "usuario_teste",
-        password: "senha_teste"
+        username: user,
+        password: user
       };
+
+      console.log(payload);
 
       try {
         const response = await fetch("https://localhost/app/Routes/api.php", {

@@ -113,7 +113,7 @@ class PollController
                 $data["user_id"]
             ),
             $data["code"],
-            $data["election_id"],
+            $data["poll_id"],
             $data["option_id"]
         );
 

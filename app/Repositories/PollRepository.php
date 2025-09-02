@@ -70,13 +70,13 @@ class PollRepository implements IPollRepository
 
                 $stmtOption->execute([
                     ':poll_id'    => $pollId,
-                    ':option_name'=> $optionName,
+                    ':option_name' => $optionName,
                     ':image_url'  => $imageUrl,
                 ]);
             }
 
             // Gerar código único da poll
-            $code = bin2hex(random_bytes(8)); // exemplo: 16 caracteres hex
+            $code = bin2hex(random_bytes(4)); // exemplo: 8 caracteres hex
 
             $stmtCode = $pdo->prepare("
                 INSERT INTO poll_codes (poll_id, code)
@@ -99,7 +99,7 @@ class PollRepository implements IPollRepository
         }
     }
 
-     public function finishPoll(string $pollId): PollFinishStatus
+    public function finishPoll(string $pollId): PollFinishStatus
     {
         try {
             $db = new Database();
@@ -159,7 +159,7 @@ class PollRepository implements IPollRepository
 
             $success = $stmt->execute([
                 ':user_id' => $user_id,
-                ':poll_id' => $poll_id, 
+                ':poll_id' => $poll_id,
                 ':option_id' => null,
                 ':previous_hash' => $previousHash,
                 ':hash' => $hash
@@ -182,7 +182,7 @@ class PollRepository implements IPollRepository
 
             // Se for código, busca o poll_id correspondente
             if (!ctype_digit($pollIdOrCode)) {
-                $stmtCode = $pdo->prepare   ("SELECT poll_id FROM poll_codes WHERE code = :code LIMIT 1");
+                $stmtCode = $pdo->prepare("SELECT poll_id FROM poll_codes WHERE code = :code LIMIT 1");
                 $stmtCode->execute([':code' => $pollIdOrCode]);
                 $rowCode = $stmtCode->fetch(\PDO::FETCH_ASSOC);
 
@@ -259,11 +259,22 @@ class PollRepository implements IPollRepository
             $pdo = $db->getConnection();
 
             $stmt = $pdo->prepare("
-            SELECT id, user_id, title, description, start_time, end_time, is_finished
-            FROM polls
-            WHERE user_id = :user_id
-            ORDER BY start_time DESC
-        ");
+            SELECT 
+                p.id, 
+                p.user_id, 
+                p.title, 
+                p.description, 
+                p.start_time, 
+                p.end_time, 
+                p.is_finished,
+                pc.code,
+                pc.is_expired
+            FROM polls p
+            LEFT JOIN poll_codes pc 
+                ON p.id = pc.poll_id
+            WHERE p.user_id = :user_id
+            ORDER BY p.start_time DESC;
+            ");
 
             $stmt->bindValue(':user_id', $user->getUserName(), \PDO::PARAM_STR);
             $stmt->execute();
@@ -288,18 +299,18 @@ class PollRepository implements IPollRepository
             $sql = "
             SELECT hash 
             FROM ledger 
-            WHERE election_id = :election_id 
+            WHERE poll_id = :poll_id
             ORDER BY id DESC 
             LIMIT 1
         ";
             $stmt = $pdo->prepare($sql);
-            $stmt->execute([':election_id' => $vote->election_id]);
+            $stmt->execute([':poll_id' => $vote->poll_id]);
             $lastBlock = $stmt->fetch(\PDO::FETCH_ASSOC);
 
             // 2. Definir previous_hash
             $previousHash = $lastBlock
                 ? $lastBlock['hash']
-                : hash('sha256', "GENESIS-" . $vote->election_id);
+                : hash('sha256', "GENESIS-" . $vote->poll_id);
 
             // 3. Timestamp atual
             $timestamp = date("Y-m-d H:i:s");
@@ -307,7 +318,7 @@ class PollRepository implements IPollRepository
             // 4. Montar dados que compõem o hash atual
             $blockData = implode("|", [
                 $vote->user->getUserName(), // <- usar user_id, não nome
-                $vote->election_id,
+                $vote->poll_id,
                 $vote->option_id,
                 $timestamp,
                 $previousHash
@@ -317,14 +328,14 @@ class PollRepository implements IPollRepository
 
             // 5. Inserir no ledger seguindo a ordem física da tabela
             $sql = "
-            INSERT INTO ledger (user_id, election_id, option_id, timestamp, previous_hash, hash)
-            VALUES (:user_id, :election_id, :option_id, :timestamp, :previous_hash, :hash)
+            INSERT INTO ledger (user_id, poll_id, option_id, timestamp, previous_hash, hash)
+            VALUES (:user_id, :poll_id, :option_id, :timestamp, :previous_hash, :hash)
         ";
             $stmt = $pdo->prepare($sql);
 
             return $stmt->execute([
                 ':user_id'       => $vote->user->getUserName(),
-                ':election_id'   => $vote->election_id,
+                ':poll_id'      => $vote->poll_id,
                 ':option_id'     => $vote->option_id,
                 ':timestamp'     => $timestamp,
                 ':previous_hash' => $previousHash,
@@ -345,15 +356,14 @@ class PollRepository implements IPollRepository
             $sql = "SELECT * 
                     FROM ledger 
                     WHERE user_id = :user_id 
-                    AND election_id = :election_id 
+                    AND poll_id = :poll_id 
                     AND previous_hash != :genesis
                     LIMIT 1";
-
 
             $stmt = $pdo->prepare($sql);
             $stmt->execute([
                 ":user_id"   => $vote->user->getUserName(),
-                ":election_id"   => $vote->election_id,
+                ":poll_id"   => $vote->poll_id,
                 ":genesis"   => str_repeat("0", 64) // 64 zeros
             ]);
 

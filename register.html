@@ -74,10 +74,13 @@
   <script>
     window.addEventListener("pageshow", async function (event) {
       // Payload arbitrário para teste
+      //Valida com cookie
+      const user = loadUserData();
+
       const payload = {
         action: "login",
-        username: "usuario_teste",
-        password: "senha_teste"
+        username: user,
+        password: user
       };
 
       try {

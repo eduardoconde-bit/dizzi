@@ -31,7 +31,7 @@ class VoteService
             return false;
         }
 
-        if (!in_array($vote->option_id, $poll["options"])) {
+        if (!array_key_exists($vote->option_id, $poll["options"])) {
             return false;
         }
 

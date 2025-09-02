@@ -2,6 +2,8 @@
 
 namespace Dizzi\Database;
 
+require __DIR__."/../../vendor/autoload.php";
+
 use PDO;
 use Dizzi\Config\Config;
 
@@ -10,11 +12,11 @@ class Database
     private ?PDO    $connection = null;
     private Config  $env;
 
-    private string $host;
-    private string $dbname;
-    private string $username;
-    private string $password;
-    private int    $port; 
+    private string  $host;
+    private string  $dbname;
+    private string  $username;
+    private string  $password;
+    private int     $port; 
 
     private array $options = [
         PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,

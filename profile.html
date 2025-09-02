@@ -36,11 +36,15 @@
         <script>
             window.addEventListener("pageshow", async function (event) {
                 // Payload arbitrário para teste
+                const user = loadUserData();
+
                 const payload = {
                     action: "login",
-                    username: "usuario_teste",
-                    password: "senha_teste" 
+                    username: user,
+                    password: user 
                 };
+
+                console.log(payload);
 
                 try {
                     const response = await fetch("https://localhost/app/Routes/api.php", {
@@ -140,6 +144,7 @@
                                         <p><strong>Início:</strong> ${poll.start_time}</p>
                                         <p><strong>Fim:</strong> ${poll.end_time}</p>
                                         <p><strong>Status:</strong> ${poll.is_finished ? "Finalizada" : "Em andamento"}</p>
+                                        <p><strong>Código:</strong> ${poll.code ? poll.code : "N/A"}</p>
                                     </div>
                                     <button onclick="finishPoll('${poll.id}')" class="ml-4 bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition">
                                         Finalizar Votação
