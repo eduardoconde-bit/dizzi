@@ -2,6 +2,7 @@
 
 namespace Dizzi\Routes;
 
+require_once __DIR__. "/../../vendor/autoload.php";
 
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
@@ -9,7 +10,6 @@ error_reporting(E_ALL);
 use Dizzi\Controllers\AuthController;
 use Dizzi\Controllers\PollController;
 
-require_once('../Controllers/PollController.php');
 
 // CORS
 header("Access-Control-Allow-Origin: https://67.205.145.37");

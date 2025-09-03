@@ -83,6 +83,12 @@ class PollController
             TokenService::protect();
             $finishPollService = new FinishPollService();
             echo json_encode(["success" => $finishPollService->finishPoll($pollCode, new PollRepository())]);
+        } catch (\InvalidArgumentException $e) {
+            http_response_code(400);
+            echo json_encode(["error" => $e->getMessage()]);
+        } catch (\TypeError $e) {
+            http_response_code(400);
+            echo json_encode(["error" => "Invalid input data"]);
         } catch (Exception $e) {
             http_response_code(500);
             echo json_encode(["error" => "Internal Server Error"]);
@@ -108,6 +114,12 @@ class PollController
                 'success' => true,
                 'polls' => $userPolls
             ]);
+        } catch (\InvalidArgumentException $e) {
+            http_response_code(400);
+            echo json_encode(["error" => $e->getMessage()]);
+        } catch (\TypeError $e) {
+            http_response_code(400);
+            echo json_encode(["error" => "Invalid input data"]);
         } catch (Exception $e) {
             http_response_code(500);
             echo json_encode(["error" => "Internal Server Error"]);
@@ -135,7 +147,7 @@ class PollController
             );
 
             if (!VoteService::vote($vote)) {
-                echo json_encode(["error" => false]);
+                echo json_encode(["invalid" => true]);
                 exit;
             }
             echo json_encode(["success" => true]);

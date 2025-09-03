@@ -7,27 +7,84 @@
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 
-<body class="bg-gray-100 font-sans p-5">
-    <div class="max-w-xl mx-auto bg-white p-8 rounded-xl shadow">
-        <h2 class="text-2xl font-bold mb-4 text-center">Votação</h2>
-        <input id="pollCode" placeholder="Digite o código da eleição"
-            class="w-full p-2 border border-gray-300 rounded mb-3 focus:outline-none focus:ring-2 focus:ring-green-300" />
-        <button onclick="loadPoll()"
-            class="w-full bg-green-500 hover:bg-green-600 text-white font-semibold py-2 rounded mb-4 transition">Carregar
-            Votação</button>
+<body class="bg-gray-100 font-sans">
 
-        <div id="election-info" class="mb-4"></div>
-        <div id="options"></div>
+    <!-- Header -->
+    <header class="bg-gray-900 text-white sticky top-0 z-50 shadow-md">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="text-2xl font-bold text-cyan-400">Dizzi</div>
+
+                <!-- Menu desktop -->
+                <nav class="hidden md:flex space-x-8">
+                    <a href="/profile.html" class="hover:text-cyan-400 transition">Home</a>
+                    <a href="/create.html" class="hover:text-cyan-400 transition">Criar Votação</a>
+                    <a href="/dashboard.html" class="hover:text-cyan-400 transition">Dashboard</a>
+                    <a href="#" class="hover:text-cyan-400 transition">Portfólio</a>
+                    <a href="#" class="hover:text-cyan-400 transition">Contato</a>
+                </nav>
+
+                <!-- Mobile menu button -->
+                <div class="md:hidden">
+                    <button id="menu-toggle" class="text-2xl focus:outline-none">☰</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile menu -->
+        <div id="mobile-menu" class="md:hidden hidden px-4 pb-4 bg-gray-900">
+            <a href="#" class="block py-2 text-white hover:text-cyan-400">Início</a>
+            <a href="#" class="block py-2 text-white hover:text-cyan-400">Sobre</a>
+            <a href="#" class="block py-2 text-white hover:text-cyan-400">Serviços</a>
+            <a href="#" class="block py-2 text-white hover:text-cyan-400">Portfólio</a>
+            <a href="#" class="block py-2 text-white hover:text-cyan-400">Contato</a>
+        </div>
+    </header>
+
+    <!-- Main content -->
+    <main class="max-w-xl mx-auto bg-white mt-10 p-8 rounded-xl shadow-md">
+        <h2 class="text-3xl font-bold mb-6 text-center text-gray-800">Votação</h2>
+
+        <input id="pollCode" placeholder="Digite o código da eleição"
+            class="w-full p-3 border border-gray-300 rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-cyan-400 transition" />
+
+        <button onclick="loadPoll()"
+            class="w-full bg-green-500 hover:bg-green-600 text-white font-semibold py-2 rounded-lg mb-6 transition">
+            Carregar Votação
+        </button>
+
+        <!-- Informações da eleição -->
+        <div id="election-info" class="mb-6 text-gray-700"></div>
+
+        <!-- Opções -->
+        <div id="options" class="space-y-3"></div>
+
+        <!-- Botão de votar -->
         <button id="voteBtn" disabled
-            class="w-full bg-green-500 text-white font-semibold py-2 rounded mt-4 disabled:bg-gray-300 disabled:cursor-not-allowed transition">Votar</button>
-        <p id="message" class="text-center mt-4 font-bold"></p>
-        <p class="mt-4 text-center"><a href="create.html" class="text-blue-500 hover:underline">Criar Votação</a></p>
-    </div>
+            class="w-full bg-green-500 text-white font-semibold py-2 rounded-lg mt-6 disabled:bg-gray-300 disabled:cursor-not-allowed transition">
+            Votar
+        </button>
+
+        <!-- Mensagem de resposta -->
+        <p id="message" class="text-center mt-4 font-semibold text-lg"></p>
+
+        <!-- Link para criar votação -->
+        <p class="mt-6 text-center text-sm text-gray-600">
+            <a href="create.html" class="text-blue-500 hover:underline">Criar Votação</a>
+        </p>
+    </main>
 
     <script>
+        const toggleBtn = document.getElementById('menu-toggle');
+        const mobileMenu = document.getElementById('mobile-menu');
+
         let selectedOption = null;
         let pollId = null;
         let pollCode = null;
+
+        toggleBtn.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
 
         function getCookie(name) {
             const cookies = document.cookie.split('; ');
@@ -185,9 +242,12 @@
 
                 const data = await response.json();
                 console.log(data);
+
                 if (data.success) {
                     document.getElementById("message").innerText = "✅ " + (data.message || "Voto registrado!");
                     document.getElementById("voteBtn").disabled = true;
+                } else if (data.invalid) {
+                    document.getElementById("message").innerText = "❌ " + (data.message || "Voto já registrado");
                 } else {
                     document.getElementById("message").innerText = "❌ " + (data.message || "Erro ao votar");
                 }

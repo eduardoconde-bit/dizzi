@@ -136,8 +136,18 @@
           body: JSON.stringify(payload)
         });
 
-        const result = await response.json();
-        console.log(result);
+        const raw = await response.text();
+        let result;
+
+        try {
+          result = JSON.parse(raw);  // tenta converter para JSON
+        } catch {
+          console.warn("⚠️ Resposta não é JSON, exibindo cru:");
+          console.log(raw);
+          return; // não continua, mas também não quebra o script
+        }
+
+        console.log("✅ JSON válido:", result);
 
         if (result.success) {
           alert("Registro realizado com sucesso!");

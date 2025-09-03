@@ -18,7 +18,7 @@ class FinishPollService
      */
     public static function finishPoll(string $pollId, PollRepository $pollRep):bool
     {
-        $poll = $pollRep->getPoll($pollId);
+        $poll = $pollRep->getPollById($pollId);
         if($poll && $poll["user"]["user_id"] === $GLOBALS["auth_user"]) {
             return $pollRep->finishPoll($pollId) === PollFinishStatus::FINISHED;
         }

@@ -12,12 +12,6 @@ class InitPollService
 
     public static function initPoll(Poll $poll, PollRepository $pollRep): bool
     {
-        return self::createGenesisPoll($pollRep->create_poll($poll), $pollRep);
+        return $pollRep->create_poll($poll) !== false;
     }
-
-    public static function createGenesisPoll(string $poll_id, PollRepository $pollRep)
-    {
-        return $pollRep->createGenesisBlock($poll_id);
-    }
-
 }

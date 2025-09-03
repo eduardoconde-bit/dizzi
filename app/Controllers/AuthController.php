@@ -2,7 +2,7 @@
 
 namespace Dizzi\Controllers;
 
-require "../../vendor/autoload.php";
+require __DIR__ . '/../../vendor/autoload.php';
 
 use Dizzi\Models\User;
 use Dizzi\Repositories\UserRepository;
@@ -45,6 +45,9 @@ class AuthController
 
             $user = new User($data["user_name"], $data['password']);
             echo json_encode(["success" => RegisterService::register($user)]);
+        } catch (\InvalidArgumentException $e) {
+            http_response_code(400);
+            echo json_encode(["error" => $e->getMessage()]);
         } catch (\Throwable $e) {
             http_response_code(500);
             echo json_encode([
@@ -71,6 +74,7 @@ class AuthController
             }
 
             if (!isset($data["user_name"]) || !isset($data["password"])) {
+                http_response_code(400);
                 echo json_encode($this->invalidCredentials);
                 exit;
             }
@@ -82,6 +86,9 @@ class AuthController
                 exit;
             }
             echo json_encode($this->userValid);
+        } catch (\InvalidArgumentException $e) {
+            http_response_code(400);
+            echo json_encode(["error" => $e->getMessage()]);
         } catch (\Throwable $e) {
             http_response_code(500);
             echo json_encode([

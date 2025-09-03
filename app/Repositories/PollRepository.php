@@ -31,19 +31,14 @@ class PollRepository implements IPollRepository
         try {
             $db = new Database();
             $pdo = $db->getConnection();
-
             $pdo->beginTransaction();
 
             // Pega o start_time atual
             $startTime = new \DateTimeImmutable();
-
-            // Converte duração de minutos para milissegundos
             $durationMs = (int) ($poll->duration * 60 * 1000);
-
-            // Calcula o end_time
             $endTime = $startTime->modify("+{$durationMs} milliseconds");
 
-            // Insere na tabela polls
+            // Cria a poll
             $stmtPoll = $pdo->prepare("
                 INSERT INTO polls (user_id, title, description, start_time, end_time)
                 VALUES (:user_id, :title, :description, :start_time, :end_time)
@@ -69,14 +64,14 @@ class PollRepository implements IPollRepository
                 $imageUrl   = $poll->urls[$i] ?? null;
 
                 $stmtOption->execute([
-                    ':poll_id'    => $pollId,
+                    ':poll_id'     => $pollId,
                     ':option_name' => $optionName,
-                    ':image_url'  => $imageUrl,
+                    ':image_url'   => $imageUrl,
                 ]);
             }
 
-            // Gerar código único da poll
-            $code = bin2hex(random_bytes(4)); // exemplo: 8 caracteres hex
+            // Gera código único da poll
+            $code = bin2hex(random_bytes(4));
 
             $stmtCode = $pdo->prepare("
                 INSERT INTO poll_codes (poll_id, code)
@@ -87,14 +82,30 @@ class PollRepository implements IPollRepository
                 ':code'    => $code,
             ]);
 
-            var_dump($pdo->commit());
+            // Cria o bloco gênesis na mesma transação
+            $previousHash = str_repeat('0', 64);
+            $hash = hash('sha256', $poll->user->getUserName() . $pollId . $previousHash . time());
 
+            $stmtGenesis = $pdo->prepare("
+                INSERT INTO ledger (user_id, poll_id, option_id, previous_hash, hash)
+                VALUES (:user_id, :poll_id, :option_id, :previous_hash, :hash)
+            ");
+            $stmtGenesis->execute([
+                ':user_id'       => $poll->user->getUserName(),
+                ':poll_id'       => $pollId,
+                ':option_id'     => null,
+                ':previous_hash' => $previousHash,
+                ':hash'          => $hash
+            ]);
+
+            // Commita tudo
+            $pdo->commit();
             return $pollId;
         } catch (\Exception $e) {
-            if ($pdo && $pdo->inTransaction()) {
+            if (isset($pdo) && $pdo->inTransaction()) {
                 $pdo->rollBack();
             }
-            error_log("Erro ao criar poll: " . $e->getMessage());
+            error_log("Erro ao criar poll + genesis: " . $e->getMessage());
             return false;
         }
     }
@@ -126,53 +137,6 @@ class PollRepository implements IPollRepository
             return PollFinishStatus::ERROR;
         }
     }
-
-    public function createGenesisBlock(string $poll_id): bool
-    {
-        try {
-            $db = new Database();
-            $pdo = $db->getConnection();
-
-            // Busca o user_id da tabela polls usando o poll_id
-            $stmt = $pdo->prepare("
-                SELECT user_id
-                FROM polls
-                WHERE id = :poll_id
-            ");
-            $stmt->execute([':poll_id' => $poll_id]);
-            $row = $stmt->fetch(\PDO::FETCH_ASSOC);
-
-            if (!$row) {
-                throw new \RuntimeException("user_id for this poll not found");
-            }
-            $user_id = $row['user_id'];
-
-            // Hash inicial do genesis block
-            $previousHash = str_repeat('0', 64); // 64 zeros
-            $hash = hash('sha256', $user_id . $poll_id . $previousHash . time());
-
-            // Inserir genesis block na ledger (poll_id aqui é o poll_code)
-            $stmt = $pdo->prepare("
-                INSERT INTO ledger (user_id, poll_id, option_id, previous_hash, hash)
-                VALUES (:user_id, :poll_id, :option_id, :previous_hash, :hash)
-            ");
-
-            $success = $stmt->execute([
-                ':user_id' => $user_id,
-                ':poll_id' => $poll_id,
-                ':option_id' => null,
-                ':previous_hash' => $previousHash,
-                ':hash' => $hash
-            ]);
-
-            return $success;
-        } catch (\Exception $e) {
-            error_log($e->getMessage());
-            return false;
-        }
-    }
-
-
 
     public function getPollById(string $pollId): array|false
     {
@@ -308,6 +272,9 @@ class PollRepository implements IPollRepository
             $db = new Database();
             $pdo = $db->getConnection();
 
+            // Inicia transação
+            $pdo->beginTransaction();
+
             // 1. Buscar último bloco da eleição
             $sql = "
             SELECT hash 
@@ -328,37 +295,52 @@ class PollRepository implements IPollRepository
             // 3. Timestamp atual
             $timestamp = date("Y-m-d H:i:s");
 
-            // 4. Montar dados que compõem o hash atual
+            // 4. Montar dados que compõem o hash atual (usar user_id)
             $blockData = implode("|", [
-                $vote->user->getUserName(), // <- usar user_id, não nome
+                $vote->user->getUserName(),
                 $vote->poll_id,
                 $vote->option_id,
                 $timestamp,
                 $previousHash
             ]);
-
             $currentHash = hash('sha256', $blockData);
 
-            // 5. Inserir no ledger seguindo a ordem física da tabela
+            // 5. Inserir no ledger
             $sql = "
             INSERT INTO ledger (user_id, poll_id, option_id, timestamp, previous_hash, hash)
             VALUES (:user_id, :poll_id, :option_id, :timestamp, :previous_hash, :hash)
         ";
             $stmt = $pdo->prepare($sql);
-
-            return $stmt->execute([
+            $stmt->execute([
                 ':user_id'       => $vote->user->getUserName(),
-                ':poll_id'      => $vote->poll_id,
+                ':poll_id'       => $vote->poll_id,
                 ':option_id'     => $vote->option_id,
                 ':timestamp'     => $timestamp,
                 ':previous_hash' => $previousHash,
                 ':hash'          => $currentHash,
             ]);
+
+            // 6. Incrementar number_votes na eleição
+            $updateSql = "
+            UPDATE polls
+            SET number_votes = number_votes + 1
+            WHERE id = :poll_id
+        ";
+            $updateStmt = $pdo->prepare($updateSql);
+            $updateStmt->execute([':poll_id' => $vote->poll_id]);
+
+            // Commit da transação
+            $pdo->commit();
+
+            return true;
         } catch (\PDOException $e) {
+            // Rollback em caso de erro
+            $pdo->rollBack();
             error_log($e->getMessage());
             return false;
         }
     }
+
 
     public function searchVote(Vote $vote): array|false
     {

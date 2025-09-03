@@ -2,180 +2,215 @@
 <html lang="pt-BR">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Perfil - Dizzi</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Perfil - Dizzi</title>
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
 
 <body class="bg-gray-100 font-sans">
 
-    <!-- Header -->
-    <header class="bg-blue-600 text-white p-4 flex justify-between items-center">
-        <h1 class="text-xl font-bold">Dizzi</h1>
-        <nav class="space-x-4">
-            <a href="index.html" class="hover:underline">Home</a>
-            <a href="create.html" class="hover:underline">Criar Votação</a>
-            <a href="vote.html" class="hover:underline">Votar</a>
-            <a href="#" id="logoutLink" class="hover:underline">Sair</a>
+  <!-- Header unificado -->
+  <header class="bg-gray-900 text-white sticky top-0 z-50 shadow-md">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center h-16">
+        <!-- Logo -->
+        <div class="text-2xl font-bold text-cyan-400">
+          Dizzi
+        </div>
+
+        <!-- Menu Desktop -->
+        <nav class="hidden md:flex space-x-8">
+          <a href="index.html" class="hover:text-cyan-400 transition">Início</a>
+          <a href="create.html" class="hover:text-cyan-400 transition">Criar Votação</a>
+          <a href="vote.html" class="hover:text-cyan-400 transition">Votar</a>
+          <a href="#" id="logoutLink" class="hover:text-red-400 transition">Sair</a>
         </nav>
-    </header>
 
-    <!-- Container -->
-    <main class="max-w-lg mx-auto mt-8 bg-white p-6 rounded-lg shadow-md">
-        <h2 class="text-2xl font-semibold mb-4">Perfil do Usuário</h2>
-        <div class="mb-4"><strong>Nome de usuário:</strong> <span id="userName"
-                class="text-blue-600 font-medium"></span></div>
+        <!-- Botão Menu Mobile -->
+        <div class="md:hidden">
+          <button id="menu-toggle" class="text-2xl focus:outline-none">
+            ☰
+          </button>
+        </div>
+      </div>
+    </div>
 
-        <h3 class="text-xl font-semibold mt-6 mb-2">Minhas Votações</h3>
-        <ul id="pollsList" class="space-y-4">
-            <!-- Polls serão inseridas aqui -->
-        </ul>
-    </main>
+    <!-- Menu Mobile -->
+    <div id="mobile-menu" class="md:hidden hidden px-4 pb-4 bg-gray-900">
+      <a href="index.html" class="block py-2 text-white hover:text-cyan-400">Início</a>
+      <a href="create.html" class="block py-2 text-white hover:text-cyan-400">Criar Votação</a>
+      <a href="vote.html" class="block py-2 text-white hover:text-cyan-400">Votar</a>
+      <a href="#" id="logoutLinkMobile" class="block py-2 text-red-400 hover:text-red-300">Sair</a>
+    </div>
+  </header>
 
-    <script>
-        window.addEventListener("pageshow", async function (event) {
-            const user = loadUserData();
+  <!-- Conteúdo -->
+  <main class="max-w-3xl mx-auto mt-10 p-6 bg-white rounded-xl shadow-md">
+    <h2 class="text-3xl font-bold mb-4 text-gray-800">Perfil do Usuário</h2>
 
-            const payload = {
-                action: "login",
-                user_name: user,
-                password: user
-            };
+    <!-- Dados do usuário -->
+    <div class="mb-6">
+      <p class="text-lg"><strong>Nome de usuário:</strong>
+        <span id="userName" class="text-blue-600 font-semibold"></span>
+      </p>
+    </div>
 
-            console.log(payload);
+    <!-- Lista de votações -->
+    <h3 class="text-2xl font-semibold mb-4 text-gray-700">Minhas Votações</h3>
+    <ul id="pollsList" class="space-y-4">
+      <!-- Itens serão inseridos aqui -->
+    </ul>
+  </main>
 
-            try {
-                const response = await fetch("/app/Routes/api.php", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    credentials: "include",
-                    body: JSON.stringify(payload)
-                });
+  <script>
+    // Menu mobile toggle
+    const toggleBtn = document.getElementById('menu-toggle');
+    const mobileMenu = document.getElementById('mobile-menu');
+    toggleBtn.addEventListener('click', () => {
+      mobileMenu.classList.toggle('hidden');
+    });
 
-                // pega resposta crua
-                const raw = await response.text();
-                let result;
+    // Logout em ambos menus
+    const logoutLinks = [document.getElementById('logoutLink'), document.getElementById('logoutLinkMobile')];
+    logoutLinks.forEach(link => {
+      link?.addEventListener('click', () => {
+        document.cookie = "user_data=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+        location.href = "login.html";
+      });
+    });
 
-                try {
-                    result = JSON.parse(raw);  // tenta converter para JSON
-                } catch {
-                    console.warn("⚠️ Resposta não é JSON, exibindo cru:");
-                    console.log(raw);
-                    return; // não continua, mas também não quebra o script
-                }
+    // Verificação de login
+    window.addEventListener("pageshow", async function () {
+      const user = loadUserData();
+      const payload = { action: "login", user_name: user, password: user };
 
-                console.log("✅ JSON válido:", result);
-
-                if (!result.success) {
-                    window.location.href = "login.html";
-                }
-
-            } catch (error) {
-                console.error("Erro na requisição:", error);
-            }
+      try {
+        const response = await fetch("/app/Routes/api.php", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify(payload)
         });
 
-
-        function getCookie(name) {
-            const cookies = document.cookie.split('; ');
-            const cookie = cookies.find(c => c.startsWith(name + '='));
-            return cookie ? decodeURIComponent(cookie.split('=')[1]) : null;
+        const raw = await response.text();
+        let result;
+        try {
+          result = JSON.parse(raw);
+        } catch {
+          console.warn("⚠️ Resposta não JSON:", raw);
+          return;
         }
 
-        function loadUserData() {
-            const userData = getCookie('user_data');
-            if (!userData) {
-                console.warn('Cookie user_data não encontrado');
-                return null;
-            }
-            try {
-                const parsedData = JSON.parse(userData);
-                document.getElementById('userName').innerText = parsedData.userName || '';
-                return parsedData.userName; // retornamos o username como userId
-            } catch (err) {
-                console.error('Erro ao parsear user_data:', err);
-                return null;
-            }
+        if (!result.success) {
+          window.location.href = "login.html";
+        }
+      } catch (error) {
+        console.error("Erro de requisição:", error);
+      }
+    });
+
+    // Cookies
+    function getCookie(name) {
+      const cookies = document.cookie.split('; ');
+      const cookie = cookies.find(c => c.startsWith(name + '='));
+      return cookie ? decodeURIComponent(cookie.split('=')[1]) : null;
+    }
+
+    function loadUserData() {
+      const userData = getCookie('user_data');
+      if (!userData) {
+        console.warn('Cookie user_data não encontrado');
+        return null;
+      }
+      try {
+        const parsedData = JSON.parse(userData);
+        document.getElementById('userName').innerText = parsedData.userName || '';
+        return parsedData.userName;
+      } catch (err) {
+        console.error('Erro ao parsear user_data:', err);
+        return null;
+      }
+    }
+
+    async function finishPoll(pollId) {
+      if (!pollId) return;
+      if (!confirm("Tem certeza que deseja finalizar esta votação?")) return;
+
+      try {
+        const res = await fetch("/app/Routes/api.php", {
+          method: 'POST',
+          credentials: 'include',
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ action: "finish_poll", poll_id: pollId })
+        });
+
+        const data = await res.text();
+        let result;
+        try {
+          result = JSON.parse(data);
+        } catch {
+          console.warn("⚠️ Resposta não é JSON:", data);
+          return;
         }
 
-        async function finishPoll(pollId) {
-            if (!pollId) return;
-            if (!confirm("Tem certeza que deseja finalizar esta votação?")) return;
-            try {
-                const res = await fetch("/app/Routes/api.php", {
-                    method: 'POST',
-                    credentials: 'include',
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        action: "finish_poll",
-                        poll_id: pollId
-                    })
-                });
-                const data = await res.json();
-
-                if (data.success) {
-                    alert(`Votação finalizada com sucesso.`);
-                    loadPolls(loadUserData());
-                } else {
-                    alert(`Erro ao finalizar votação: ${data.message}`);
-                    console.error(`Erro ao finalizar poll ${pollId}:`, data.message);
-                }
-            } catch (err) {
-                alert('Erro ao finalizar votação.');
-                console.error('Erro ao finalizar poll:', err);
-            }
+        if (result.success) {
+          alert(`Votação finalizada com sucesso.`);
+          loadPolls(loadUserData());
+        } else {
+          alert(`Erro: ${result.message}`);
         }
+      } catch (err) {
+        alert('Erro ao finalizar votação.');
+        console.error(err);
+      }
+    }
 
-        async function loadPolls(userId) {
-            if (!userId) return;
-            try {
-                const res = await fetch(`/app/Routes/api.php?action=get_polls&user_id=${userId}`, {
-                    method: 'GET',
-                    credentials: 'include'
-                });
-                const data = await res.json();
+    async function loadPolls(userId) {
+      if (!userId) return;
+      try {
+        const res = await fetch(`/app/Routes/api.php?action=get_polls&user_id=${userId}`, {
+          method: 'GET',
+          credentials: 'include'
+        });
 
-                const list = document.getElementById('pollsList');
-                list.innerHTML = '';
+        const data = await res.json();
+        const list = document.getElementById('pollsList');
+        list.innerHTML = '';
 
-                console.log(data.polls);
+        if (data.success && data.polls.length) {
+          data.polls.forEach(poll => {
+            const li = document.createElement('li');
+            li.className = "bg-blue-50 p-5 rounded-lg shadow hover:shadow-md transition";
 
-                if (data.success && data.polls.length) {
-                    data.polls.forEach(poll => {
-                        const li = document.createElement('li');
-                        li.className = "bg-blue-50 p-4 rounded-lg shadow hover:shadow-md transition";
-
-                        li.innerHTML = `
-                                <div class="flex items-center justify-between">
-                                    <div>
-                                        <p><strong>Título:</strong> ${poll.title}</p>
-                                        ${poll.description ? `<p><strong>Descrição:</strong> ${poll.description}</p>` : ''}
-                                        <p><strong>Início:</strong> ${poll.start_time}</p>
-                                        <p><strong>Fim:</strong> ${poll.end_time}</p>
-                                        <p><strong>Status:</strong> ${poll.is_finished ? "Finalizada" : "Em andamento"}</p>
-                                        <p><strong>Código:</strong> ${poll.code ? poll.code : "N/A"}</p>
-                                    </div>
-                                    <button onclick="finishPoll('${poll.id}')" class="ml-4 bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition">
-                                        Finalizar Votação
-                                    </button>
-                                </div>    `;
-
-                        list.appendChild(li);
-                    });
-                } else {
-                    list.innerHTML = '<li class="text-gray-600">Nenhuma votação encontrada.</li>';
-                }
-            } catch (err) {
-                console.error('Erro ao carregar polls:', err);
-            }
+            li.innerHTML = `
+              <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div class="text-gray-700 space-y-1">
+                  <p><strong>Título:</strong> ${poll.title}</p>
+                  ${poll.description ? `<p><strong>Descrição:</strong> ${poll.description}</p>` : ''}
+                  <p><strong>Início:</strong> ${poll.start_time}</p>
+                  <p><strong>Fim:</strong> ${poll.end_time}</p>
+                  <p><strong>Status:</strong> <span class="${poll.is_finished ? 'text-red-500' : 'text-green-600'} font-medium">${poll.is_finished ? "Finalizada" : "Em andamento"}</span></p>
+                  <p><strong>Código:</strong> <span class="font-mono bg-gray-100 px-2 py-0.5 rounded">${poll.code || "N/A"}</span></p>
+                </div>
+                <button onclick="finishPoll('${poll.id}')" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition">
+                  Finalizar
+                </button>
+              </div>
+            `;
+            list.appendChild(li);
+          });
+        } else {
+          list.innerHTML = '<li class="text-gray-500 text-center">Nenhuma votação encontrada.</li>';
         }
+      } catch (err) {
+        console.error('Erro ao carregar polls:', err);
+      }
+    }
 
-        // Inicialização
-        const userId = loadUserData();
-        console.log("userId:", userId);
-        loadPolls(userId);
-    </script>
+    const userId = loadUserData();
+    loadPolls(userId);
+  </script>
 
 </body>
 
