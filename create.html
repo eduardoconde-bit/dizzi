@@ -24,40 +24,54 @@
     </div>
 
     <script>
-        window.addEventListener("pageshow", async function (event) {
-            // Payload arbitrário para teste
-            const payload = {
-                action: "login",
-                username: "usuario_teste",
-                password: "senha_teste"
-            };
-
-            try {
-                const response = await fetch("app/Routes/api.php", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    credentials: "include",
-                    body: JSON.stringify(payload)
-                });
-
-                const result = await response.json();
-                console.log(result);
-
-                if (!result.success) {
-                    window.location.href = "login.html";
-                }
-
-            } catch (error) {
-                console.error("Erro na requisição:", error);
-            }
-        });
-
+		window.addEventListener("pageshow", async function (event) {
+		    const user = loadUserData();
+		
+		    const payload = {
+		        action: "login",
+		        user_name: user,
+		        password: user
+		    };
+		
+		    console.log(payload);
+		
+		    try {
+		        const response = await fetch("/app/Routes/api.php", {
+		            method: "POST",
+		            headers: { "Content-Type": "application/json" },
+		            credentials: "include",
+		            body: JSON.stringify(payload)
+		        });
+		
+		        // pega resposta crua
+		        const raw = await response.text();
+		        let result;
+		
+		        try {
+		            result = JSON.parse(raw);  // tenta converter para JSON
+		        } catch {
+		            console.warn("⚠️ Resposta não é JSON, exibindo cru:");
+		            console.log(raw);
+		            return; // não continua, mas também não quebra o script
+		        }
+		
+		        console.log("✅ JSON válido:", result);
+		
+		        if (!result.success) {
+		            window.location.href = "login.html";
+		        }
+		
+		    } catch (error) {
+		        console.error("Erro na requisição:", error);
+		    }
+		});
+		
+    
         function addOption(name = '') {
             const div = document.createElement("div");
             div.className = "option-field flex gap-2 items-center mb-2";
             div.innerHTML = `
                 <input placeholder="Nome da opção" value="${name}" class="flex-1 p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400">
-                <input type="file" accept="image/*" class="flex-1">
                 <button type="button" onclick="removeOption(this)" class="px-2 py-1 bg-red-500 text-white rounded hover:bg-red-600 transition">❌</button>
             `;
             document.getElementById("options").appendChild(div);
@@ -77,32 +91,26 @@
             const duration = document.getElementById("duration").value;
 
             const optionFields = [...document.querySelectorAll("#options .option-field")];
-            const formData = new FormData();
-
-            const optionNames = optionFields.map((div, index) => {
-                const name = div.querySelectorAll("input")[0].value;
-                formData.append(`options[${index}][name]`, name);
-
-                const fileInput = div.querySelectorAll("input")[1];
-                if (fileInput.files[0]) {
-                    formData.append(`options[${index}][image]`, fileInput.files[0]);
-                }
-
-                return name;
-            });
+            const options = optionFields.map(div => div.querySelector("input").value);
 
             const userData = getCookie('user_data');
             const parsedData = JSON.parse(userData || '{}');
-            formData.append('user_id', parsedData.userName || '');
-            formData.append('title', title);
-            formData.append('description', description);
-            formData.append('duration', duration);
+
+            const payload = {
+            	action: "create_poll",
+                user_id: parsedData.userName || '',
+                title,
+                description,
+                duration,
+                options
+            };
 
             try {
-                const response = await fetch("app/Routes/api.php", {
+                const response = await fetch("/app/Routes/api.php", {
                     method: "POST",
-                    body: formData,
-                    credentials: "include"
+                    headers: { "Content-Type": "application/json" },
+                    credentials: "include",
+                    body: JSON.stringify(payload)
                 });
 
                 const data = await response.json();

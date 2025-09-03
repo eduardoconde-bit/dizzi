@@ -52,25 +52,26 @@ class AuthController
      * @return void
      */
     public function login(?array $data): void
-    {
-        //Poderia também revalidar o token a cada requisição que se mostre legítima como na condição abaixo
-        if (isset($_COOKIE['auth_token'])) {
-            if(new UserRepository()->existsById($data["user_name"])) {
-                echo json_encode($this->userAuthenticated);
-                exit;
-            }
-        }
+	{
+	    //Poderia também revalidar o token a cada requisição que se mostre legítima como na condição abaixo
+	    if (isset($_COOKIE['auth_token'])) {
+	        if((new UserRepository())->existsById($data["user_name"])) {
+	            echo json_encode($this->userAuthenticated);
+	            exit;
+	        }
+	    }
 
-        if (!isset($data["user_name"]) || !isset($data["password"])) {
-            echo json_encode($this->invalidCredentials);
-            exit;
-        }
-        $token = TokenService::issueToken(new User($data["user_name"], $data["password"]));
+	    if (!isset($data["user_name"]) || !isset($data["password"])) {
+	        echo json_encode($this->invalidCredentials);
+	        exit;
+	    }
 
-        if (!$token) {
-            echo json_encode($this->invalidCredentials);
-            exit;
-        }
-        echo json_encode($this->userValid);
-    }
+	    $token = TokenService::issueToken(new User($data["user_name"], $data["password"]));
+
+	    if (!$token) {
+	        echo json_encode($this->invalidCredentials);
+	        exit;
+	    }
+	    echo json_encode($this->userValid);
+	}
 }

@@ -2,6 +2,10 @@
 
 namespace Dizzi\Routes;
 
+
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
+
 use Dizzi\Controllers\AuthController;
 use Dizzi\Controllers\PollController;
 

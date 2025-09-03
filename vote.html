@@ -51,33 +51,46 @@
         }
 
         window.addEventListener("pageshow", async function (event) {
-            //Valida com cookie
-            const user = loadUserData();
-
-            const payload = {
-                action: "login",
-                username: user,
-                password: user
-            };
-
-            try {
-                const response = await fetch("/app/Routes/api.php", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    credentials: "include",
-                    body: JSON.stringify(payload)
-                });
-
-                const result = await response.json();
-                if (!result.success) {
-                    window.location.href = "login.html";
+                const user = loadUserData();
+            
+                const payload = {
+                    action: "login",
+                    user_name: user,
+                    password: user
+                };
+            
+                console.log(payload);
+            
+                try {
+                    const response = await fetch("/app/Routes/api.php", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        credentials: "include",
+                        body: JSON.stringify(payload)
+                    });
+            
+                    // pega resposta crua
+                    const raw = await response.text();
+                    let result;
+            
+                    try {
+                        result = JSON.parse(raw);  // tenta converter para JSON
+                    } catch {
+                        console.warn("⚠️ Resposta não é JSON, exibindo cru:");
+                        console.log(raw);
+                        return; // não continua, mas também não quebra o script
+                    }
+            
+                    console.log("✅ JSON válido:", result);
+            
+                    if (!result.success) {
+                        window.location.href = "login.html";
+                    }
+            
+                } catch (error) {
+                    console.error("Erro na requisição:", error);
                 }
-
-            } catch (error) {
-                console.error("Erro na requisição:", error);
-            }
-        });
-
+            });
         async function loadPoll() {
             const code = document.getElementById("pollCode").value.trim();
             if (!code) { alert("Digite o código da eleição"); return; }

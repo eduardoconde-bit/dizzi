@@ -73,35 +73,46 @@
 
   <script>
     window.addEventListener("pageshow", async function (event) {
-      // Payload arbitrário para teste
-      //Valida com cookie
-      const user = loadUserData();
-
-      const payload = {
-        action: "login",
-        username: user,
-        password: user
-      };
-
-      try {
-        const response = await fetch("/app/Routes/api.php", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          credentials: "include",
-          body: JSON.stringify(payload)
-        });
-
-        const result = await response.json();
-        console.log(result);
-
-        if (result.success) {
-          window.location.href = "profile.html";
-        }
-
-      } catch (error) {
-        console.error("Erro na requisição:", error);
-      }
-    });
+                    const user = loadUserData();
+                
+                    const payload = {
+                        action: "login",
+                        user_name: user,
+                        password: user
+                    };
+                
+                    console.log(payload);
+                
+                    try {
+                        const response = await fetch("/app/Routes/api.php", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            credentials: "include",
+                            body: JSON.stringify(payload)
+                        });
+                
+                        // pega resposta crua
+                        const raw = await response.text();
+                        let result;
+                
+                        try {
+                            result = JSON.parse(raw);  // tenta converter para JSON
+                        } catch {
+                            console.warn("⚠️ Resposta não é JSON, exibindo cru:");
+                            console.log(raw);
+                            return; // não continua, mas também não quebra o script
+                        }
+                
+                        console.log("✅ JSON válido:", result);
+                
+                        if (result.success) {
+                            window.location.href = "profile.html";
+                        }
+                
+                    } catch (error) {
+                        console.error("Erro na requisição:", error);
+                    }
+                });
 
     document.getElementById("registerForm").addEventListener("submit", async function (event) {
       event.preventDefault();

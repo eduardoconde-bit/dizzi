@@ -35,37 +35,47 @@
 
         <script>
             window.addEventListener("pageshow", async function (event) {
-                // Payload arbitrário para teste
                 const user = loadUserData();
-
+            
                 const payload = {
                     action: "login",
-                    username: user,
-                    password: user 
+                    user_name: user,
+                    password: user
                 };
-
+            
                 console.log(payload);
-
+            
                 try {
-                    const response = await fetch("https://localhost/app/Routes/api.php", {
+                    const response = await fetch("/app/Routes/api.php", {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
                         credentials: "include",
                         body: JSON.stringify(payload)
                     });
-
-                    const result = await response.json();
-                    console.log(result);
-
-                    console.log(result)
+            
+                    // pega resposta crua
+                    const raw = await response.text();
+                    let result;
+            
+                    try {
+                        result = JSON.parse(raw);  // tenta converter para JSON
+                    } catch {
+                        console.warn("⚠️ Resposta não é JSON, exibindo cru:");
+                        console.log(raw);
+                        return; // não continua, mas também não quebra o script
+                    }
+            
+                    console.log("✅ JSON válido:", result);
+            
                     if (!result.success) {
                         window.location.href = "login.html";
                     }
-
+            
                 } catch (error) {
                     console.error("Erro na requisição:", error);
                 }
             });
+            
 
             function getCookie(name) {
                 const cookies = document.cookie.split('; ');
@@ -93,7 +103,7 @@
                 if (!pollId) return;
                 if (!confirm("Tem certeza que deseja finalizar esta votação?")) return;
                 try {
-                    const res = await fetch("https://localhost/app/Routes/api.php", {
+                    const res = await fetch("/app/Routes/api.php", {
                         method: 'POST',
                         credentials: 'include',
                         headers: { "Content-Type": "application/json" },
@@ -120,7 +130,7 @@
             async function loadPolls(userId) {
                 if (!userId) return;
                 try {
-                    const res = await fetch(`https://localhost/app/Routes/api.php?action=get_polls&user_id=${userId}`, {
+                    const res = await fetch(`/app/Routes/api.php?action=get_polls&user_id=${userId}`, {
                         method: 'GET',
                         credentials: 'include'
                     });
