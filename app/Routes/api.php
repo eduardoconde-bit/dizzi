@@ -51,7 +51,7 @@ switch ($method) {
                 break;
 
             case "create_poll":
-                echo json_encode(["success" => (new PollController())->initPoll()]);
+                (new PollController())->initPoll();
                 break;
 
             case "vote":
@@ -78,7 +78,7 @@ switch ($method) {
             (new PollController())->userPolls($_GET['user_id']);
         } else {
             http_response_code(400);
-            echo json_encode(['error' => 'Parâmetros inválidos']);
+            echo json_encode(['error' => 'Invalid parameters']);
         }
         break;
     default:

@@ -40,17 +40,15 @@ class Poll
         }
 
         // Validar duration
-        if ($duration < 1000) {
-            throw new \InvalidArgumentException("Duração Mínima da Votação (1000ms) não alcançada");
+        // Validar duration em minutos (mínimo 1 minuto, máximo 24 horas)
+        if ($duration < 1 || $duration > 1440) { // 1 a 1440 minutos
+            throw new \InvalidArgumentException("A duração deve ser entre 1 e 1440 minutos (1 a 24 horas).");
         }
         
         $this->duration = $duration;
         
         $this->options = $options;
         
-        if (empty($urls)) {
-            throw new \InvalidArgumentException("Duração Mínima da Votação (1000ms) não alcançada");
-        }
         $this->urls = $urls;
 
         return $this;

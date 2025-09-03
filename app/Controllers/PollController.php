@@ -13,6 +13,7 @@ use Dizzi\Repositories\UserRepository;
 use Dizzi\Services\TokenService;
 use Dizzi\Services\VoteService;
 use Dizzi\Services\FinishPollService;
+use Exception;
 
 require_once('../Models/Poll.php');
 require_once('../Repositories/PollRepository.php');
@@ -23,44 +24,53 @@ class PollController
 {
     public function __construct() {}
 
-    public function initPoll(): bool
+    public function initPoll(): void
     {
 
         TokenService::protect();
 
         $data = json_decode(file_get_contents('php://input'), true);
 
-        $poll = new Poll(
-            new User(
-                $data["user_id"]
-            ),
-            $data["title"],
-            $data["description"],
-            $data["duration"],
-            $data["options"],
-            $data["urls"]
-        );
-
-        return InitPollService::initPoll($poll, new PollRepository($poll));
+        try {
+            $poll = new Poll(
+                new User(
+                    $data["user_id"] ?? null
+                ),
+                $data["title"] ?? null,
+                $data["description"] ?? null,
+                $data["duration"] ?? null,
+                $data["options"] ?? null,
+                $data["urls"] ?? null
+            );
+            echo json_encode(["success" => InitPollService::initPoll($poll, new PollRepository($poll))]);
+        } catch (\InvalidArgumentException $e) {
+            http_response_code(400);
+            echo json_encode(["error" => $e->getMessage()]);
+        } catch (\TypeError $e) {
+            http_response_code(400);
+            echo json_encode(["error" => "Invalid input data"]);
+        } catch (Exception $e) {
+            http_response_code(500);
+            echo json_encode(["error" => "Internal Server Error"]);
+        }
     }
 
     public function getPoll(string $code_poll): void
     {
         TokenService::protect();
 
-        $poll = (new PollRepository())->getPoll($code_poll);
+        $poll = (new PollRepository())->getPollByCode($code_poll);
 
         if (!$poll) { // se for false
             http_response_code(404);
             echo json_encode([
                 'success' => false,
-                'message' => 'Poll não encontrada'
+                'message' => 'Poll not found'
             ]);
             return;
         }
 
         // Se for array, retorna diretamente
-        //header('Content-Type: application/json; charset=utf-8');
         echo json_encode([
             'success' => true,
             'poll' => $poll
@@ -69,58 +79,75 @@ class PollController
 
     public function finishPoll(string $pollCode): void
     {
-        TokenService::protect();
-
-        $finishPollService = new FinishPollService();
-        echo json_encode(["success" => $finishPollService->finishPoll($pollCode, new PollRepository())]);
+        try {
+            TokenService::protect();
+            $finishPollService = new FinishPollService();
+            echo json_encode(["success" => $finishPollService->finishPoll($pollCode, new PollRepository())]);
+        } catch (Exception $e) {
+            http_response_code(500);
+            echo json_encode(["error" => "Internal Server Error"]);
+        }
     }
 
     public function userPolls(string $user_id): void
     {
-        TokenService::protect();
+        try {
+            TokenService::protect();
 
-        $user = new User($user_id);
-        $userRep = new UserRepository();
+            $user = new User($user_id);
+            $userRep = new UserRepository();
 
-        if (!$userRep->existsById($user->getUserName())) {
-            echo json_encode(["error" => "User don't exists"]);
-            exit;
+            if (!$userRep->existsById($user->getUserName())) {
+                echo json_encode(["error" => "User don't exists"]);
+                exit;
+            }
+
+            $userPolls = (new PollRepository())->getAllPollsByUser($user);
+
+            echo json_encode([
+                'success' => true,
+                'polls' => $userPolls
+            ]);
+        } catch (Exception $e) {
+            http_response_code(500);
+            echo json_encode(["error" => "Internal Server Error"]);
         }
-
-        $userPolls = (new PollRepository())->getAllPollsByUser($user);
-
-        //http_response_code(404);
-
-        // Se for array, retorna diretamente
-        //header('Content-Type: application/json; charset=utf-8');
-        echo json_encode([
-            'success' => true,
-            'polls' => $userPolls
-        ]);
     }
 
 
     public function vote(?array $data): void
     {
-        TokenService::protect();
+        try {
+            TokenService::protect();
 
-        if (!isset($data)) {
-            echo json_encode(["success" => false]);
+            if (!isset($data)) {
+                echo json_encode(["success" => false]);
+                exit;
+            }
+
+            $vote = new Vote(
+                new User(
+                    $data["user_id"] ?? null
+                ),
+                $data["code"] ?? null,
+                $data["poll_id"] ?? null,
+                $data["option_id"] ?? null
+            );
+
+            if (!VoteService::vote($vote)) {
+                echo json_encode(["error" => false]);
+                exit;
+            }
+            echo json_encode(["success" => true]);
+        } catch (\InvalidArgumentException $e) {
+            http_response_code(400);
+            echo json_encode(["error" => $e->getMessage()]);
+        } catch (\TypeError $e) {
+            http_response_code(400);
+            echo json_encode(["error" => "Invalid input data"]);
+        } catch (Exception $e) {
+            http_response_code(500);
+            echo json_encode(["error" => "Internal Server Error"]);
         }
-
-        $vote = new Vote(
-            new User(
-                $data["user_id"]
-            ),
-            $data["code"],
-            $data["poll_id"],
-            $data["option_id"]
-        );
-
-        if (!VoteService::vote($vote)) {
-            echo json_encode(["error" => false]);
-            exit;
-        }
-        echo json_encode(["success" => true]);
     }
 }

@@ -26,7 +26,7 @@ class VoteService
             return false;
         }
 
-        $poll = $pollRep->getPoll($vote->code);
+        $poll = $pollRep->getPollByCode($vote->code);
         if (!$poll) {
             return false;
         }

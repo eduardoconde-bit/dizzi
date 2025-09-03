@@ -10,63 +10,91 @@
 <body class="bg-gray-100 font-sans p-5">
     <div class="max-w-xl mx-auto bg-white p-6 rounded-xl shadow">
         <h2 class="text-2xl font-bold mb-4">Criar Votação</h2>
-        <input id="title" placeholder="Título da eleição" class="w-full p-2 mb-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400">
-        <textarea id="description" placeholder="Descrição" class="w-full p-2 mb-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400"></textarea>
-        <input id="duration" placeholder="Duração em ms" class="w-full p-2 mb-4 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400">
+        <input id="title" placeholder="Título da eleição"
+            class="w-full p-2 mb-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400">
+        <textarea id="description" placeholder="Descrição"
+            class="w-full p-2 mb-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400"></textarea>
+        <input id="duration" placeholder="Duração em minutos" type="number" min="1" max="1440"
+            class="w-full p-2 mb-4 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400">
 
         <h3 class="text-lg font-semibold mb-2">Opções de Voto</h3>
         <div id="options"></div>
-        <button type="button" onclick="addOption()" class="mt-2 mb-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition">+ Adicionar opção</button>
+        <button type="button" onclick="addOption()"
+            class="mt-2 mb-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition">+ Adicionar
+            opção</button>
 
         <hr class="my-4">
-        <button type="button" onclick="createElection()" class="w-full px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition">Criar Votação</button>
+        <button type="button" onclick="createElection()"
+            class="w-full px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition">Criar
+            Votação</button>
         <pre id="message" class="bg-gray-200 p-3 mt-4 rounded text-sm"></pre>
     </div>
 
     <script>
-		window.addEventListener("pageshow", async function (event) {
-		    const user = loadUserData();
-		
-		    const payload = {
-		        action: "login",
-		        user_name: user,
-		        password: user
-		    };
-		
-		    console.log(payload);
-		
-		    try {
-		        const response = await fetch("/app/Routes/api.php", {
-		            method: "POST",
-		            headers: { "Content-Type": "application/json" },
-		            credentials: "include",
-		            body: JSON.stringify(payload)
-		        });
-		
-		        // pega resposta crua
-		        const raw = await response.text();
-		        let result;
-		
-		        try {
-		            result = JSON.parse(raw);  // tenta converter para JSON
-		        } catch {
-		            console.warn("⚠️ Resposta não é JSON, exibindo cru:");
-		            console.log(raw);
-		            return; // não continua, mas também não quebra o script
-		        }
-		
-		        console.log("✅ JSON válido:", result);
-		
-		        if (!result.success) {
-		            window.location.href = "login.html";
-		        }
-		
-		    } catch (error) {
-		        console.error("Erro na requisição:", error);
-		    }
-		});
-		
-    
+        window.addEventListener("pageshow", async function (event) {
+            const user = loadUserData();
+
+            const payload = {
+                action: "login",
+                user_name: user,
+                password: user
+            };
+
+            console.log(payload);
+
+            try {
+                const response = await fetch("/app/Routes/api.php", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    credentials: "include",
+                    body: JSON.stringify(payload)
+                });
+
+                // pega resposta crua
+                const raw = await response.text();
+                let result;
+
+                try {
+                    result = JSON.parse(raw);  // tenta converter para JSON
+                } catch {
+                    console.warn("⚠️ Resposta não é JSON, exibindo cru:");
+                    console.log(raw);
+                    return; // não continua, mas também não quebra o script
+                }
+
+                console.log("✅ JSON válido:", result);
+
+                if (!result.success) {
+                    window.location.href = "login.html";
+                }
+
+            } catch (error) {
+                console.error("Erro na requisição:", error);
+            }
+        });
+
+        function getCookie(name) {
+            const cookies = document.cookie.split('; ');
+            const cookie = cookies.find(c => c.startsWith(name + '='));
+            return cookie ? decodeURIComponent(cookie.split('=')[1]) : null;
+        }
+
+        function loadUserData() {
+            const userData = getCookie('user_data');
+            if (!userData) {
+                console.warn('Cookie user_data não encontrado');
+                return null;
+            }
+            try {
+                const parsedData = JSON.parse(userData);
+                return parsedData.userName; // retornamos o username como userId
+            } catch (err) {
+                console.error('Erro ao parsear user_data:', err);
+                return null;
+            }
+        }
+
+
         function addOption(name = '') {
             const div = document.createElement("div");
             div.className = "option-field flex gap-2 items-center mb-2";
@@ -97,13 +125,15 @@
             const parsedData = JSON.parse(userData || '{}');
 
             const payload = {
-            	action: "create_poll",
+                action: "create_poll",
                 user_id: parsedData.userName || '',
                 title,
                 description,
                 duration,
                 options
             };
+
+            console.log(payload);
 
             try {
                 const response = await fetch("/app/Routes/api.php", {
@@ -113,7 +143,20 @@
                     body: JSON.stringify(payload)
                 });
 
-                const data = await response.json();
+                // pega resposta crua
+                const raw = await response.text();
+                let data;
+
+                try {
+                    data = JSON.parse(raw);  // tenta converter para JSON
+                } catch {
+                    console.warn("⚠️ Resposta não é JSON, exibindo cru:");
+                    console.log(raw);
+                    return; // não continua, mas também não quebra o script
+                }
+
+                console.log("✅ JSON válido:", data);
+
                 document.getElementById("message").textContent = "Resposta do servidor:\n" + JSON.stringify(data, null, 2);
             } catch (e) {
                 document.getElementById("message").textContent = "Erro na conexão com o servidor.";

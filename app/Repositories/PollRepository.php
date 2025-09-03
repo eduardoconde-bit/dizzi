@@ -37,11 +37,11 @@ class PollRepository implements IPollRepository
             // Pega o start_time atual
             $startTime = new \DateTimeImmutable();
 
-            // Converte duration de ms -> segundos
-            $durationSeconds = (int) ($poll->duration / 1000);
+            // Converte duração de minutos para milissegundos
+            $durationMs = (int) ($poll->duration * 60 * 1000);
 
             // Calcula o end_time
-            $endTime = $startTime->modify("+{$durationSeconds} seconds");
+            $endTime = $startTime->modify("+{$durationMs} milliseconds");
 
             // Insere na tabela polls
             $stmtPoll = $pdo->prepare("
@@ -87,7 +87,7 @@ class PollRepository implements IPollRepository
                 ':code'    => $code,
             ]);
 
-            $pdo->commit();
+            var_dump($pdo->commit());
 
             return $pollId;
         } catch (\Exception $e) {
@@ -174,82 +174,95 @@ class PollRepository implements IPollRepository
 
 
 
-    public function getPoll(string $pollIdOrCode): array|false
+    public function getPollById(string $pollId): array|false
     {
         try {
             $db = new Database();
             $pdo = $db->getConnection();
 
-            // Se for código, busca o poll_id correspondente
-            if (!ctype_digit($pollIdOrCode)) {
-                $stmtCode = $pdo->prepare("SELECT poll_id FROM poll_codes WHERE code = :code LIMIT 1");
-                $stmtCode->execute([':code' => $pollIdOrCode]);
-                $rowCode = $stmtCode->fetch(\PDO::FETCH_ASSOC);
-
-                if (!$rowCode) {
-                    return false; // Código não encontrado
-                }
-                $pollId = $rowCode['poll_id'];
-            } else {
-                $pollId = $pollIdOrCode;
-            }
-
-            // Busca os dados da poll, user, opções e code
-            $sql = "
-                SELECT 
-                    p.id AS poll_id,
-                    p.user_id,
-                    u.user_name,
-                    p.title,
-                    p.description,
-                    TIMESTAMPDIFF(SECOND, p.start_time, COALESCE(p.end_time, NOW())) AS duration_seconds,
-                    po.id AS option_id,
-                    po.option_name,
-                    po.image_url,
-                    pc.code
-                FROM polls p
-                INNER JOIN users u ON u.user_id = p.user_id
-                LEFT JOIN poll_options po ON po.poll_id = p.id
-                LEFT JOIN poll_codes pc ON pc.poll_id = p.id
-                WHERE p.id = :pollId
-            ";
-
-            $stmt = $pdo->prepare($sql);
-            $stmt->execute([':pollId' => $pollId]);
-            $rows = $stmt->fetchAll(\PDO::FETCH_ASSOC);
-
-            if (!$rows) {
-                return false;
-            }
-
-            $poll = [
-                'id' => (string) $rows[0]['poll_id'],
-                'user' => [
-                    'user_id' => $rows[0]['user_id'],
-                    'user_name' => $rows[0]['user_name']
-                ],
-                'title' => $rows[0]['title'],
-                'description' => $rows[0]['description'] ?? null,
-                'duration' => (string) $rows[0]['duration_seconds'] . 's',
-                'options' => [],
-                'urls' => [],
-                'code' => $rows[0]['code'] ?? null
-            ];
-
-            foreach ($rows as $row) {
-                if ($row['option_id']) {
-                    $poll['options'][(string)$row['option_id']] = $row['option_name'];
-                    if ($row['image_url']) {
-                        $poll['urls'][] = $row['image_url'];
-                    }
-                }
-            }
-
-            return $poll;
+            return $this->fetchPoll($pdo, $pollId);
         } catch (\PDOException $e) {
             error_log($e->getMessage());
             return false;
         }
+    }
+
+    public function getPollByCode(string $code): array|false
+    {
+        try {
+            $db = new Database();
+            $pdo = $db->getConnection();
+
+            // Busca o poll_id a partir do código
+            $stmtCode = $pdo->prepare("SELECT poll_id FROM poll_codes WHERE code = :code LIMIT 1");
+            $stmtCode->execute([':code' => $code]);
+            $rowCode = $stmtCode->fetch(\PDO::FETCH_ASSOC);
+
+            if (!$rowCode) {
+                return false; // Código não encontrado
+            }
+
+            $pollId = $rowCode['poll_id'];
+            return $this->fetchPoll($pdo, $pollId);
+        } catch (\PDOException $e) {
+            error_log($e->getMessage());
+            return false;
+        }
+    }
+
+    private function fetchPoll(\PDO $pdo, string $pollId): array|false
+    {
+        $sql = "
+            SELECT 
+                p.id AS poll_id,
+                p.user_id,
+                u.user_name,
+                p.title,
+                p.description,
+                TIMESTAMPDIFF(SECOND, p.start_time, COALESCE(p.end_time, NOW())) AS duration_seconds,
+                po.id AS option_id,
+                po.option_name,
+                po.image_url,
+                pc.code
+            FROM polls p
+            INNER JOIN users u ON u.user_id = p.user_id
+            LEFT JOIN poll_options po ON po.poll_id = p.id
+            LEFT JOIN poll_codes pc ON pc.poll_id = p.id
+            WHERE p.id = :pollId
+        ";
+
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute([':pollId' => $pollId]);
+        $rows = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+        if (!$rows) {
+            return false;
+        }
+
+        $poll = [
+            'id' => (string) $rows[0]['poll_id'],
+            'user' => [
+                'user_id' => $rows[0]['user_id'],
+                'user_name' => $rows[0]['user_name']
+            ],
+            'title' => $rows[0]['title'],
+            'description' => $rows[0]['description'] ?? null,
+            'duration' => (string) $rows[0]['duration_seconds'] . 's',
+            'options' => [],
+            'urls' => [],
+            'code' => $rows[0]['code'] ?? null
+        ];
+
+        foreach ($rows as $row) {
+            if ($row['option_id']) {
+                $poll['options'][(string)$row['option_id']] = $row['option_name'];
+                if ($row['image_url']) {
+                    $poll['urls'][] = $row['image_url'];
+                }
+            }
+        }
+
+        return $poll;
     }
 
     public function getAllPollsByUser(User $user): array

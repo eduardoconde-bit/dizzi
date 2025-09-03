@@ -51,46 +51,47 @@
         }
 
         window.addEventListener("pageshow", async function (event) {
-                const user = loadUserData();
-            
-                const payload = {
-                    action: "login",
-                    user_name: user,
-                    password: user
-                };
-            
-                console.log(payload);
-            
+            const user = loadUserData();
+
+            const payload = {
+                action: "login",
+                user_name: user,
+                password: user
+            };
+
+            console.log(payload);
+
+            try {
+                const response = await fetch("/app/Routes/api.php", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    credentials: "include",
+                    body: JSON.stringify(payload)
+                });
+
+                // pega resposta crua
+                const raw = await response.text();
+                let result;
+
                 try {
-                    const response = await fetch("/app/Routes/api.php", {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        credentials: "include",
-                        body: JSON.stringify(payload)
-                    });
-            
-                    // pega resposta crua
-                    const raw = await response.text();
-                    let result;
-            
-                    try {
-                        result = JSON.parse(raw);  // tenta converter para JSON
-                    } catch {
-                        console.warn("⚠️ Resposta não é JSON, exibindo cru:");
-                        console.log(raw);
-                        return; // não continua, mas também não quebra o script
-                    }
-            
-                    console.log("✅ JSON válido:", result);
-            
-                    if (!result.success) {
-                        window.location.href = "login.html";
-                    }
-            
-                } catch (error) {
-                    console.error("Erro na requisição:", error);
+                    result = JSON.parse(raw);  // tenta converter para JSON
+                } catch {
+                    console.warn("⚠️ Resposta não é JSON, exibindo cru:");
+                    console.log(raw);
+                    return; // não continua, mas também não quebra o script
                 }
-            });
+
+                console.log("✅ JSON válido:", result);
+
+                if (!result.success) {
+                    window.location.href = "login.html";
+                }
+
+            } catch (error) {
+                console.error("Erro na requisição:", error);
+            }
+        });
+
         async function loadPoll() {
             const code = document.getElementById("pollCode").value.trim();
             if (!code) { alert("Digite o código da eleição"); return; }
@@ -104,6 +105,10 @@
             try {
                 const res = await fetch(`/app/Routes/api.php?code_poll=${code}`, { credentials: "include" });
                 const data = await res.json();
+
+                console.log(`/app/Routes/api.php?code_poll=${code}`);
+
+                console.log(data);
 
                 if (!data.success || !data.poll) {
                     alert("Código inválido ou eleição não encontrada");

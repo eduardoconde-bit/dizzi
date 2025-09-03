@@ -32,17 +32,25 @@ class AuthController
      */
     public function register(?array $data): void
     {
-        if (!isset($data["user_name"]) && !isset($data["password"])) {
-            echo json_encode($this->invalidCredentials);
-        }
+        try {
+            if (!isset($data["user_name"]) || !isset($data["password"])) {
+                echo json_encode($this->invalidCredentials);
+                exit;
+            }
 
-        if ($this->userRep->existsById($data["user_name"])) {
-            echo json_encode($this->userAlreadyExists);
-            exit;
-        }
+            if ($this->userRep->existsById($data["user_name"])) {
+                echo json_encode($this->userAlreadyExists);
+                exit;
+            }
 
-        $user = new User($data["user_name"], $data['password']);
-        echo json_encode(["success" => RegisterService::register($user)]);
+            $user = new User($data["user_name"], $data['password']);
+            echo json_encode(["success" => RegisterService::register($user)]);
+        } catch (\Throwable $e) {
+            http_response_code(500);
+            echo json_encode([
+                "error" => "Internal Server Error"
+            ]);
+        }
     }
 
     /**
@@ -52,26 +60,33 @@ class AuthController
      * @return void
      */
     public function login(?array $data): void
-	{
-	    //Poderia também revalidar o token a cada requisição que se mostre legítima como na condição abaixo
-	    if (isset($_COOKIE['auth_token'])) {
-	        if((new UserRepository())->existsById($data["user_name"])) {
-	            echo json_encode($this->userAuthenticated);
-	            exit;
-	        }
-	    }
+    {
+        try {
+            //Poderia também revalidar o token a cada requisição que se mostre legítima como na condição abaixo
+            if (isset($_COOKIE['auth_token'])) {
+                if ((new UserRepository())->existsById($data["user_name"])) {
+                    echo json_encode($this->userAuthenticated);
+                    exit;
+                }
+            }
 
-	    if (!isset($data["user_name"]) || !isset($data["password"])) {
-	        echo json_encode($this->invalidCredentials);
-	        exit;
-	    }
+            if (!isset($data["user_name"]) || !isset($data["password"])) {
+                echo json_encode($this->invalidCredentials);
+                exit;
+            }
 
-	    $token = TokenService::issueToken(new User($data["user_name"], $data["password"]));
+            $token = TokenService::issueToken(new User($data["user_name"], $data["password"]));
 
-	    if (!$token) {
-	        echo json_encode($this->invalidCredentials);
-	        exit;
-	    }
-	    echo json_encode($this->userValid);
-	}
+            if (!$token) {
+                echo json_encode($this->invalidCredentials);
+                exit;
+            }
+            echo json_encode($this->userValid);
+        } catch (\Throwable $e) {
+            http_response_code(500);
+            echo json_encode([
+                "error" => "Internal Server Error"
+            ]);
+        }
+    }
 }
