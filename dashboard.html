@@ -97,13 +97,19 @@
         const toggleBtn = document.getElementById('menu-toggle');
         const mobileMenu = document.getElementById('mobile-menu');
 
+        const urlParams = new URLSearchParams(window.location.search);
+        const id = urlParams.get('poll_id');
+        if (id) {
+            console.log("Aqui o ID vindo de profile: " + id);
+        }
+
         // Toggle do menu mobile
         toggleBtn.addEventListener('click', () => {
             mobileMenu.classList.toggle('hidden');
         });
 
         // Conexão com SSE
-        const evtSource = new EventSource("php.php"); // seu endpoint SSE
+        const evtSource = new EventSource(`php.php?poll_id=${id}`); // seu endpoint SSE
 
         evtSource.onmessage = function (event) {
             const data = JSON.parse(event.data);

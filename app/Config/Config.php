@@ -19,7 +19,7 @@ class Config {
     public string $awsBucket;
 
     public function __construct() {
-        $dotenv = Dotenv::createImmutable("/var/www/html/dizzi");
+        $dotenv = Dotenv::createImmutable(__DIR__."/../../");
         $dotenv->load();
 
         $this->dbHost = $_ENV['DB_HOST'];

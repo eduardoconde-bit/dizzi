@@ -24,7 +24,7 @@ $db = new Database();
 $db = $db->getConnection();
 
 // ID da eleição
-$pollId = 1;
+$pollId = $_GET["poll_id"] ?? 0; 
 
 try {
     while (true) {

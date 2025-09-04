@@ -184,7 +184,7 @@
             li.className = "bg-blue-50 p-5 rounded-lg shadow hover:shadow-md transition";
 
             li.innerHTML = `
-              <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+              <div class="flex flex-col gap-4">
                 <div class="text-gray-700 space-y-1">
                   <p><strong>Título:</strong> ${poll.title}</p>
                   ${poll.description ? `<p><strong>Descrição:</strong> ${poll.description}</p>` : ''}
@@ -195,6 +195,9 @@
                 </div>
                 <button onclick="finishPoll('${poll.id}')" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition">
                   Finalizar
+                </button>
+                <button onclick="dashboard('${poll.id}')" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition">
+                  Dashboard
                 </button>
               </div>
             `;
@@ -210,6 +213,10 @@
 
     const userId = loadUserData();
     loadPolls(userId);
+
+    const dashboard = (pollId) => {
+      window.location.href = `/dashboard.html?poll_id=${pollId}`;
+    }
   </script>
 
 </body>
