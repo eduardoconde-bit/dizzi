@@ -240,16 +240,22 @@
                     })
                 });
 
-                const data = await response.json();
-                console.log(data);
+                const data = await response.text();
+                let result;
+                try {
+                    result = JSON.parse(data);
+                } catch {
+                    console.warn("⚠️ Resposta não é JSON:", data);
+                    return;
+                }
 
-                if (data.success) {
-                    document.getElementById("message").innerText = "✅ " + (data.message || "Voto registrado!");
+                if (result.success) {
+                    document.getElementById("message").innerText = "✅ " + (result.message || "Voto registrado!");
                     document.getElementById("voteBtn").disabled = true;
-                } else if (data.invalid) {
-                    document.getElementById("message").innerText = "❌ " + (data.message || "Voto já registrado");
+                } else if (result.invalid) {
+                    document.getElementById("message").innerText = "❌ " + (result.message || "Voto já registrado");
                 } else {
-                    document.getElementById("message").innerText = "❌ " + (data.message || "Erro ao votar");
+                    document.getElementById("message").innerText = "❌ " + (result.message || "Erro ao votar");
                 }
 
             } catch (e) {

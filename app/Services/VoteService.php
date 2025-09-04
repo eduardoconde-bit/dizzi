@@ -16,7 +16,7 @@ class VoteService
         if (!self::validVote($vote, new UserRepository(), new PollRepository())) {
             return false;
         }
-        return new PollRepository()->persistVote($vote);
+        return (new PollRepository())->persistVote($vote);
     }
 
     public static function validVote(Vote $vote, UserRepository $userRep, PollRepository $pollRep): bool
