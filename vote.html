@@ -187,9 +187,10 @@
           document.getElementById("message").innerText = "❌ Voto já registrado";
         } else if (result.error?.code === "POLL_FINISHED") {
           document.getElementById("message").innerText = "❌ Votação finalizada";
+        } else if (result.error?.code === "SELF_VOTE") {
+          document.getElementById("message").innerText = "❌ Não é permitido votar na própria eleição";
         } else {
           document.getElementById("message").innerText = "❌ Erro ao votar, tente novamente";
-          voteBtn.disabled = false;
         }
 
       } catch (e) { alert("Erro ao enviar voto: " + e.message); voteBtn.disabled = false; }

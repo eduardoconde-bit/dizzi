@@ -22,27 +22,45 @@ class Poll
         $this->user = $user;
 
         if (empty(trim($title))) {
-            throw new \InvalidArgumentException("O título é obrigatório.");
+            throw new \InvalidArgumentException("Title is required.");
         }
         if (strlen($title) > 255) {
-            throw new \InvalidArgumentException("O título não pode ter mais de 255 caracteres.");
+            throw new \InvalidArgumentException("Title cannot be longer than 255 characters.");
         }
         $this->title = $title;
 
-        // Validar description (opcional, mas limitada se presente)
+        // Validate description (optional, but limited if present)
         if ($description !== null) {
             if (strlen($description) > 1000) {
-                throw new \InvalidArgumentException("A descrição não pode ter mais de 1000 caracteres.");
+                throw new \InvalidArgumentException("Description cannot be longer than 1000 characters.");
             }
             $this->description = $description;
         } else {
             $this->description = null;
         }
 
-        // Validar duration
-        // Validar duration em minutos (mínimo 1 minuto, máximo 24 horas)
-        if ($duration < 1 || $duration > 1440) { // 1 a 1440 minutos
-            throw new \InvalidArgumentException("A duração deve ser entre 1 e 1440 minutos (1 a 24 horas).");
+        // Validate duration in minutes (minimum 1 minute, maximum 24 hours)
+        if ($duration < 1 || $duration > 1440) { // 1 to 1440 minutes
+            throw new \InvalidArgumentException("Duration must be between 1 and 1440 minutes (1 to 24 hours).");
+        }
+
+        if (!empty($options)) {
+            if (count($options) < 2) {
+            throw new \InvalidArgumentException("At least two options are required.");
+            }
+            if (count($options) > 10) {
+            throw new \InvalidArgumentException("A maximum of ten options are allowed.");
+            }
+            foreach ($options as $option) {
+            if (empty(trim($option))) {
+                throw new \InvalidArgumentException("Options cannot be empty.");
+            }
+            if (strlen($option) > 100) {
+                throw new \InvalidArgumentException("Each option cannot be longer than 100 characters.");
+            }
+            }
+        } else {
+            throw new \InvalidArgumentException("Options are required.");
         }
         
         $this->duration = $duration;

@@ -16,7 +16,20 @@ class VoteService
     {
         $pollRep = new PollRepository();
         $poll = $pollRep->getPollByCode($vote->code);
-        
+
+        if (isset($poll["user"])) {
+            if($poll["user"]["user_id"] === $vote->user->getUserName()) {
+                http_response_code(400);
+                return [
+                    "success" => false,
+                    "error" => [
+                        "code" => "SELF_VOTE",
+                        "message" => "User cannot vote in their own poll"
+                    ]
+                ];
+            }
+        }
+
         if (!self::validVote($vote, new UserRepository(), $poll)) {
             http_response_code(400);
             return [
@@ -27,8 +40,8 @@ class VoteService
                 ]
             ];
         }
-        
-        if($poll['is_finished']) {
+
+        if ($poll['is_finished']) {
             http_response_code(400);
             return [
                 "success" => false,
@@ -37,7 +50,6 @@ class VoteService
                     "message" => "Poll is finished"
                 ]
             ];
-
         }
 
         if ($pollRep->searchVote($vote)) {
@@ -61,7 +73,7 @@ class VoteService
         ];
     }
 
-    public static function validVote(Vote $vote, UserRepository $userRep, array $poll): bool
+    public static function validVote(Vote $vote, UserRepository $userRep, ?array $poll): bool
     {
         //Adicionar regra opcional de voto por CRIADOR da votação.
         if (!$userRep->existsById($vote->user->getUserName())) {
@@ -69,7 +81,6 @@ class VoteService
         }
 
         if (empty($poll)) {
-            echo "Oi poll vazio!";
             return false;
         }
 

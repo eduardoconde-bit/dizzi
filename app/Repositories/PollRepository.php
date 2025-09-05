@@ -138,7 +138,7 @@ class PollRepository implements IPollRepository
         }
     }
 
-    public function getPollById(string $pollId): array|false
+    public function getPollById(string $pollId): ?array
     {
         try {
             $db = new Database();
@@ -147,11 +147,11 @@ class PollRepository implements IPollRepository
             return $this->fetchPoll($pdo, $pollId);
         } catch (\PDOException $e) {
             error_log($e->getMessage());
-            return false;
+            return null;
         }
     }
 
-    public function getPollByCode(string $code): array|false
+    public function getPollByCode(string $code): ?array
     {
         try {
             $db = new Database();
@@ -163,18 +163,18 @@ class PollRepository implements IPollRepository
             $rowCode = $stmtCode->fetch(\PDO::FETCH_ASSOC);
 
             if (!$rowCode) {
-                return false; // Código não encontrado
+                return null; // Código não encontrado
             }
 
             $pollId = $rowCode['poll_id'];
             return $this->fetchPoll($pdo, $pollId);
         } catch (\PDOException $e) {
             error_log($e->getMessage());
-            return false;
+            return null;
         }
     }
 
-    private function fetchPoll(\PDO $pdo, string $pollId): array|false
+    private function fetchPoll(\PDO $pdo, string $pollId): ?array
     {
         $sql = "
             SELECT 
@@ -203,7 +203,7 @@ class PollRepository implements IPollRepository
         $rows = $stmt->fetchAll(\PDO::FETCH_ASSOC);
 
         if (!$rows) {
-            return false;
+            return null;
         }
 
         $poll = [
