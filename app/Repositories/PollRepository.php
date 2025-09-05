@@ -178,21 +178,24 @@ class PollRepository implements IPollRepository
     {
         $sql = "
             SELECT 
-                p.id AS poll_id,
-                p.user_id,
-                u.user_name,
-                p.title,
-                p.description,
-                TIMESTAMPDIFF(SECOND, p.start_time, COALESCE(p.end_time, NOW())) AS duration_seconds,
-                po.id AS option_id,
-                po.option_name,
-                po.image_url,
-                pc.code
+            p.id AS poll_id,
+            p.user_id,
+            u.user_name,
+            p.title,
+            p.description,
+            TIMESTAMPDIFF(SECOND, p.start_time, COALESCE(p.end_time, NOW())) AS duration_seconds,
+            p.is_finished,
+            p.number_votes,
+            po.id AS option_id,
+            po.option_name,
+            po.image_url,
+            pc.code
             FROM polls p
             INNER JOIN users u ON u.user_id = p.user_id
             LEFT JOIN poll_options po ON po.poll_id = p.id
             LEFT JOIN poll_codes pc ON pc.poll_id = p.id
             WHERE p.id = :pollId
+            ORDER BY p.is_finished DESC
         ";
 
         $stmt = $pdo->prepare($sql);
@@ -206,15 +209,17 @@ class PollRepository implements IPollRepository
         $poll = [
             'id' => (string) $rows[0]['poll_id'],
             'user' => [
-                'user_id' => $rows[0]['user_id'],
+                'user_id'   => $rows[0]['user_id'],
                 'user_name' => $rows[0]['user_name']
             ],
-            'title' => $rows[0]['title'],
-            'description' => $rows[0]['description'] ?? null,
-            'duration' => (string) $rows[0]['duration_seconds'] . 's',
-            'options' => [],
-            'urls' => [],
-            'code' => $rows[0]['code'] ?? null
+            'title'        => $rows[0]['title'],
+            'description'  => $rows[0]['description'] ?? null,
+            'duration'     => (string) $rows[0]['duration_seconds'] . 's',
+            'options'      => [],
+            'urls'         => [],
+            'code'         => $rows[0]['code'] ?? null,
+            'is_finished'  => (bool) $rows[0]['is_finished'],
+            'number_votes' => (int) $rows[0]['number_votes']
         ];
 
         foreach ($rows as $row) {
@@ -250,7 +255,7 @@ class PollRepository implements IPollRepository
             LEFT JOIN poll_codes pc 
                 ON p.id = pc.poll_id
             WHERE p.user_id = :user_id
-            ORDER BY p.start_time DESC;
+            ORDER BY p.is_finished, p.start_time DESC;
             ");
 
             $stmt->bindValue(':user_id', $user->getUserName(), \PDO::PARAM_STR);

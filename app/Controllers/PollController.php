@@ -43,15 +43,24 @@ class PollController
                 $data["urls"] ?? null
             );
             echo json_encode(["success" => InitPollService::initPoll($poll, new PollRepository($poll))]);
-        } catch (\InvalidArgumentException $e) {
+        } catch (\InvalidArgumentException | \TypeError $e) {
             http_response_code(400);
-            echo json_encode(["error" => $e->getMessage()]);
-        } catch (\TypeError $e) {
-            http_response_code(400);
-            echo json_encode(["error" => "Invalid input data"]);
+            echo json_encode([
+            "success" => false,
+            "error" => [
+                "code" => "MALFORMED_REQUEST",
+                "message" => "Invalid input data"
+            ]
+            ]);
         } catch (Exception $e) {
             http_response_code(500);
-            echo json_encode(["error" => "Internal Server Error"]);
+            echo json_encode([
+            "success" => false,
+            "error" => [
+                "code" => "INTERNAL_SERVER_ERROR",
+                "message" => "Internal Server Error"
+            ]
+            ]);
         }
     }
 
@@ -132,11 +141,6 @@ class PollController
         try {
             TokenService::protect();
 
-            if (!isset($data)) {
-                echo json_encode(["success" => false]);
-                exit;
-            }
-
             $vote = new Vote(
                 new User(
                     $data["user_id"] ?? null
@@ -146,20 +150,25 @@ class PollController
                 $data["option_id"] ?? null
             );
 
-            if (!VoteService::vote($vote)) {
-                echo json_encode(["invalid" => true]);
-                exit;
-            }
-            echo json_encode(["success" => true]);
-        } catch (\InvalidArgumentException $e) {
+            echo json_encode(VoteService::vote($vote));
+        } catch (\InvalidArgumentException | \TypeError $e) {
             http_response_code(400);
-            echo json_encode(["error" => $e->getMessage()]);
-        } catch (\TypeError $e) {
-            http_response_code(400);
-            echo json_encode(["error" => "Invalid input data"]);
-        } catch (Exception $e) {
+            echo json_encode([
+                "success" => false,
+                "error" => [
+                    "code" => "MALFORMED_REQUEST",
+                    "message" => "Invalid input data"
+                ]
+            ]);
+        } catch (\Throwable $e) {
             http_response_code(500);
-            echo json_encode(["error" => "Internal Server Error"]);
+            echo json_encode([
+                "success" => false,
+                "error" => [
+                    "code" => "INTERNAL_SERVER_ERROR",
+                    "message" => "Internal Server Error"
+                ]
+            ]);
         }
     }
 }

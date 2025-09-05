@@ -85,6 +85,7 @@ class AuthController
                 echo json_encode($this->invalidCredentials);
                 exit;
             }
+            
             echo json_encode($this->userValid);
         } catch (\InvalidArgumentException $e) {
             http_response_code(400);
@@ -94,6 +95,17 @@ class AuthController
             echo json_encode([
                 "error" => "Internal Server Error"
             ]);
+        }
+    }
+
+    public function logout(): void
+    {
+        $token = TokenService::decodeToken($_COOKIE["auth_token"] ?? '');
+        // Expira o cookie definindo uma data no passado
+        if(!TokenService::issueToken(new User($token["user"]), -3600, false)) { // invalida o token
+            echo json_encode(["success" => false, "message" => "Error logging out"]);
+        } else {
+            echo json_encode(["success" => true, "message" => "Logged out successfully"]);
         }
     }
 }

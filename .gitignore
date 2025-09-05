@@ -15,5 +15,5 @@
 *.log
 *.cache
 
-/test.html
-/test.php
+test.html
+test.php

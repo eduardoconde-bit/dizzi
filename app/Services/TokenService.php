@@ -14,12 +14,14 @@ class TokenService
 {
     const SECRET = "xxxxxxfffffxxxxxfffffxxxxxxfffff2000";
 
-    public static function issueToken(User $user): bool
+    public static function issueToken(User $user, int $ttl = 3600, bool $verifyCredentials = true): bool
     {
-        $userRep = new UserRepository();
-        $validUser = $userRep->verifyCredentials($user->getUserName(), $user->getPassword());
-        if (!$validUser) {
-            return false;
+        if ($verifyCredentials) {
+            $validUser = (new UserRepository())->verifyCredentials($user->getUserName(), $user->getPassword());
+            
+            if (!$validUser) {
+                return false;
+            }
         }
 
         // Dados do JWT
@@ -27,7 +29,7 @@ class TokenService
             "iss" => "https://localhost",
             "aud" => "https://localhost",
             "iat" => time(),
-            "exp" => time() + 3600, // expira em 1 hora
+            "exp" => time() + $ttl, // expira em 1 hora
             "user" => $user->getUserName()
         ];
 
@@ -38,11 +40,11 @@ class TokenService
             "auth_token",
             $jwt,
             [
-                "expires"  => time() + 3600,
+                "expires"  => time() + $ttl,
                 "path"     => "/",
                 "httponly" => true,
                 "secure"   => true,
-                "samesite" => "Strict"
+                "samesite" => "Lax"
             ]
         );
 
@@ -52,11 +54,11 @@ class TokenService
             "user_data",
             json_encode($data), // converte array em JSON
             [
-                "expires" => time() + 3600,
+                "expires" => time() + $ttl,
                 "path"    => "/",
                 "httponly" => false,   // importante: false, para JS poder ler
                 "secure"  => true,
-                "samesite" => "Strict"
+                "samesite" => "Lax"
             ]
         );
 

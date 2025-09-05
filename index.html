@@ -2,43 +2,130 @@
 <html lang="pt-BR">
 
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Dizzi - Votação</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 
-<body class="bg-gray-100 min-h-screen m-0">
-  <!-- Header -->
-  <header class="bg-white shadow flex items-center justify-between px-8 py-4">
-    <h1 class="text-2xl font-bold text-gray-800">Dizzi</h1>
-    <div class="flex gap-2">
-      <button
-        class="py-2 px-4 rounded-lg text-base font-semibold bg-gray-100 hover:bg-gray-200 text-gray-800 transition-colors"
-        onclick="window.location.href='login.html'">Login</button>
-      <button
-        class="py-2 px-4 rounded-lg text-base font-semibold bg-gray-100 hover:bg-gray-200 text-gray-800 transition-colors"
-        onclick="window.location.href='register.html'">Registrar</button>
+<body class="bg-gray-100 font-sans">
+
+  <!-- Header unificado -->
+  <header class="bg-gray-900 text-white sticky top-0 z-50 shadow-md">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center h-16">
+        <!-- Logo -->
+        <div class="text-2xl font-bold text-cyan-400">Dizzi</div>
+
+        <!-- Menu Desktop -->
+        <nav class="hidden md:flex space-x-8">
+          <a href="login.html" class="hover:text-cyan-400 transition">Login</a>
+          <a href="register.html" class="hover:text-cyan-400 transition">Registrar</a>
+        </nav>
+
+        <!-- Botão Menu Mobile -->
+        <div class="md:hidden">
+          <button id="menu-toggle" class="text-2xl focus:outline-none">☰</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Menu Mobile -->
+    <div id="mobile-menu" class="md:hidden hidden px-4 pb-4 bg-gray-900">
+      <a href="login.html" class="block py-2 text-white hover:text-cyan-400">Login</a>
+      <a href="register.html" class="block py-2 text-white hover:text-cyan-400">Registrar</a>
     </div>
   </header>
-  <!-- Centralized code input -->
-  <main class="flex items-center justify-center min-h-[calc(100vh-80px)]">
-    <div class="bg-white p-8 rounded-xl shadow-lg text-center w-80">
+
+  <!-- Conteúdo centralizado -->
+  <main class="flex items-center justify-center min-h-[80vh] px-4">
+    <div class="w-full max-w-md bg-white p-8 rounded-xl shadow-md text-center">
+      <h2 class="text-3xl font-bold mb-6 text-gray-800">Entrar em uma Votação</h2>
+
       <form id="voteForm" class="space-y-4">
         <input type="text" id="code" placeholder="Digite o código da votação" required
-          class="w-11/12 px-4 py-3 border border-gray-300 rounded-lg text-base focus:outline-none focus:ring-2 focus:ring-blue-400" />
-        <button type="submit"
-          class="w-full py-3 rounded-lg text-base font-semibold bg-blue-500 text-white hover:bg-blue-600 transition-colors">
+          class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-400" />
+        <button type="submit" class="w-full py-3 bg-cyan-500 text-white rounded-lg hover:bg-cyan-600 transition">
           Entrar
         </button>
       </form>
     </div>
   </main>
+
   <script>
+    // Toggle menu mobile
+    document.getElementById('menu-toggle').addEventListener('click', () => {
+      document.getElementById('mobile-menu').classList.toggle('hidden');
+    });
+
+    // Form vote
     document.getElementById("voteForm").addEventListener("submit", function (e) {
       e.preventDefault();
       const code = document.getElementById("code").value.trim();
       if (code) {
         window.location.href = `vote.html?code=${encodeURIComponent(code)}`;
+      }
+    });
+
+    function getCookie(name) {
+      const cookies = document.cookie.split('; ');
+      const cookie = cookies.find(c => c.startsWith(name + '='));
+      return cookie ? decodeURIComponent(cookie.split('=')[1]) : null;
+    }
+
+    function loadUserData() {
+      const userData = getCookie('user_data');
+      if (!userData) {
+        console.warn('Cookie user_data não encontrado');
+        return null;
+      }
+      try {
+        const parsedData = JSON.parse(userData);
+        return parsedData.userName; // retornamos o username como userId
+      } catch (err) {
+        console.error('Erro ao parsear user_data:', err);
+        return null;
+      }
+    }
+
+    window.addEventListener("pageshow", async function (event) {
+      const user = loadUserData();
+
+      const payload = {
+        action: "login",
+        user_name: user,
+        password: user
+      };
+
+      console.log(payload);
+
+      try {
+        const response = await fetch("/app/Routes/api.php", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify(payload)
+        });
+
+        const raw = await response.text();
+        let result;
+
+        try {
+          result = JSON.parse(raw);
+        } catch {
+          console.warn("⚠️ Resposta não é JSON, exibindo cru:");
+          console.log(raw);
+          return;
+        }
+
+        console.log("✅ JSON válido:", result);
+
+        if (result.success) {
+          window.location.href = "profile.html";
+        }
+
+      } catch (error) {
+        console.error("Erro na requisição:", error);
       }
     });
   </script>

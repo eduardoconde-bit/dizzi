@@ -75,8 +75,24 @@
     const logoutLinks = [document.getElementById('logoutLink'), document.getElementById('logoutLinkMobile')];
     logoutLinks.forEach(link => {
       link?.addEventListener('click', () => {
-        document.cookie = "user_data=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-        location.href = "login.html";
+        fetch('/app/Routes/api.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ action: 'logout' })
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            window.location.href = 'login.html';
+          } else {
+            alert('Erro ao sair. Tente novamente.');
+          }
+        })
+        .catch(error => {
+          console.error('Erro na requisição de logout:', error);
+          alert('Erro ao sair. Tente novamente.');
+        });
       });
     });
 
@@ -169,45 +185,52 @@
     async function loadPolls(userId) {
       if (!userId) return;
       try {
-        const res = await fetch(`/app/Routes/api.php?action=get_polls&user_id=${userId}`, {
-          method: 'GET',
-          credentials: 'include'
+      const res = await fetch(`/app/Routes/api.php?action=get_polls&user_id=${userId}`, {
+        method: 'GET',
+        credentials: 'include'
+      });
+
+      const data = await res.json();
+      const list = document.getElementById('pollsList');
+      list.innerHTML = '';
+
+      if (data.success && data.polls.length) {
+        data.polls.forEach(poll => {
+        const isFinished = !!poll.is_finished;
+        const li = document.createElement('li');
+        li.className = "bg-blue-50 p-5 rounded-lg shadow hover:shadow-md transition";
+
+        li.innerHTML = `
+          <div class="flex flex-col gap-4">
+          <div class="text-gray-700 space-y-1">
+            <p><strong>Título:</strong> ${poll.title}</p>
+            ${poll.description ? `<p><strong>Descrição:</strong> ${poll.description}</p>` : ''}
+            <p><strong>Início:</strong> ${poll.start_time}</p>
+            <p><strong>Fim:</strong> ${poll.end_time}</p>
+            <p><strong>Status:</strong> <span class="${isFinished ? 'text-red-500' : 'text-green-600'} font-medium">${isFinished ? "Finalizada" : "Em andamento"}</span></p>
+            <p><strong>Código:</strong> <span class="font-mono bg-gray-100 px-2 py-0.5 rounded">${poll.code || "N/A"}</span></p>
+          </div>
+          <div class="flex gap-4 mt-3">
+            <button onclick="finishPoll('${poll.id}')" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition" ${isFinished ? 'disabled style="opacity:0.5;cursor:not-allowed"' : ''}>
+            Finalizar
+            </button>
+            <button onclick="vote('${poll.code}')" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition" ${isFinished ? 'disabled style="opacity:0.5;cursor:not-allowed"' : ''}>
+            Votar
+            </button>
+            <button onclick="dashboard('${poll.id}')" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition" ${isFinished ? 'disabled style="opacity:0.5;cursor:not-allowed"' : ''}>
+            Dashboard
+            </button>
+          </div>
+          </div>
+        `;
+        list.appendChild(li);
         });
-
-        const data = await res.json();
-        const list = document.getElementById('pollsList');
-        list.innerHTML = '';
-
-        if (data.success && data.polls.length) {
-          data.polls.forEach(poll => {
-            const li = document.createElement('li');
-            li.className = "bg-blue-50 p-5 rounded-lg shadow hover:shadow-md transition";
-
-            li.innerHTML = `
-              <div class="flex flex-col gap-4">
-                <div class="text-gray-700 space-y-1">
-                  <p><strong>Título:</strong> ${poll.title}</p>
-                  ${poll.description ? `<p><strong>Descrição:</strong> ${poll.description}</p>` : ''}
-                  <p><strong>Início:</strong> ${poll.start_time}</p>
-                  <p><strong>Fim:</strong> ${poll.end_time}</p>
-                  <p><strong>Status:</strong> <span class="${poll.is_finished ? 'text-red-500' : 'text-green-600'} font-medium">${poll.is_finished ? "Finalizada" : "Em andamento"}</span></p>
-                  <p><strong>Código:</strong> <span class="font-mono bg-gray-100 px-2 py-0.5 rounded">${poll.code || "N/A"}</span></p>
-                </div>
-                <button onclick="finishPoll('${poll.id}')" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition">
-                  Finalizar
-                </button>
-                <button onclick="dashboard('${poll.id}')" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition">
-                  Dashboard
-                </button>
-              </div>
-            `;
-            list.appendChild(li);
-          });
-        } else {
-          list.innerHTML = '<li class="text-gray-500 text-center">Nenhuma votação encontrada.</li>';
-        }
+      } else {
+        list.innerHTML = '<li class="text-gray-500 text-center">Nenhuma votação encontrada.</li>';
+      }
       } catch (err) {
-        console.error('Erro ao carregar polls:', err);
+      list.innerHTML = '<li class="text-gray-500 text-center">Erro ao carregar polls:</li>';
+      console.error('Erro ao carregar polls:', err);
       }
     }
 
@@ -216,6 +239,10 @@
 
     const dashboard = (pollId) => {
       window.location.href = `/dashboard.html?poll_id=${pollId}`;
+    }
+
+    const vote = (pollCode) => {
+      window.location.href = `/vote.html?poll_code=${pollCode}`;
     }
   </script>
 

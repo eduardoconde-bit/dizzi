@@ -64,6 +64,9 @@ switch ($method) {
             case "finish_poll":
                 (new PollController())->finishPoll($data["poll_id"]);
                 break;
+            case "logout":
+                (new AuthController())->logout();
+                break;
 
             default:
                 http_response_code(400);
