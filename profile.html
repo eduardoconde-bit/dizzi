@@ -211,7 +211,10 @@
     // Verificação de login
     window.addEventListener("pageshow", async function () {
       const user = loadUserData();
-      const payload = { action: "login", user_name: user, password: crypto.randomUUID() };
+      console.log(user);
+      document.getElementById('userName').innerText = user.userName || '';
+      document.getElementById('avatar').src = user.profileImage || null;
+      const payload = { action: "login", user_name: user.userName, password: crypto.randomUUID() };
 
       try {
         const response = await fetch("/app/Routes/api.php", {
@@ -254,9 +257,10 @@
       }
       try {
         const parsedData = JSON.parse(userData);
-        document.getElementById('userName').innerText = parsedData.userName || '';
-        document.getElementById('avatar').src = parsedData.profileImage || null;
-        return parsedData.userName;
+        return {
+          userName: parsedData.userName,
+          profileImage: parsedData.profileImage
+        };
       } catch (err) {
         console.error('Erro ao parsear user_data:', err);
         return null;
@@ -286,7 +290,7 @@
 
         if (result.success) {
           alert(`Votação finalizada com sucesso.`);
-          loadPolls(loadUserData());
+          loadPolls(loadUserData().userName);
         } else {
           alert(`Erro: ${result.message}`);
         }
@@ -348,8 +352,8 @@
       }
     }
 
-    const userId = loadUserData();
-    loadPolls(userId);
+    const user = loadUserData();
+    loadPolls(user.userName);
 
     const dashboard = (pollId) => {
       window.location.href = `/dashboard.html?poll_id=${pollId}`;
