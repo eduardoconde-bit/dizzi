@@ -73,7 +73,7 @@
       const payload = {
         action: "login",
         user_name: user,
-        password: user
+        password: crypto.randomUUID() // senha falsa para evitar login real
       };
 
       console.log(payload);

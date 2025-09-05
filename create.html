@@ -82,7 +82,7 @@
     // Funções pageshow, getCookie e loadUserData mantém a lógica atual
     window.addEventListener("pageshow", async function () {
       const user = loadUserData();
-      const payload = { action: "login", user_name: user, password: user };
+      const payload = { action: "login", user_name: user, password: crypto.randomUUID() };
       try {
         const response = await fetch("/app/Routes/api.php", {
           method: "POST",

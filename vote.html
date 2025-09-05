@@ -94,7 +94,7 @@
       const user = loadUserData();
       if (!user) { window.location.href = "login.html"; return; }
 
-      const payload = { action: "login", user_name: user, password: user };
+      const payload = { action: "login", user_name: user, password: crypto.randomUUID() };
       try {
         const response = await fetch("/app/Routes/api.php", {
           method: "POST",

@@ -24,7 +24,7 @@ $db = new Database();
 $db = $db->getConnection();
 
 // ID da eleição
-$pollId = $_GET["poll_id"] ?? 0; 
+$pollId = $_GET["poll_id"] ?? 0;
 
 try {
     while (true) {
@@ -36,7 +36,10 @@ try {
             p.number_votes AS total_votes,
             GROUP_CONCAT(DISTINCT pc.code) AS codes,
             GROUP_CONCAT(DISTINCT po.option_name) AS options,
-            GROUP_CONCAT(DISTINCT u.user_id) AS voted_users
+            GROUP_CONCAT(DISTINCT CASE 
+                WHEN l.previous_hash = REPEAT('0', 64) THEN NULL 
+                ELSE u.user_id 
+            END) AS voted_users
             FROM
                 polls p
             LEFT JOIN

@@ -10,7 +10,7 @@ use Aws\S3\S3Client;
 class ImageService
 {
 
-    public static function upload(Config $env)
+    public static function upload(Config $env, string $fileKey = 'image'): ?string
     {
 
         $s3 = new S3Client([
@@ -23,22 +23,25 @@ class ImageService
             ],
         ]);
 
-        if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['image'])) {
-            $file = $_FILES['image']['tmp_name'];
-            $fileName = self::generateUniqueFileName(basename($_FILES['image']['name']));
+        if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES[$fileKey])) {
+            $file = $_FILES[$fileKey]['tmp_name'];
+            $fileName = self::generateUniqueFileName(basename($_FILES[$fileKey]['name']));
 
             try {
                 $s3->putObject([
                     'Bucket'     =>    $env->awsBucket, // nome do seu Space
-                    'Key'        =>    $fileName, // caminho dentro do Space
+                    'Key'        =>    'avatar/' . $fileName, // caminho dentro do Space
                     'SourceFile' =>    $file,
                     'ACL'        =>    'public-read', // ou 'private'
                 ]);
 
-                echo json_encode(["url" => "https://dizzi-storage.nyc3.digitaloceanspaces.com/$fileName"], JSON_UNESCAPED_SLASHES);
+                return "https://{$env->awsBucket}.nyc3.digitaloceanspaces.com/avatar/$fileName";
             } catch (\Exception $e) {
-                echo "Erro: " . $e->getMessage();
+                error_log("Erro ao enviar para o S3 | imagem: " . $_FILES[$fileKey]['name'] . " | " . $e->getMessage());
+                return null;
             }
+        } else {
+            throw new \Exception("Método inválido ou arquivo não enviado.");
         }
     }
 

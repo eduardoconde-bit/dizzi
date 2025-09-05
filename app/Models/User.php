@@ -5,16 +5,17 @@ namespace Dizzi\Models;
 class User
 {
     //private string $userId;
-    private string $userName;
-    private ?string $password; // pode ser null
-    private ?string $publicName;
+    private string   $userName;
+    private ?string  $password; // pode ser null
+    private ?string  $publicName;
+    private ?string  $profileImage;
 
     /**
      * @param string $userName
      * @param string|null $password senha opcional, será convertida para hash se fornecida
      * @throws InvalidArgumentException
      */
-    public function __construct(string $userName, ?string $password = null)
+    public function __construct(string $userName, ?string $password = null, ?string $profileImage = null)
     {
 
         if (empty($userName) || strlen($userName) > 50 || strlen($userName) < 3) {
@@ -29,11 +30,16 @@ class User
             }
         }
 
-
+        if ($profileImage !== null && mb_strlen($profileImage, 'UTF-8') > 255) {
+            throw new \InvalidArgumentException(
+                "A imagem de perfil não pode exceder 255 caracteres."
+            );
+        }
 
         //$this->userId = $userId;
         $this->userName = $userName;
         $this->password = $password;
+        $this->profileImage = $profileImage;
     }
 
     public function getUserName(): string
@@ -44,5 +50,10 @@ class User
     public function getPassword(): ?string
     {
         return $this->password;
+    }
+
+    public function getProfileImage(): ?string
+    {
+        return $this->profileImage;
     }
 }

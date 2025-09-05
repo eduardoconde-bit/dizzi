@@ -2,10 +2,10 @@
 
 namespace Dizzi\Repositories;
 
+require __DIR__ . '/../../vendor/autoload.php';
+
 use Dizzi\Database\Database;
 use Dizzi\Models\User;
-
-require_once("../Database/Database.php");
 
 class UserRepository
 {
@@ -59,7 +59,7 @@ class UserRepository
             return new User(
                 $row['user_id'],
                 $row['user_name'],
-                null // não cria hash novo, pega o do banco
+                $row['profile_image'] ?? null
             );
         } catch (\PDOException $e) {
             throw new \RuntimeException("Erro ao buscar usuário: " . $e->getMessage());
@@ -120,6 +120,23 @@ class UserRepository
             return $stmt->execute([
                 ':user_name' => $newName,
                 ':user_id'   => $userId,
+            ]);
+        } catch (\PDOException $e) {
+            return false;
+        }
+    }
+
+    public function updateAvatar(User $user, string $avatarUrl): bool
+    {
+        try {
+            $db = new Database();
+            $pdo = $db->getConnection();
+
+            $stmt = $pdo->prepare("UPDATE users SET profile_image = :avatar_url WHERE user_id = :user_id");
+
+            return $stmt->execute([
+                ':avatar_url' => $avatarUrl,
+                ':user_id'    => $user->getUserName(),
             ]);
         } catch (\PDOException $e) {
             return false;

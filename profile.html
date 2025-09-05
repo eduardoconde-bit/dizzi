@@ -51,7 +51,38 @@
 
     <!-- Dados do usuário -->
     <div class="mb-6">
-      <p class="text-lg"><strong>Nome de usuário:</strong>
+      <!-- Avatar simples -->
+      <div class="relative">
+        <!-- Avatar -->
+        <div id="avatarWrapper"
+          class="w-24 h-24 rounded-full border-4 border-pink-500 p-1 cursor-pointer hover:scale-105 transition-transform">
+          <img id="avatar"
+            src="https://img.freepik.com/premium-vector/character-avatar-isolated_729149-194801.jpg?semt=ais_incoming&w=740&q=80"
+            alt="Avatar" class="w-full h-full rounded-full object-cover">
+        </div>
+
+        <!-- Modal overlay estilo Instagram -->
+        <div id="avatarModal" class="fixed inset-0 bg-black bg-opacity-60 hidden z-50 flex items-center justify-center">
+          <div class="bg-white rounded-xl w-80 overflow-hidden shadow-lg">
+            <button id="addPhoto" class="w-full py-4 border-b text-blue-600 font-semibold hover:bg-gray-100">
+              Adicionar Foto
+            </button>
+            <button id="removePhoto" class="w-full py-4 border-b text-red-600 font-semibold hover:bg-gray-100">
+              Remover Foto
+            </button>
+            <button id="cancel" class="w-full py-4 font-semibold hover:bg-gray-100">
+              Cancelar
+            </button>
+          </div>
+        </div>
+
+        <!-- Input de arquivo oculto -->
+        <input id="fileInput" type="file" accept="image/*" class="hidden">
+        <input type="hidden" id="actionPerformed" name="action" value="add_avatar">
+      </div>
+
+
+      <p class="text-lg"><strong>usuário:</strong>
         <span id="userName" class="text-blue-600 font-semibold"></span>
       </p>
     </div>
@@ -67,8 +98,89 @@
     // Menu mobile toggle
     const toggleBtn = document.getElementById('menu-toggle');
     const mobileMenu = document.getElementById('mobile-menu');
+    const userAvatar = document.getElementById('userAvatar');
     toggleBtn.addEventListener('click', () => {
       mobileMenu.classList.toggle('hidden');
+    });
+
+    const avatarWrapper = document.getElementById('avatarWrapper');
+    const avatarModal = document.getElementById('avatarModal');
+    const fileInput = document.getElementById('fileInput');
+    const actionInput = document.getElementById('actionPerformed');
+    const avatar = document.getElementById('avatar');
+    const defaultAvatar = "https://img.freepik.com/premium-vector/character-avatar-isolated_729149-194801.jpg?semt=ais_incoming&w=740&q=80";
+
+    // Abrir modal ao clicar no avatar
+    avatarWrapper.addEventListener('click', () => {
+      avatarModal.classList.remove('hidden');
+    });
+
+    // Fechar modal ao clicar em Cancelar
+    document.getElementById('cancel').addEventListener('click', () => {
+      avatarModal.classList.add('hidden');
+    });
+
+    // Adicionar Foto
+    document.getElementById('addPhoto').addEventListener('click', () => {
+      console.log('Ação: Adicionar Foto');
+      fileInput.click();
+      avatarModal.classList.add('hidden');
+    });
+
+    // Upload via fetch
+    fileInput.addEventListener('change', async (event) => {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      avatar.src = URL.createObjectURL(file);
+      console.log('Foto selecionada:', file.name);
+
+      const formData = new FormData();
+      formData.append('avatar', file);
+      formData.append('action', actionInput.value);
+
+      try {
+        const response = await fetch('/test.php', {
+          method: 'POST',
+          body: formData
+        });
+
+        const raw = await response.text();
+        console.log('Resposta do servidor:', raw);
+
+        if (response.ok) {
+          const responseData = JSON.parse(raw);
+          if (responseData.success) {
+            avatar.src = responseData.url;
+          } else {
+            console.error('Erro no upload:', responseData.message);
+            avatar.src = defaultAvatar;
+          }
+        } else {
+          avatar.src = defaultAvatar;
+        }
+      } catch (err) {
+        console.error('Erro na requisição:', err);
+        avatar.src = defaultAvatar;
+      }
+    });
+
+    // Remover Foto
+    document.getElementById('removePhoto').addEventListener('click', async () => {
+      avatar.src = defaultAvatar;
+      console.log('Ação: Remover Foto');
+      avatarModal.classList.add('hidden');
+
+      try {
+        const response = await fetch('/remove-avatar', { method: 'POST' });
+        if (response.ok) {
+          console.log('Foto removida no servidor');
+        } else {
+          console.error('Erro ao remover foto:', response.statusText);
+        }
+      } catch (err) {
+        console.error('Erro na requisição de remoção:', err);
+      }
     });
 
     // Logout em ambos menus
@@ -81,25 +193,25 @@
           credentials: 'include',
           body: JSON.stringify({ action: 'logout' })
         })
-        .then(response => response.json())
-        .then(data => {
-          if (data.success) {
-            window.location.href = 'login.html';
-          } else {
+          .then(response => response.json())
+          .then(data => {
+            if (data.success) {
+              window.location.href = 'login.html';
+            } else {
+              alert('Erro ao sair. Tente novamente.');
+            }
+          })
+          .catch(error => {
+            console.error('Erro na requisição de logout:', error);
             alert('Erro ao sair. Tente novamente.');
-          }
-        })
-        .catch(error => {
-          console.error('Erro na requisição de logout:', error);
-          alert('Erro ao sair. Tente novamente.');
-        });
+          });
       });
     });
 
     // Verificação de login
     window.addEventListener("pageshow", async function () {
       const user = loadUserData();
-      const payload = { action: "login", user_name: user, password: user };
+      const payload = { action: "login", user_name: user, password: crypto.randomUUID() };
 
       try {
         const response = await fetch("/app/Routes/api.php", {
@@ -136,12 +248,14 @@
     function loadUserData() {
       const userData = getCookie('user_data');
       if (!userData) {
+        window.location.href = "login.html";
         console.warn('Cookie user_data não encontrado');
         return null;
       }
       try {
         const parsedData = JSON.parse(userData);
         document.getElementById('userName').innerText = parsedData.userName || '';
+        document.getElementById('avatar').src = parsedData.profileImage || null;
         return parsedData.userName;
       } catch (err) {
         console.error('Erro ao parsear user_data:', err);
@@ -185,22 +299,22 @@
     async function loadPolls(userId) {
       if (!userId) return;
       try {
-      const res = await fetch(`/app/Routes/api.php?action=get_polls&user_id=${userId}`, {
-        method: 'GET',
-        credentials: 'include'
-      });
+        const res = await fetch(`/app/Routes/api.php?action=get_polls&user_id=${userId}`, {
+          method: 'GET',
+          credentials: 'include'
+        });
 
-      const data = await res.json();
-      const list = document.getElementById('pollsList');
-      list.innerHTML = '';
+        const data = await res.json();
+        const list = document.getElementById('pollsList');
+        list.innerHTML = '';
 
-      if (data.success && data.polls.length) {
-        data.polls.forEach(poll => {
-        const isFinished = !!poll.is_finished;
-        const li = document.createElement('li');
-        li.className = "bg-blue-50 p-5 rounded-lg shadow hover:shadow-md transition";
+        if (data.success && data.polls.length) {
+          data.polls.forEach(poll => {
+            const isFinished = !!poll.is_finished;
+            const li = document.createElement('li');
+            li.className = "bg-blue-50 p-5 rounded-lg shadow hover:shadow-md transition";
 
-        li.innerHTML = `
+            li.innerHTML = `
           <div class="flex flex-col gap-4">
           <div class="text-gray-700 space-y-1">
             <p><strong>Título:</strong> ${poll.title}</p>
@@ -214,23 +328,23 @@
             <button onclick="finishPoll('${poll.id}')" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition" ${isFinished ? 'disabled style="opacity:0.5;cursor:not-allowed"' : ''}>
             Finalizar
             </button>
-            <button onclick="vote('${poll.code}')" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition" ${isFinished ? 'disabled style="opacity:0.5;cursor:not-allowed"' : ''}>
+            <!--<button onclick="vote('${poll.code}')" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition" ${isFinished ? 'disabled style="opacity:0.5;cursor:not-allowed"' : ''}>
             Votar
-            </button>
+            </button>-->
             <button onclick="dashboard('${poll.id}')" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition" ${isFinished ? 'disabled style="opacity:0.5;cursor:not-allowed"' : ''}>
             Dashboard
             </button>
           </div>
           </div>
         `;
-        list.appendChild(li);
-        });
-      } else {
-        list.innerHTML = '<li class="text-gray-500 text-center">Nenhuma votação encontrada.</li>';
-      }
+            list.appendChild(li);
+          });
+        } else {
+          list.innerHTML = '<li class="text-gray-500 text-center">Nenhuma votação encontrada.</li>';
+        }
       } catch (err) {
-      list.innerHTML = '<li class="text-gray-500 text-center">Erro ao carregar polls:</li>';
-      console.error('Erro ao carregar polls:', err);
+        list.innerHTML = '<li class="text-gray-500 text-center">Erro ao carregar polls:</li>';
+        console.error('Erro ao carregar polls:', err);
       }
     }
 

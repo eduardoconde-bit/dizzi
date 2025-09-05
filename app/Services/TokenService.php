@@ -2,7 +2,7 @@
 
 namespace Dizzi\Services;
 
-include_once "../../vendor/autoload.php";
+require __DIR__ . "/../../vendor/autoload.php";
 
 use Dizzi\Models\User;
 use Dizzi\Repositories\UserRepository;
@@ -48,7 +48,11 @@ class TokenService
             ]
         );
 
-        $data = ["userName" => $user->getUserName()];
+        $user = (new UserRepository())->findById($user->getUserName());
+        $data = [
+            "userName" => $user->getUserName(),
+            "profileImage" => $user->getProfileImage() ?? null
+        ];
 
         setcookie(
             "user_data",
