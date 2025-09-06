@@ -118,7 +118,7 @@
 
       updateList(codesEl, data.codes);
       updateList(optionsEl, data.options);
-      updateList(votedUsersEl, data.voted_users);
+      updateVotedUsers(votedUsersEl, data.voted_users);
 
       timestampEl.querySelector("#timestamp-text").textContent = "Última atualização: " + utcToLocal(data.timestamp);
     };
@@ -136,6 +136,29 @@
         container.appendChild(li);
       });
     }
+
+    function updateVotedUsers(container, users) {
+      container.innerHTML = '';
+      users.forEach(user => {
+        const li = document.createElement('li');
+        li.classList.add('flex', 'items-center', 'space-x-2', 'mb-1');
+
+        // Imagem do perfil
+        const img = document.createElement('img');
+        img.src = user.profile_image || 'default-profile.png'; // fallback
+        img.alt = user.user_id;
+        img.classList.add('w-6', 'h-6', 'rounded-full', 'border', 'border-gray-300');
+
+        // Nome do usuário
+        const span = document.createElement('span');
+        span.textContent = user.user_id;
+
+        li.appendChild(img);
+        li.appendChild(span);
+        container.appendChild(li);
+      });
+    }
+
 
     /**
      * Converte uma string UTC (ISO ou "YYYY-MM-DD HH:MM:SS") para hora local
