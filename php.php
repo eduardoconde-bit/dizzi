@@ -69,7 +69,7 @@ try {
             "codes"        => $pollData['codes'] ? explode(',', $pollData['codes']) : [],
             "options"      => $pollData['options'] ? explode(',', $pollData['options']) : [],
             "voted_users"  => $pollData['voted_users'] ? explode(',', $pollData['voted_users']) : [],
-            "timestamp"    => date("H:i:s")
+            "timestamp"    => date("Y-m-d H:i:s")
         ];
 
         // Envia para o cliente

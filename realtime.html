@@ -120,7 +120,7 @@
       updateList(optionsEl, data.options);
       updateList(votedUsersEl, data.voted_users);
 
-      timestampEl.querySelector("#timestamp-text").textContent = "Última atualização: " + data.timestamp;
+      timestampEl.querySelector("#timestamp-text").textContent = "Última atualização: " + utcToLocal(data.timestamp);
     };
 
     evtSource.onerror = function (err) {
@@ -136,7 +136,32 @@
         container.appendChild(li);
       });
     }
+
+    /**
+     * Converte uma string UTC (ISO ou "YYYY-MM-DD HH:MM:SS") para hora local
+     * @param {string} utcDateTime - Data/hora em UTC
+     * @param {string} [options] - opções de formatação (opcional)
+     * @returns {string} - data/hora formatada em fuso local
+     */
+    function utcToLocal(utcDateTime, options = {}) {
+      // Se receber formato 'YYYY-MM-DD HH:MM:SS', substitui espaço por T
+      let utcString = utcDateTime.replace(' ', 'T') + 'Z'; // garante que é UTC
+      const date = new Date(utcString);
+
+      // Formato padrão: dd/mm/yyyy hh:mm:ss
+      const defaultOptions = {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+      };
+
+      return date.toLocaleString(undefined, { ...defaultOptions, ...options });
+    }
   </script>
 
 </body>
+
 </html>
