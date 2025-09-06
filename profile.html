@@ -140,7 +140,7 @@
       formData.append('action', actionInput.value);
 
       try {
-        const response = await fetch('/test.php', {
+        const response = await fetch('/app/Routes/set_avatar.php', {
           method: 'POST',
           body: formData
         });
@@ -167,16 +167,24 @@
 
     // Remover Foto
     document.getElementById('removePhoto').addEventListener('click', async () => {
-      avatar.src = defaultAvatar;
       console.log('Ação: Remover Foto');
       avatarModal.classList.add('hidden');
 
       try {
-        const response = await fetch('/remove-avatar', { method: 'POST' });
-        if (response.ok) {
+        console.log('Enviando requisição para remover avatar...');
+        const response = await fetch('/app/Routes/remove_avatar.php', {
+          method: 'POST',
+          body: JSON.stringify({ action: 'remove_avatar' }),
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include'
+        });
+        const $data = await response.json();
+        if ($data.success) {
           console.log('Foto removida no servidor');
+          // Força o navegador a recarregar a imagem (mesmo se tiver cacheada)
+          avatar.src = $data.url + '?t=' + new Date().getTime();
         } else {
-          console.error('Erro ao remover foto:', response.statusText);
+          console.error('Erro ao remover foto:', $data.message);
         }
       } catch (err) {
         console.error('Erro na requisição de remoção:', err);
@@ -326,19 +334,28 @@
             <p><strong>Início:</strong> ${poll.start_time}</p>
             <p><strong>Fim:</strong> ${poll.end_time}</p>
             <p><strong>Status:</strong> <span class="${isFinished ? 'text-red-500' : 'text-green-600'} font-medium">${isFinished ? "Finalizada" : "Em andamento"}</span></p>
-            <p><strong>Código:</strong> <span class="font-mono bg-gray-100 px-2 py-0.5 rounded">${poll.code || "N/A"}</span></p>
+            <p><strong>Código:</strong><span onclick="copyToClipboard('${poll.code || "N/A"}')" class="clipboard font-mono bg-gray-100 px-2 py-0.5 rounded transition-colors cursor-pointer hover:bg-gray-100 hover:text-orange-700">${poll.code || "N/A"}</span></p>
           </div>
-          <div class="flex gap-4 mt-3">
-            <button onclick="finishPoll('${poll.id}')" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition" ${isFinished ? 'disabled style="opacity:0.5;cursor:not-allowed"' : ''}>
-            Finalizar
+            <div class="flex flex-col sm:flex-row gap-3 mt-3">
+            <button 
+              onclick="finishPoll('${poll.id}')"
+              class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition w-full md:w-auto"
+              ${isFinished ? 'disabled style="opacity:0.5;cursor:not-allowed"' : ''}>
+              Finalizar
             </button>
-            <!--<button onclick="vote('${poll.code}')" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition" ${isFinished ? 'disabled style="opacity:0.5;cursor:not-allowed"' : ''}>
-            Votar
-            </button>-->
-            <button onclick="dashboard('${poll.id}')" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition" ${isFinished ? 'disabled style="opacity:0.5;cursor:not-allowed"' : ''}>
-            Dashboard
+            <button 
+              onclick="trackRealTime('${poll.id}')"
+              class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition w-full md:w-auto"
+              ${isFinished ? 'disabled style="opacity:0.5;cursor:not-allowed"' : ''}>
+              Acompanhar Resultados
             </button>
-          </div>
+            <button 
+              onclick="dashboard('${poll.id}')"
+              class="bg-blue-400 text-white px-4 py-2 rounded hover:bg-blue-500 transition w-full md:w-auto"
+              ${isFinished ? "" : 'disabled style="opacity:0.5;cursor:not-allowed"'}>
+              Dashboard
+            </button>
+            </div>
           </div>
         `;
             list.appendChild(li);
@@ -355,12 +372,55 @@
     const user = loadUserData();
     loadPolls(user.userName);
 
+    const trackRealTime = (pollId) => {
+      window.location.href = `/realtime.html?poll_id=${pollId}`;
+    }
+
     const dashboard = (pollId) => {
       window.location.href = `/dashboard.html?poll_id=${pollId}`;
     }
 
     const vote = (pollCode) => {
       window.location.href = `/vote.html?poll_code=${pollCode}`;
+    }
+
+    function copyToClipboard(text) {
+      navigator.clipboard.writeText(text).then(() => {
+        // Pega o elemento que disparou a função
+        const active = document.activeElement;
+        // Tenta pegar o elemento pelo evento (caso chamado via onclick inline)
+        let trigger = null;
+        try {
+          // Se chamado via onclick inline, 'this' não está disponível, então busca pelo último elemento focado
+          trigger = active && active.classList.contains('clipboard') ? active : null;
+        } catch { }
+        // Se não encontrou, tenta buscar pelo texto
+        if (!trigger) {
+          // Busca todos os spans com classe clipboard e compara o texto
+          const clips = document.querySelectorAll('.clipboard');
+          clips.forEach(el => {
+            if (el.textContent === text) trigger = el;
+          });
+        }
+        if (trigger) {
+          // Remove qualquer span de check anterior
+          const next = trigger.nextElementSibling;
+          if (next && next.classList.contains('copied-check')) {
+            next.remove();
+          }
+          // Cria o span de check
+          const check = document.createElement('span');
+          check.className = 'copied-check ml-2';
+          check.textContent = '✍️';
+          trigger.parentNode.insertBefore(check, trigger.nextSibling);
+          // Remove após 1.5s
+          setTimeout(() => {
+            check.remove();
+          }, 1500);
+        }
+      }).catch(err => {
+        console.error('Erro ao copiar:', err);
+      });
     }
   </script>
 

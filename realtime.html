@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Dizzi - Votação em Tempo Real</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-100 font-sans">
+
+  <!-- Header unificado -->
+  <header class="bg-gray-900 text-white sticky top-0 z-50 shadow-md">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center h-16">
+        <!-- Logo -->
+        <div class="text-2xl font-bold text-cyan-400">Dizzi</div>
+
+        <!-- Menu Desktop -->
+        <nav class="hidden md:flex space-x-8">
+          <a href="index.html" class="hover:text-cyan-400 transition">Início</a>
+          <a href="create.html" class="hover:text-cyan-400 transition">Criar Votação</a>
+          <a href="vote.html" class="hover:text-cyan-400 transition">Votar</a>
+          <a href="#" id="logoutLink" class="hover:text-red-400 transition">Sair</a>
+        </nav>
+
+        <!-- Botão Menu Mobile -->
+        <div class="md:hidden">
+          <button id="menu-toggle" class="text-2xl focus:outline-none">☰</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Menu Mobile -->
+    <div id="mobile-menu" class="md:hidden hidden px-4 pb-4 bg-gray-900">
+      <a href="index.html" class="block py-2 text-white hover:text-cyan-400">Início</a>
+      <a href="create.html" class="block py-2 text-white hover:text-cyan-400">Criar Votação</a>
+      <a href="vote.html" class="block py-2 text-white hover:text-cyan-400">Votar</a>
+      <a href="#" id="logoutLinkMobile" class="block py-2 text-red-400 hover:text-red-300">Sair</a>
+    </div>
+  </header>
+
+  <!-- Conteúdo principal -->
+  <main class="max-w-4xl mx-auto p-6 space-y-6">
+
+    <!-- Título da Votação -->
+    <h1 id="pollTitle" class="text-3xl font-bold text-gray-800 mb-6 text-center">
+      Carregando eleição...
+    </h1>
+
+    <!-- Total de votos -->
+    <section class="bg-white rounded-xl shadow p-6">
+      <h2 class="text-xl font-semibold text-gray-800 mb-2">Total de Votos</h2>
+      <p class="text-3xl font-bold text-cyan-500" id="totalVotes">0</p>
+    </section>
+
+    <!-- Códigos Ativos -->
+    <section class="bg-white rounded-xl shadow p-6">
+      <h2 class="text-xl font-semibold text-gray-800 mb-2">Código Ativo</h2>
+      <ul id="codes" class="list-disc ml-6 text-gray-700"></ul>
+    </section>
+
+    <!-- Opções de Votação -->
+    <section class="bg-white rounded-xl shadow p-6">
+      <h2 class="text-xl font-semibold text-gray-800 mb-2">Opções de Votação</h2>
+      <ul id="options" class="list-disc ml-6 text-gray-700"></ul>
+    </section>
+
+    <!-- Usuários que Votaram -->
+    <section class="bg-white rounded-xl shadow p-6">
+      <h2 class="text-xl font-semibold text-gray-800 mb-2">Usuários que Votaram</h2>
+      <ul id="votedUsers" class="list-disc ml-6 text-gray-700"></ul>
+    </section>
+
+    <!-- Timestamp -->
+    <div class="flex items-center justify-center text-sm text-gray-500 mt-4" id="timestamp">
+      <div class="w-4 h-4 border-2 border-gray-300 border-t-cyan-500 rounded-full animate-spin mr-2"></div>
+      <span id="timestamp-text">Última atualização: --</span>
+    </div>
+
+  </main>
+
+  <!-- Scripts -->
+  <script>
+    // Toggle menu mobile
+    const toggleBtn = document.getElementById('menu-toggle');
+    const mobileMenu = document.getElementById('mobile-menu');
+    toggleBtn.addEventListener('click', () => {
+      mobileMenu.classList.toggle('hidden');
+    });
+
+    // Elementos
+    const pollTitleEl = document.getElementById('pollTitle');
+    const totalVotesEl = document.getElementById('totalVotes');
+    const codesEl = document.getElementById('codes');
+    const optionsEl = document.getElementById('options');
+    const votedUsersEl = document.getElementById('votedUsers');
+    const timestampEl = document.getElementById('timestamp');
+
+    // Pega o poll_id da URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const id = urlParams.get('poll_id');
+    if (id) console.log("ID da eleição: " + id);
+
+    // Conexão SSE
+    const evtSource = new EventSource(`php.php?poll_id=${id}`); // substitua pelo endpoint correto
+
+    evtSource.onmessage = function (event) {
+      const data = JSON.parse(event.data);
+      if (data.error) {
+        pollTitleEl.textContent = "Erro: " + data.error;
+        return;
+      }
+
+      pollTitleEl.textContent = data.poll_title;
+      totalVotesEl.textContent = data.total_votes;
+
+      updateList(codesEl, data.codes);
+      updateList(optionsEl, data.options);
+      updateList(votedUsersEl, data.voted_users);
+
+      timestampEl.querySelector("#timestamp-text").textContent = "Última atualização: " + data.timestamp;
+    };
+
+    evtSource.onerror = function (err) {
+      console.error("Erro SSE:", err);
+    };
+
+    // Função utilitária
+    function updateList(container, items) {
+      container.innerHTML = '';
+      items.forEach(item => {
+        const li = document.createElement('li');
+        li.textContent = item;
+        container.appendChild(li);
+      });
+    }
+  </script>
+
+</body>
+</html>

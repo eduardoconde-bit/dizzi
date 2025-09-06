@@ -18,6 +18,8 @@ class Config {
     public string $awsRegion;
     public string $awsBucket;
 
+    public string $defaultAvatarURL;
+
     public function __construct() {
         $dotenv = Dotenv::createImmutable(__DIR__."/../../");
         $dotenv->load();
@@ -32,5 +34,7 @@ class Config {
         $this->awsSecret = $_ENV['AWS_SECRET'];
         $this->awsRegion = $_ENV['AWS_REGION'];
         $this->awsBucket = $_ENV['AWS_BUCKET'];
+    
+        $this->defaultAvatarURL = $_ENV['DEFAULT_AVATAR_URL'];
     }
 }
