@@ -4,10 +4,12 @@ namespace Dizzi\Services;
 
 require '../../vendor/autoload.php';
 
+use DateTimeZone;
 use Dizzi\Models\Poll;
 use Dizzi\Models\Vote;
 use Dizzi\Repositories\PollRepository;
 use Dizzi\Repositories\UserRepository;
+use Dizzi\Repositories\PollFinishStatus;
 
 class VoteService
 {
@@ -17,13 +19,17 @@ class VoteService
         $pollRep = new PollRepository();
         $poll = $pollRep->getPollByCode($vote->code);
 
+        if (!$poll) {
+            throw new \InvalidArgumentException("Poll not found");
+        }
+
         if (isset($poll["user"])) {
-            if($poll["user"]["user_id"] === $vote->user->getUserName()) {
+            if ($poll["user"]["user_id"] === $vote->user->getUserName()) {
                 http_response_code(400);
                 return [
-                    "success" => false,
-                    "error" => [
-                        "code" => "SELF_VOTE",
+                    "success"     => false,
+                    "error"       => [
+                        "code"    => "SELF_VOTE",
                         "message" => "User cannot vote in their own poll"
                     ]
                 ];
@@ -33,30 +39,48 @@ class VoteService
         if (!self::validVote($vote, new UserRepository(), $poll)) {
             http_response_code(400);
             return [
-                "success" => false,
-                "error" => [
-                    "code" => "INVALID_VOTE",
+                "success"     => false,
+                "error"       => [
+                    "code"    => "INVALID_VOTE",
                     "message" => "Poll options diverge"
                 ]
             ];
         }
 
-        if ($poll['is_finished']) {
+        $pollFinished = false;
+
+        // Verifica se a votação já terminou com base no tempo
+        if ($poll["end_time"]) {
+            $endTime = new \DateTime($poll["end_time"], new \DateTimeZone('UTC'));
+            $now = new \DateTime('now', new \DateTimeZone('UTC'));
+            if ($endTime < $now) {
+                if ($pollRep->finishPoll($poll["id"], \DateTimeImmutable::createFromMutable($endTime)) === PollFinishStatus::ERROR) {
+                    throw new \PDOException("Failed to finish poll");
+                }
+                $pollFinished = true;
+            }
+        }
+
+        if (!empty($poll["is_finished"]) && $poll["is_finished"]) {
+            $pollFinished = true;
+        }
+
+        if ($pollFinished) {
             http_response_code(400);
             return [
-                "success" => false,
-                "error" => [
-                    "code" => "POLL_FINISHED",
-                    "message" => "Poll is finished"
+                "success"     => false,
+                "error"       => [
+                    "code"    => "POLL_FINISHED",
+                    "message" => "Poll has already finished"
                 ]
             ];
         }
 
         if ($pollRep->searchVote($vote)) {
             return [
-                "success" => false,
-                "error" => [
-                    "code" => "ALREADY_VOTED",
+                "success"     => false,
+                "error"       => [
+                    "code"    => "ALREADY_VOTED",
                     "message" => "User has already voted in this poll"
                 ]
             ];
@@ -68,7 +92,7 @@ class VoteService
         http_response_code(201);
         return [
             "success" => true,
-            "code" => "VOTE_RECORDED",
+            "code"    => "VOTE_RECORDED",
             "message" => "Vote recorded successfully"
         ];
     }

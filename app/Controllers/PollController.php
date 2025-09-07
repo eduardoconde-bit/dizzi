@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 namespace Dizzi\Controllers;
 
@@ -22,7 +23,9 @@ require_once('../Services/InitPollService.php');
 
 class PollController
 {
-    public function __construct() {}
+    public function __construct() {
+        return $this;
+    }
 
     public function initPoll(): void
     {
@@ -86,12 +89,12 @@ class PollController
         ]);
     }
 
-    public function finishPoll(string $pollCode): void
+    public function finishPoll(string $pollId): void
     {
         try {
             TokenService::protect();
             $finishPollService = new FinishPollService();
-            echo json_encode(["success" => $finishPollService->finishPoll($pollCode, new PollRepository())]);
+            echo json_encode(["success" => $finishPollService->finishPoll($pollId, new PollRepository())]);
         } catch (\InvalidArgumentException $e) {
             http_response_code(400);
             echo json_encode(["error" => $e->getMessage()]);

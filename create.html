@@ -52,7 +52,9 @@
         class="w-full p-3 mb-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-400" />
       <textarea id="description" placeholder="Descrição"
         class="w-full p-3 mb-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-400"></textarea>
-      <input id="duration" placeholder="Duração em minutos" type="number" min="1" max="1440"
+      <input type="checkbox" onchange="setStateDuration(this)" id="set-timer" class="mr-2 mb-3">
+      <label for="set-timer" class="mb-3">Definir duração? (em minutos)</label>
+      <input id="duration" disabled placeholder="Duração em minutos" type="number" min="1"
         class="w-full p-3 mb-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-400" />
 
       <h3 class="text-lg font-semibold mb-2">Opções de Voto</h3>
@@ -74,12 +76,18 @@
   </main>
 
   <script>
+    // Habilita/desabilita o campo de duração
+    function setStateDuration(checkbox) {
+      document.getElementById("duration").disabled = !checkbox.checked;
+      if (!checkbox.checked) document.getElementById("duration").value = '';
+    }
+
     // Toggle menu mobile
     document.getElementById('menu-toggle').addEventListener('click', () => {
       document.getElementById('mobile-menu').classList.toggle('hidden');
     });
 
-    // Funções pageshow, getCookie e loadUserData mantém a lógica atual
+    // Funções pageshow, getCookie e loadUserData
     window.addEventListener("pageshow", async function () {
       const user = loadUserData();
       const payload = { action: "login", user_name: user, password: crypto.randomUUID() };
@@ -124,10 +132,16 @@
     async function createElection() {
       const title = document.getElementById("title").value;
       const description = document.getElementById("description").value;
-      const duration = document.getElementById("duration").value;
+      const duration = document.getElementById("duration").value ?? null;
       const options = [...document.querySelectorAll("#options .option-field input")].map(i => i.value);
       const parsedData = JSON.parse(getCookie('user_data') || '{}');
       const payload = { action: "create_poll", user_id: parsedData.userName || '', title, description, duration, options };
+
+      if (isNaN(duration) && duration.trim() === "") {
+        payload.duration = null;
+      }
+      payload.duration = parseInt(payload.duration);
+      
       try {
         const response = await fetch("/app/Routes/api.php", {
           method: "POST",
@@ -136,6 +150,7 @@
           body: JSON.stringify(payload)
         });
         const raw = await response.text();
+        console.log("Resposta criação votação:", raw);
         let data;
         try { data = JSON.parse(raw); } catch {
           document.getElementById("message").textContent = "⚠️ Resposta não JSON:\n" + raw;

@@ -179,6 +179,7 @@
         });
 
         const data = await response.text();
+        console.log("Resposta voto:", data);
         const result = JSON.parse(data);
 
         if (result.success) {

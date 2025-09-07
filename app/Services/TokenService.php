@@ -58,10 +58,10 @@ class TokenService
             "user_data",
             json_encode($data), // converte array em JSON
             [
-                "expires" => time() + $ttl,
-                "path"    => "/",
+                "expires"  => time() + $ttl,
+                "path"     => "/",
                 "httponly" => false,   // importante: false, para JS poder ler
-                "secure"  => true,
+                "secure"   => true,
                 "samesite" => "Lax"
             ]
         );
@@ -89,6 +89,7 @@ class TokenService
             // Exemplo: $_SESSION['user'] = $decoded->user;
             // Ou alguma variável global para ser acessada no controller
             $GLOBALS['auth_user'] = $decoded->user;
+            self::issueToken(new User($decoded->user), (int)($decoded->exp - time()), false); // Renova o token
         } catch (\Exception $e) {
             http_response_code(401);
             echo json_encode([

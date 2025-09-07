@@ -20,6 +20,7 @@ enum PollFinishStatus: string
 
 class PollRepository implements IPollRepository
 {
+    const END_TIME_DEFAULT = 135931893000; // 01/01/2030 em ms
 
     public function __construct()
     {
@@ -34,9 +35,15 @@ class PollRepository implements IPollRepository
             $pdo->beginTransaction();
 
             // Pega o start_time atual
-            $startTime = new \DateTimeImmutable();
-            $durationMs = (int) ($poll->duration * 60 * 1000);
-            $endTime = $startTime->modify("+{$durationMs} milliseconds");
+            $startTime = new \DateTimeImmutable('now', new \DateTimeZone('UTC'));
+
+            if ($poll->duration) {
+                // duration está em minutos → adiciona ao startTime
+                $endTime = $startTime->modify("+" . ((int)$poll->duration) . " minutes");
+            } else {
+                // duration não especificado → adiciona 5 anos
+                $endTime = $startTime->add(new \DateInterval('P5Y'));
+            }
 
             // Cria a poll
             $stmtPoll = $pdo->prepare("
@@ -105,19 +112,25 @@ class PollRepository implements IPollRepository
             if (isset($pdo) && $pdo->inTransaction()) {
                 $pdo->rollBack();
             }
+            echo json_encode(["error" => "Erro ao criar poll + genesis: " . $e->getMessage()]);
+            exit;
             error_log("Erro ao criar poll + genesis: " . $e->getMessage());
             return false;
         }
     }
 
-    public function finishPoll(string $pollId): PollFinishStatus
-    {
+    public function finishPoll(
+        string $pollId,
+        \DateTimeImmutable $endTime = new \DateTimeImmutable('now', new \DateTimeZone('UTC'))
+    ): PollFinishStatus {
         try {
             $db = new Database();
             $pdo = $db->getConnection();
+            $endTime = $endTime->format('Y-m-d H:i:s');
 
-            $stmt = $pdo->prepare("UPDATE polls SET is_finished = 1 WHERE id = :pollId");
-            $stmt->execute([':pollId' => $pollId]);
+
+            $stmt = $pdo->prepare("UPDATE polls SET is_finished = 1, end_time = :endTime WHERE id = :pollId");
+            $stmt->execute([':pollId' => $pollId, ':endTime' => $endTime]);
 
             if ($stmt->rowCount() > 0) {
                 return PollFinishStatus::FINISHED;
@@ -183,6 +196,7 @@ class PollRepository implements IPollRepository
             u.user_name,
             p.title,
             p.description,
+            p.end_time,
             TIMESTAMPDIFF(SECOND, p.start_time, COALESCE(p.end_time, NOW())) AS duration_seconds,
             p.is_finished,
             p.number_votes,
@@ -218,6 +232,7 @@ class PollRepository implements IPollRepository
             'options'      => [],
             'urls'         => [],
             'code'         => $rows[0]['code'] ?? null,
+            'end_time'     => $rows[0]['end_time'] ?? null,
             'is_finished'  => (bool) $rows[0]['is_finished'],
             'number_votes' => (int) $rows[0]['number_votes']
         ];

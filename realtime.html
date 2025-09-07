@@ -104,7 +104,7 @@
     if (id) console.log("ID da eleição: " + id);
 
     // Conexão SSE
-    const evtSource = new EventSource(`php.php?poll_id=${id}`); // substitua pelo endpoint correto
+    const evtSource = new EventSource(`/app/Routes/realtime_poll_sse.php?poll_id=${id}`); // substitua pelo endpoint correto
 
     evtSource.onmessage = function (event) {
       const data = JSON.parse(event.data);
@@ -112,6 +112,8 @@
         pollTitleEl.textContent = "Erro: " + data.error;
         return;
       }
+
+      console.log("Dados recebidos via SSE:", data);
 
       pollTitleEl.textContent = data.poll_title;
       totalVotesEl.textContent = data.total_votes;
@@ -156,6 +158,8 @@
 
         // Nome do usuário
         const span = document.createElement('span');
+        span.style.fontWeight = '500';
+        span.style.fontSize = '0.9rem'; // text-xs
         span.textContent = user.user_id;
         span.classList.add('text-xs', 'mt-1', 'text-gray-700', 'truncate', 'text-center');
 

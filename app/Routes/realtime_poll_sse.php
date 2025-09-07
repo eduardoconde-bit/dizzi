@@ -16,7 +16,7 @@ ob_implicit_flush(true);
 echo str_repeat(" ", 1024) . "\n\n";
 
 // Conexão com DB
-require './vendor/autoload.php';
+require __DIR__. '/../../vendor/autoload.php';
 
 use Dizzi\Database\Database;
 

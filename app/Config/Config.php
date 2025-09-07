@@ -7,18 +7,18 @@ require __DIR__."/../../vendor/autoload.php";
 use Dotenv\Dotenv;
 
 class Config {
-    public string $dbHost;
-    public string $dbName;
-    public string $dbUser;
-    public string $dbPass;
-    public int $dbPort;
+    public readonly string $dbHost;
+    public readonly string $dbName;
+    public readonly string $dbUser;
+    public readonly string $dbPass;
+    public readonly int $dbPort;
 
-    public string $awsKey;
-    public string $awsSecret;
-    public string $awsRegion;
-    public string $awsBucket;
+    public readonly string $awsKey;
+    public readonly string $awsSecret;
+    public readonly string $awsRegion;
+    public readonly string $awsBucket;
 
-    public string $defaultAvatarURL;
+    public readonly string $defaultAvatarURL;
 
     public function __construct() {
         $dotenv = Dotenv::createImmutable(__DIR__."/../../");

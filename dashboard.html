@@ -43,8 +43,19 @@
 
     <h1 class="text-4xl font-bold text-center text-gray-800 mb-8 mt-10">Dashboard</h1>
 
+    <!-- Loader centralizado -->
+    <div id="loader" class="fixed inset-0 flex items-center justify-center bg-gray-100 z-40">
+        <div class="flex flex-col items-center">
+            <svg class="animate-spin h-12 w-12 text-cyan-500 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+            </svg>
+            <span class="text-xl text-gray-700 font-semibold">Carregando...</span>
+        </div>
+    </div>
+
     <!-- Conteúdo principal -->
-    <main class="max-w-4xl mx-auto p-6 space-y-6">
+    <main id="dashboardContent" class="max-w-4xl mx-auto p-6 space-y-6 hidden">
 
         <!-- Título da Votação -->
         <h1 id="pollTitle" class="text-3xl font-bold text-gray-800 mb-6 text-center">
@@ -75,7 +86,13 @@
             <ul id="votedUsers" class="list-disc ml-6 text-gray-700"></ul>
         </section>
 
+        <section>
+            <h2 class="text-xl font-semibold text-gray-800 mb-2">Exportar Dados</h2>
+            <button id="exportBtn" onclick="exportDashboard()" class="bg-cyan-500 text-white px-4 py-2 rounded">Exportar</button>
+        </section>
+
     </main>
+
 
     <!-- Scripts -->
     <script>
@@ -92,15 +109,161 @@
         const codesEl = document.getElementById('codes');
         const optionsEl = document.getElementById('options');
         const votedUsersEl = document.getElementById('votedUsers');
-        const timestampEl = document.getElementById('timestamp');
+        const dashboardContentEl = document.getElementById('dashboardContent');
+        const loaderEl = document.getElementById('loader');
+
+        // Cria elemento para métricas
+        const metricsSection = document.createElement('section');
+        metricsSection.className = "bg-white rounded-xl shadow p-6";
+        metricsSection.innerHTML = `
+            <h2 class="text-xl font-semibold text-gray-800 mb-2">Métricas de Votos</h2>
+            <div id="voteMetrics"></div>
+        `;
+        dashboardContentEl.insertBefore(metricsSection, dashboardContentEl.querySelector('section:last-of-type'));
 
         // Pega o poll_id da URL
         const urlParams = new URLSearchParams(window.location.search);
         const id = urlParams.get('poll_id');
         if (id) console.log("ID da eleição: " + id);
 
+        async function dashboard() {
+            try {
+                const response = await fetch(`/app/Routes/dashboard.php?poll_id=${id}`);
+                const raw = await response.text();
+                if (!raw) {
+                    console.warn("Resposta vazia do dashboard.php");
+                    loaderEl.querySelector('span').textContent = "Erro ao carregar dados!";
+                    return;
+                }
+                console.log("Resposta bruta do dashboard.php:", raw);
+                // Remove any prefix like "data: " before parsing
+                const jsonString = raw.trim().startsWith('data:') ? raw.trim().substring(5).trim() : raw.trim();
+                const data = JSON.parse(jsonString);
+                console.log("Dados do dashboard:", data);
+
+                if (data.error) {
+                    console.error("Erro ao carregar dados do dashboard:", data.error);
+                    loaderEl.querySelector('span').textContent = "Erro ao carregar dados!";
+                    return;
+                }
+
+                // Atualiza elementos do dashboard com os dados recebidos
+                pollTitleEl.textContent = data.poll_title;
+                totalVotesEl.textContent = data.total_votes;
+
+                updateList(codesEl, data.codes);
+                updateList(optionsEl, data.options);
+                updateList(votedUsersEl, data.voted_users);
+
+                // Atualiza métricas de votos
+                updateVoteMetrics(data.options, data.votes_per_option, data.total_votes);
+
+                // Esconde loader e mostra conteúdo
+                loaderEl.style.display = 'none';
+                dashboardContentEl.classList.remove('hidden');
+            } catch (err) {
+                console.error("Erro na requisição do dashboard:", err);
+                loaderEl.querySelector('span').textContent = "Erro ao carregar dados!";
+            }
+        }
+
+        function updateList(element, items) {
+            element.innerHTML = '';
+            // Check if this is the votedUsersEl and items are objects
+            if (element.id === 'votedUsers' && items.length > 0 && typeof items[0] === 'object') {
+                items.forEach(user => {
+                    const li = document.createElement('li');
+                    li.innerHTML = `<img src="${user.profile_image}" alt="Avatar" style="width:24px;height:24px;border-radius:50%;display:inline-block;margin-right:8px;vertical-align:middle;"> <span>${user.user_id}</span>`;
+                    element.appendChild(li);
+                });
+            } else {
+                items.forEach(item => {
+                    const li = document.createElement('li');
+                    li.textContent = item;
+                    element.appendChild(li);
+                });
+            }
+        }
+
+        function updateVoteMetrics(options, votesPerOption, totalVotes) {
+            const metricsEl = document.getElementById('voteMetrics');
+            if (!options || !votesPerOption || !metricsEl) return;
+            let html = '<table class="min-w-full text-left text-sm"><thead><tr><th class="py-2 px-4">Opção</th><th class="py-2 px-4">Votos</th><th class="py-2 px-4">Porcentagem</th></tr></thead><tbody>';
+            options.forEach((option, idx) => {
+                const votes = votesPerOption && votesPerOption[idx] ? votesPerOption[idx] : 0;
+                const percent = totalVotes > 0 ? ((votes / totalVotes) * 100).toFixed(1) : '0.0';
+                html += `<tr>
+                    <td class="py-2 px-4">${option}</td>
+                    <td class="py-2 px-4">${votes}</td>
+                    <td class="py-2 px-4">${percent}%</td>
+                </tr>`;
+            });
+            html += '</tbody></table>';
+            metricsEl.innerHTML = html;
+        }
+
+        dashboard(); // Chama a função para carregar os dados do dashboard  
+
         function exportDashboard() {
-            console.log("Exporting dashboard for poll ID: " + id);
+            // Coleta os dados do dashboard
+            const title = pollTitleEl.textContent;
+            const totalVotes = totalVotesEl.textContent;
+            const codes = Array.from(codesEl.children).map(li => li.textContent);
+            const options = Array.from(optionsEl.children).map(li => li.textContent);
+            const votedUsers = Array.from(votedUsersEl.children).map(li => li.innerText);
+
+            // Coleta métricas de votos
+            const metricsTable = document.getElementById('voteMetrics').innerHTML;
+
+            // Monta o conteúdo do PDF, tudo dentro de um <div> para evitar erro de múltiplos elementos
+            let pdfContent = `
+                <div>
+                    <h1>${title}</h1>
+                    <p><strong>Total de Votos:</strong> ${totalVotes}</p>
+                    <h2>Códigos Ativos</h2>
+                    <ul>${codes.map(c => `<li>${c}</li>`).join('')}</ul>
+                    <h2>Opções de Votação</h2>
+                    <ul>${options.map(o => `<li>${o}</li>`).join('')}</ul>
+                    <h2>Métricas de Votos</h2>
+                    ${metricsTable}
+                    <h2>Usuários que Votaram</h2>
+                    <ul>${votedUsers.map(u => `<li>${u}</li>`).join('')}</ul>
+                </div>
+            `;
+
+            // Cria um iframe invisível para imprimir o PDF
+            const iframe = document.createElement('iframe');
+            iframe.style.display = 'none';
+            document.body.appendChild(iframe);
+
+            const doc = iframe.contentWindow.document;
+            doc.open();
+            doc.write(`
+                <html>
+                <head>
+                    <title>Dashboard Export</title>
+                    <style>
+                        body { font-family: Arial, sans-serif; margin: 40px; }
+                        h1 { color: #0e7490; }
+                        h2 { margin-top: 24px; color: #334155; }
+                        ul { margin-left: 20px; }
+                        p, li { color: #222; }
+                        table { border-collapse: collapse; width: 100%; margin-top: 12px; }
+                        th, td { border: 1px solid #ddd; padding: 8px; }
+                        th { background: #e0f2fe; }
+                    </style>
+                </head>
+                <body>${pdfContent}</body>
+                </html>
+            `);
+            doc.close();
+
+            // Aguarda o iframe carregar e chama print
+            iframe.onload = function () {
+                iframe.contentWindow.focus();
+                iframe.contentWindow.print();
+                setTimeout(() => document.body.removeChild(iframe), 1000);
+            };
         }
     </script>
 

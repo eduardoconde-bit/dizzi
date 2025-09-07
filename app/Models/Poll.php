@@ -1,23 +1,30 @@
 <?php
+declare(strict_types=1);
 
 namespace Dizzi\Models;
 
-require "../../vendor/autoload.php";
+require __DIR__ . "/../../vendor/autoload.php";
 
 use Dizzi\Models\User;
 
 class Poll
 {
-    public string  $id;
-    public User    $user;
-    public string  $title;
-    public ?string $description;
-    public string  $duration;
-    public array   $options;
-    public ?array  $urls;
-    public ?string $code;
+    public string   $id;
+    public User     $user;
+    public string   $title;
+    public ?string  $description;
+    public ?int     $duration;
+    public array    $options;
+    public ?array   $urls;
+    public ?string  $code;
 
-    public function __construct(User $user, $title, $description, $duration, $options, $urls)
+    public function __construct(
+        User $user, 
+        string $title, 
+        ?string $description, 
+        ?int $duration, 
+        array $options, 
+        ?array $urls)
     {
         $this->user = $user;
 
@@ -39,34 +46,34 @@ class Poll
             $this->description = null;
         }
 
-        // Validate duration in minutes (minimum 1 minute, maximum 24 hours)
-        if ($duration < 1 || $duration > 1440) { // 1 to 1440 minutes
-            throw new \InvalidArgumentException("Duration must be between 1 and 1440 minutes (1 to 24 hours).");
+
+        if ($duration !== null && $duration <= 0) {
+            throw new \InvalidArgumentException("Duration must be a positive integer value in minutes.");
         }
 
         if (!empty($options)) {
-            if (count($options) < 2) {
-            throw new \InvalidArgumentException("At least two options are required.");
+            if (count($options) < 1) {
+                throw new \InvalidArgumentException("At least one option is required.");
             }
             if (count($options) > 10) {
-            throw new \InvalidArgumentException("A maximum of ten options are allowed.");
+                throw new \InvalidArgumentException("A maximum of ten options are allowed.");
             }
             foreach ($options as $option) {
-            if (empty(trim($option))) {
-                throw new \InvalidArgumentException("Options cannot be empty.");
-            }
-            if (strlen($option) > 100) {
-                throw new \InvalidArgumentException("Each option cannot be longer than 100 characters.");
-            }
+                if (empty(trim($option))) {
+                    throw new \InvalidArgumentException("Options cannot be empty.");
+                }
+                if (strlen($option) > 100) {
+                    throw new \InvalidArgumentException("Each option cannot be longer than 100 characters.");
+                }
             }
         } else {
             throw new \InvalidArgumentException("Options are required.");
         }
-        
+
         $this->duration = $duration;
-        
+
         $this->options = $options;
-        
+
         $this->urls = $urls;
 
         return $this;

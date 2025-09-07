@@ -6,17 +6,22 @@ require __DIR__ . '/../../vendor/autoload.php';
 
 use Dizzi\Database\Database;
 use Dizzi\Models\User;
+use Dizzi\Config\Config;
 
 class UserRepository
 {
+
+    private Config $env;
+
     /**
      * Cria um novo usuário
      */
     public function __construct()
     {
-        return $this;   
+        $this->env = new Config();
+        return $this;  
     }
-    
+
     public function create(User $user): bool
     {
         try {
@@ -24,13 +29,14 @@ class UserRepository
             $pdo = $db->getConnection();
 
             $stmt = $pdo->prepare("
-            INSERT INTO users (user_id, password_hash)
-            VALUES (:user_id, :password_hash)
+            INSERT INTO users (user_id, password_hash, profile_image)
+            VALUES (:user_id, :password_hash, :profile_image)
         ");
 
             return $stmt->execute([
                 ':user_id'     => $user->getUserName(),
                 ':password_hash' => $user->getPassword(), // pode ser null
+                ':profile_image' => $this->env->defaultAvatarURL ?? null // pode ser null
             ]);
         } catch (\PDOException $e) {
             throw new \RuntimeException("Erro ao criar usuário: " . $e->getMessage());
