@@ -23,6 +23,9 @@
           class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-cyan-400 focus:outline-none">
         <input type="password" id="password" placeholder="Senha" required
           class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-cyan-400 focus:outline-none">
+        <input type="password" id="confirm_password" placeholder="Confirme a senha" required
+          class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-cyan-400 focus:outline-none">
+        <div id="formMessage" class="text-center text-sm text-red-500"></div>
         <button type="submit"
           class="w-full bg-cyan-500 hover:bg-cyan-600 text-white py-2 rounded-lg font-semibold transition">Registrar</button>
       </form>
@@ -35,79 +38,37 @@
   </main>
 
   <script>
-
-    function getCookie(name) {
-      const cookies = document.cookie.split('; ');
-      const cookie = cookies.find(c => c.startsWith(name + '='));
-      return cookie ? decodeURIComponent(cookie.split('=')[1]) : null;
-    }
-
-    function loadUserData() {
-      const userData = getCookie('user_data');
-      if (!userData) {
-        console.warn('Cookie user_data não encontrado');
-        return null;
-      }
-      try {
-        const parsedData = JSON.parse(userData);
-        return parsedData.userName; // retornamos o username como userId
-      } catch (err) {
-        console.error('Erro ao parsear user_data:', err);
-        return null;
-      }
-    }
-
-    window.addEventListener("pageshow", async function (event) {
-      const user = loadUserData();
-
-      const payload = {
-        action: "login",
-        user_name: user,
-        password: crypto.randomUUID() // senha falsa para evitar login real
-      };
-
-      console.log(payload);
-
-      try {
-        const response = await fetch("/app/Routes/api.php", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          credentials: "include",
-          body: JSON.stringify(payload)
-        });
-
-        const raw = await response.text();
-        let result;
-
-        try {
-          result = JSON.parse(raw);
-        } catch {
-          console.warn("⚠️ Resposta não é JSON, exibindo cru:");
-          console.log(raw);
-          return;
-        }
-
-        console.log("✅ JSON válido:", result);
-
-        if (result.success) {
-          window.location.href = "profile.html";
-        }
-      } catch (error) {
-        console.error("Erro na requisição:", error);
-      }
-    });
-
     document.getElementById("registerForm").addEventListener("submit", async function (event) {
       event.preventDefault();
 
+      const messageDiv = document.getElementById("formMessage");
+      messageDiv.textContent = "";
+
       const user_name = document.getElementById("user_name").value;
       const password = document.getElementById("password").value;
+      const confirm_password = document.getElementById("confirm_password").value;
 
-      const payload = {
-        action: "register",
-        user_name: user_name,
-        password: password
-      };
+      // Validação do nome de usuário (mínimo 3 caracteres, sem espaços)
+      function validateUserName(user_name) {
+        return /^[\w\d!@#$%^&*()\-_=+\[\]{};:'",.<>/?\\|`~]{3,}$/.test(user_name);
+      }
+
+      if (!validateUserName(user_name)) {
+        messageDiv.textContent = "Nome de usuário inválido. Use pelo menos 3 caracteres e não use espaços.";
+        return;
+      }
+
+      if (password.length < 6) {
+        messageDiv.textContent = "A senha deve ter pelo menos 6 caracteres.";
+        return;
+      }
+
+      if (password !== confirm_password) {
+        messageDiv.textContent = "As senhas não coincidem.";
+        return;
+      }
+
+      const payload = { action: "register", user_name, password };
 
       try {
         const response = await fetch("/app/Routes/api.php", {
@@ -122,25 +83,25 @@
         try {
           result = JSON.parse(raw);
         } catch {
-          console.warn("⚠️ Resposta não é JSON, exibindo cru:");
-          console.log(raw);
+          messageDiv.textContent = "Erro inesperado do servidor. Tente novamente.";
           return;
         }
 
-        console.log("✅ JSON válido:", result);
-
         if (result.success) {
-          alert("Registro realizado com sucesso!");
-          window.location.href = "login.html";
+          messageDiv.classList.remove("text-red-500");
+          messageDiv.classList.add("text-green-500");
+          messageDiv.textContent = "Registro realizado com sucesso! Você será redirecionado para o login...";
+          setTimeout(() => window.location.href = "login.html", 2000);
         } else {
-          alert("Erro: " + (result.message || "Não foi possível registrar."));
+          messageDiv.textContent = "Erro: " + (result.message || "Não foi possível registrar. Tente outro nome de usuário.");
         }
       } catch (error) {
         console.error("Erro na requisição:", error);
-        alert("Erro na conexão com o servidor.");
+        messageDiv.textContent = "Erro na conexão com o servidor. Tente novamente mais tarde.";
       }
     });
   </script>
+
 </body>
 
 </html>

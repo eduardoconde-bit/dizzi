@@ -285,6 +285,42 @@ class PollRepository implements IPollRepository
         }
     }
 
+    public function getPollsVotedByUser(User $user): array
+    {
+        try {
+            $db = new Database();
+            $pdo = $db->getConnection();
+
+            $stmt = $pdo->prepare("
+                SELECT DISTINCT
+                    p.id,
+                    p.user_id,
+                    p.title,
+                    p.description,
+                    p.start_time,
+                    p.end_time,
+                    p.is_finished,
+                    pc.code,
+                    pc.is_expired
+                FROM ledger l
+                INNER JOIN polls p ON l.poll_id = p.id
+                LEFT JOIN poll_codes pc ON p.id = pc.poll_id
+                WHERE l.user_id = :user_id
+                AND l.previous_hash != REPEAT('0',64) -- Exclui bloco gênesis
+                ORDER BY p.start_time DESC
+            ");
+
+            $stmt->bindValue(':user_id', $user->getUserName(), \PDO::PARAM_STR);
+            $stmt->execute();
+
+            $polls = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+            return $polls ?: [];
+        } catch (\Exception $e) {
+            error_log($e->getMessage());
+            return [];
+        }
+    }
 
     public function persistVote(Vote $vote): bool
     {

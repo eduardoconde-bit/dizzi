@@ -138,6 +138,36 @@ class PollController
         }
     }
 
+    public function userVotes(string $user_id): void
+    {
+        try {
+            TokenService::protect();
+
+            $user = new User($user_id);
+            $userRep = new UserRepository();
+
+            if (!$userRep->existsById($user->getUserName())) {
+                echo json_encode(["error" => "User don't exists"]);
+                exit;
+            }
+
+            $userVotes = (new PollRepository())->getPollsVotedByUser($user);
+
+            echo json_encode([
+                'success' => true,
+                'votes' => $userVotes
+            ]);
+        } catch (\InvalidArgumentException $e) {
+            http_response_code(400);
+            echo json_encode(["error" => $e->getMessage()]);
+        } catch (\TypeError $e) {
+            http_response_code(400);
+            echo json_encode(["error" => "Invalid input data"]);
+        } catch (Exception $e) {
+            http_response_code(500);
+            echo json_encode(["error" => "Internal Server Error"]);
+        }
+    }
 
     public function vote(?array $data): void
     {

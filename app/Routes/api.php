@@ -79,6 +79,8 @@ switch ($method) {
             (new PollController())->getPoll($_GET['code_poll']);
         } elseif (isset($_GET['action']) && $_GET['action'] === 'get_polls' && isset($_GET['user_id'])) {
             (new PollController())->userPolls($_GET['user_id']);
+        } elseif (isset($_GET['action']) && $_GET['action'] === 'get_votes' && isset($_GET['user_id'])) {
+            (new PollController())->userVotes($_GET['user_id']);
         } else {
             http_response_code(400);
             echo json_encode(['error' => 'Invalid parameters']);

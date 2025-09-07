@@ -19,10 +19,14 @@
     </div>
   </header>
 
-  <!-- Conteúdo -->
+  <!-- ...restante do código... -->
+
   <main class="flex items-center justify-center min-h-[80vh] px-4">
     <div class="w-full max-w-md bg-white p-8 rounded-xl shadow-md">
       <h2 class="text-3xl font-bold mb-6 text-gray-800 text-center">Login</h2>
+
+      <!-- Mensagem dinâmica -->
+      <div id="message" class="mb-4 text-center text-sm hidden"></div>
 
       <form id="loginForm" class="space-y-4">
         <input type="text" id="user_name" placeholder="Nome de usuário" required
@@ -31,8 +35,7 @@
         <input type="password" id="password" placeholder="Senha" required
           class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-400" />
 
-        <button type="submit"
-          class="w-full bg-cyan-500 text-white py-3 rounded-lg hover:bg-cyan-600 transition">
+        <button type="submit" class="w-full bg-cyan-500 text-white py-3 rounded-lg hover:bg-cyan-600 transition">
           Entrar
         </button>
       </form>
@@ -46,6 +49,21 @@
   </main>
 
   <script>
+    // Função para mostrar mensagem
+    function showMessage(text, type = "info") {
+      const msgDiv = document.getElementById("message");
+      msgDiv.textContent = text;
+      msgDiv.className = "mb-4 text-center text-sm";
+      msgDiv.classList.remove("hidden");
+      if (type === "success") {
+        msgDiv.classList.add("text-green-600", "bg-green-100", "p-2", "rounded");
+      } else if (type === "error") {
+        msgDiv.classList.add("text-red-600", "bg-red-100", "p-2", "rounded");
+      } else {
+        msgDiv.classList.add("text-gray-600", "bg-gray-100", "p-2", "rounded");
+      }
+    }
+
     function getCookie(name) {
       const cookies = document.cookie.split('; ');
       const cookie = cookies.find(c => c.startsWith(name + '='));
@@ -60,7 +78,7 @@
       }
       try {
         const parsedData = JSON.parse(userData);
-        return parsedData.userName; // retornamos o username como userId
+        return parsedData.userName;
       } catch (err) {
         console.error('Erro ao parsear user_data:', err);
         return null;
@@ -73,10 +91,8 @@
       const payload = {
         action: "login",
         user_name: user,
-        password: crypto.randomUUID() // senha falsa para evitar login real
+        password: crypto.randomUUID()
       };
-
-      console.log(payload);
 
       try {
         const response = await fetch("/app/Routes/api.php", {
@@ -97,12 +113,9 @@
           return;
         }
 
-        console.log("✅ JSON válido:", result);
-
         if (result.success) {
           window.location.href = "profile.html";
         }
-
       } catch (error) {
         console.error("Erro na requisição:", error);
       }
@@ -128,20 +141,22 @@
         });
 
         const result = await response.json();
-        console.log(result);
 
         if (result.success) {
-          alert("Login realizado com sucesso!");
-          window.location.href = "profile.html";
+          showMessage("Login realizado com sucesso!", "success");
+          setTimeout(() => {
+            window.location.href = "profile.html";
+          }, 1200);
         } else {
-          alert("Erro: " + (result.message || "Credenciais inválidas."));
+          showMessage("Credenciais inválidas.", "error");
         }
       } catch (error) {
         console.error("Erro na requisição:", error);
-        alert("Erro na conexão com o servidor.");
+        showMessage("Erro na conexão com o servidor.", "error");
       }
     });
   </script>
+
 </body>
 
 </html>

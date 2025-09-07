@@ -4,6 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <title>Votação</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 
@@ -37,31 +38,36 @@
   </header>
 
   <!-- Conteúdo -->
-  <main class="max-w-xl mx-auto bg-white mt-10 p-8 rounded-xl shadow-md">
-    <h2 class="text-3xl font-bold mb-6 text-center text-gray-800">Votação</h2>
+  <main class="w-full min-h-screen flex flex-col items-center bg-gray-100 p-2 sm:p-4">
+    <div class="w-full sm:w-11/12 max-w-md sm:max-w-lg md:max-w-xl bg-white rounded-xl shadow-md p-4 sm:p-6 mt-10">
+      <h2 class="text-2xl sm:text-3xl font-bold mb-6 text-center text-gray-800">Votação</h2>
 
-    <input id="pollCode" placeholder="Digite o código da eleição"
-      class="w-full p-3 border border-gray-300 rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-cyan-400 transition" />
+      <!-- Notificação -->
+      <div id="notification" class="mb-4 text-center font-semibold hidden"></div>
 
-    <button onclick="loadPoll()"
-      class="w-full bg-green-500 hover:bg-green-600 text-white font-semibold py-2 rounded-lg mb-6 transition">
-      Carregar Votação
-    </button>
+      <input id="pollCode" placeholder="Digite o código da eleição"
+        class="w-full p-3 border border-gray-300 rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-cyan-400 transition" />
 
-    <div id="election-info" class="mb-6 text-gray-700"></div>
+      <button onclick="loadPoll()"
+        class="w-full bg-green-500 hover:bg-green-600 text-white font-semibold py-2 rounded-lg mb-6 transition">
+        Carregar Votação
+      </button>
 
-    <div id="options" class="space-y-3"></div>
+      <div id="election-info" class="mb-6 text-gray-700"></div>
 
-    <button id="voteBtn" disabled
-      class="w-full bg-green-500 text-white font-semibold py-2 rounded-lg mt-6 disabled:bg-gray-300 disabled:cursor-not-allowed transition">
-      Votar
-    </button>
+      <div id="options" class="space-y-3"></div>
 
-    <p id="message" class="text-center mt-4 font-semibold text-lg"></p>
+      <button id="voteBtn" disabled
+        class="w-full bg-green-500 text-white font-semibold py-2 rounded-lg mt-6 disabled:bg-gray-300 disabled:cursor-not-allowed transition">
+        Votar
+      </button>
 
-    <p class="mt-6 text-center text-sm text-gray-600">
-      <a href="create.html" class="text-blue-500 hover:underline">Criar Votação</a>
-    </p>
+      <p id="message" class="text-center mt-4 font-semibold text-lg"></p>
+
+      <p class="mt-6 text-center text-sm text-gray-600">
+        <a href="create.html" class="text-blue-500 hover:underline">Criar Votação</a>
+      </p>
+    </div>
   </main>
 
   <script>
@@ -70,26 +76,57 @@
     const mobileMenu = document.getElementById('mobile-menu');
     toggleBtn.addEventListener('click', () => mobileMenu.classList.toggle('hidden'));
 
-    // Variáveis globais
-    let selectedOption = null;
-    let pollId = null;
-    let pollCode = null;
+    // Logout
+    function handleLogout() {
+      fetch('/app/Routes/api.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ action: 'logout' })
+      })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) window.location.href = 'login.html';
+          else showNotification("Erro ao sair", "error");
+        })
+        .catch(() => showNotification("Erro ao sair", "error"));
+    }
 
-    // Função para pegar cookie
+    document.getElementById("logoutLink")?.addEventListener("click", handleLogout);
+    document.getElementById("logoutLinkMobile")?.addEventListener("click", handleLogout);
+
+    // Notificação
+    const notification = document.getElementById("notification");
+    function showNotification(message, type = "info") {
+      notification.innerText = message;
+      notification.classList.remove("hidden", "text-red-500", "text-green-500", "text-yellow-500");
+
+      switch (type) {
+        case "success": notification.classList.add("text-green-500"); break;
+        case "error": notification.classList.add("text-red-500"); break;
+        case "warning": notification.classList.add("text-yellow-500"); break;
+        default: notification.classList.add("text-gray-700");
+      }
+      notification.classList.remove("hidden");
+    }
+    function clearNotification() {
+      notification.classList.add("hidden");
+      notification.innerText = "";
+    }
+
+    // Cookies
     function getCookie(name) {
       const cookies = document.cookie.split('; ');
       const cookie = cookies.find(c => c.startsWith(name + '='));
       return cookie ? decodeURIComponent(cookie.split('=')[1]) : null;
     }
-
-    // Função para carregar dados do usuário
     function loadUserData() {
       const userData = getCookie('user_data');
       if (!userData) return null;
       try { return JSON.parse(userData).userName; } catch { return null; }
     }
 
-    // Valida login ao carregar a página
+    // Login check
     window.addEventListener("pageshow", async function () {
       const user = loadUserData();
       if (!user) { window.location.href = "login.html"; return; }
@@ -108,21 +145,23 @@
       } catch (e) { console.error(e); }
     });
 
+    // Carregar votação
+    let selectedOption = null, pollId = null, pollCode = null;
     async function loadPoll() {
       const codeInput = document.getElementById("pollCode").value.trim();
-      if (!codeInput) { alert("Digite o código da eleição"); return; }
+      if (!codeInput) { showNotification("Digite o código da eleição", "warning"); return; }
 
       selectedOption = null;
       document.getElementById("voteBtn").disabled = true;
       document.getElementById("options").innerHTML = "";
       document.getElementById("election-info").innerHTML = "";
-      document.getElementById("message").innerText = "";
+      clearNotification();
 
       try {
         const res = await fetch(`/app/Routes/api.php?code_poll=${codeInput}`, { credentials: "include" });
         const data = await res.json();
 
-        if (!data.success || !data.poll) { alert("Código inválido ou eleição não encontrada"); return; }
+        if (!data.success || !data.poll) { showNotification("Código inválido ou eleição não encontrada", "error"); return; }
 
         const poll = data.poll;
         pollId = poll.id;
@@ -153,9 +192,10 @@
           index++;
         });
 
-      } catch (e) { alert("Erro ao carregar votação: " + e.message); }
+      } catch (e) { showNotification("Erro ao carregar votação: " + e.message, "error"); }
     }
 
+    // Votar
     async function sendVote() {
       const voteBtn = document.getElementById("voteBtn");
       const userData = getCookie('user_data');
@@ -163,6 +203,7 @@
 
       const parsedData = JSON.parse(userData);
       voteBtn.disabled = true;
+      clearNotification();
 
       try {
         const response = await fetch("/app/Routes/api.php", {
@@ -179,30 +220,22 @@
         });
 
         const data = await response.text();
-        console.log("Resposta voto:", data);
         const result = JSON.parse(data);
 
-        if (result.success) {
-          document.getElementById("message").innerText = "✅ Voto registrado!";
-        } else if (result.error?.code === "ALREADY_VOTED") {
-          document.getElementById("message").innerText = "❌ Voto já registrado";
-        } else if (result.error?.code === "POLL_FINISHED") {
-          document.getElementById("message").innerText = "❌ Votação finalizada";
-        } else if (result.error?.code === "SELF_VOTE") {
-          document.getElementById("message").innerText = "❌ Não é permitido votar na própria eleição";
-        } else {
-          document.getElementById("message").innerText = "❌ Erro ao votar, tente novamente";
-        }
+        if (result.success) showNotification("✅ Voto registrado!", "success");
+        else if (result.error?.code === "ALREADY_VOTED") showNotification("❌ Voto já registrado", "error");
+        else if (result.error?.code === "POLL_FINISHED") showNotification("❌ Votação finalizada", "error");
+        else if (result.error?.code === "SELF_VOTE") showNotification("❌ Não é permitido votar na própria eleição", "error");
+        else showNotification("❌ Erro ao votar, tente novamente", "error");
 
-      } catch (e) { alert("Erro ao enviar voto: " + e.message); voteBtn.disabled = false; }
+      } catch (e) { showNotification("Erro ao enviar voto: " + e.message, "error"); voteBtn.disabled = false; }
     }
 
+    // Pegar poll_code da URL
     function addCodeInput(code) {
       document.getElementById("pollCode").value = code;
       loadPoll();
     }
-
-    // Pega poll_code da URL e carrega automaticamente
     const urlParams = new URLSearchParams(window.location.search);
     const codeFromURL = urlParams.get('poll_code');
     if (codeFromURL) addCodeInput(codeFromURL);
@@ -210,5 +243,4 @@
     document.getElementById("voteBtn").onclick = sendVote;
   </script>
 </body>
-
 </html>

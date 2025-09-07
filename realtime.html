@@ -19,9 +19,9 @@
 
         <!-- Menu Desktop -->
         <nav class="hidden md:flex space-x-8">
-          <a href="index.html" class="hover:text-cyan-400 transition">Início</a>
-          <a href="create.html" class="hover:text-cyan-400 transition">Criar Votação</a>
-          <a href="vote.html" class="hover:text-cyan-400 transition">Votar</a>
+          <a href="/profile.html" class="hover:text-cyan-400 transition">Home</a>
+          <a href="/create.html" class="hover:text-cyan-400 transition">Criar Votação</a>
+          <a href="/vote.html" class="hover:text-cyan-400 transition">Votar</a>
           <a href="#" id="logoutLink" class="hover:text-red-400 transition">Sair</a>
         </nav>
 
@@ -34,9 +34,9 @@
 
     <!-- Menu Mobile -->
     <div id="mobile-menu" class="md:hidden hidden px-4 pb-4 bg-gray-900">
-      <a href="index.html" class="block py-2 text-white hover:text-cyan-400">Início</a>
-      <a href="create.html" class="block py-2 text-white hover:text-cyan-400">Criar Votação</a>
-      <a href="vote.html" class="block py-2 text-white hover:text-cyan-400">Votar</a>
+      <a href="/profile.html" class="block py-2 text-white hover:text-cyan-400">Início</a>
+      <a href="/create.html" class="block py-2 text-white hover:text-cyan-400">Criar Votação</a>
+      <a href="/vote.html" class="block py-2 text-white hover:text-cyan-400">Votar</a>
       <a href="#" id="logoutLinkMobile" class="block py-2 text-red-400 hover:text-red-300">Sair</a>
     </div>
   </header>
@@ -102,6 +102,25 @@
     const urlParams = new URLSearchParams(window.location.search);
     const id = urlParams.get('poll_id');
     if (id) console.log("ID da eleição: " + id);
+
+    // Logout
+    function handleLogout() {
+      fetch('/app/Routes/api.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({ action: 'logout' })
+      })
+      .then(res => res.json())
+      .then(data => {
+      if (data.success) window.location.href = 'login.html';
+      else alert('Erro ao sair.');
+      })
+      .catch(() => alert('Erro ao sair.'));
+    }
+
+    document.getElementById("logoutLink")?.addEventListener("click", handleLogout);
+    document.getElementById("logoutLinkMobile")?.addEventListener("click", handleLogout);
 
     // Conexão SSE
     const evtSource = new EventSource(`/app/Routes/realtime_poll_sse.php?poll_id=${id}`); // substitua pelo endpoint correto

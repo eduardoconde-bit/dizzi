@@ -21,7 +21,6 @@
 
         <!-- Menu Desktop -->
         <nav class="hidden md:flex space-x-8">
-          <a href="index.html" class="hover:text-cyan-400 transition">Início</a>
           <a href="create.html" class="hover:text-cyan-400 transition">Criar Votação</a>
           <a href="vote.html" class="hover:text-cyan-400 transition">Votar</a>
           <a href="#" id="logoutLink" class="hover:text-red-400 transition">Sair</a>
@@ -38,7 +37,6 @@
 
     <!-- Menu Mobile -->
     <div id="mobile-menu" class="md:hidden hidden px-4 pb-4 bg-gray-900">
-      <a href="index.html" class="block py-2 text-white hover:text-cyan-400">Início</a>
       <a href="create.html" class="block py-2 text-white hover:text-cyan-400">Criar Votação</a>
       <a href="vote.html" class="block py-2 text-white hover:text-cyan-400">Votar</a>
       <a href="#" id="logoutLinkMobile" class="block py-2 text-red-400 hover:text-red-300">Sair</a>
@@ -56,9 +54,7 @@
         <!-- Avatar -->
         <div id="avatarWrapper"
           class="w-24 h-24 rounded-full border-4 border-pink-500 p-1 cursor-pointer hover:scale-105 transition-transform">
-          <img id="avatar"
-            src=""
-             class="w-full h-full rounded-full object-cover">
+          <img id="avatar" src="" class="w-full h-full rounded-full object-cover">
         </div>
 
         <!-- Modal overlay estilo Instagram -->
@@ -88,7 +84,17 @@
     </div>
 
     <!-- Lista de votações -->
-    <h3 class="text-2xl font-semibold mb-4 text-gray-700">Minhas Votações</h3>
+    <div class="mt-10 mb-4 flex justify-between items-stretch gap-4">
+      <div onclick="loadPollsUI()"
+        class="flex-1 bg-cyan-100 rounded-lg py-4 text-center transition-transform duration-200 hover:scale-105 hover:bg-cyan-200 cursor-pointer flex items-center justify-center">
+        <h3 class="text-2xl font-semibold text-cyan-700 break-words">Minhas Votações</h3>
+      </div>
+      <div onclick="loadMyVotesUI()"
+        class="flex-1 bg-pink-100 rounded-lg py-4 text-center transition-transform duration-200 hover:scale-105 hover:bg-pink-200 cursor-pointer flex items-center justify-center">
+        <h3 class="text-2xl font-semibold text-pink-700 break-words">Meus Votos</h3>
+      </div>
+    </div>
+
     <ul id="pollsList" class="space-y-4">
       <!-- Itens serão inseridos aqui -->
     </ul>
@@ -126,6 +132,30 @@
       fileInput.click();
       avatarModal.classList.add('hidden');
     });
+
+    /**
+    * Converte uma string UTC (ISO ou "YYYY-MM-DD HH:MM:SS") para hora local
+    * @param {string} utcDateTime - Data/hora em UTC
+    * @param {string} [options] - opções de formatação (opcional)
+    * @returns {string} - data/hora formatada em fuso local
+    */
+    function utcToLocal(utcDateTime, options = {}) {
+      // Se receber formato 'YYYY-MM-DD HH:MM:SS', substitui espaço por T
+      let utcString = utcDateTime.replace(' ', 'T') + 'Z'; // garante que é UTC
+      const date = new Date(utcString);
+
+      // Formato padrão: dd/mm/yyyy hh:mm:ss
+      const defaultOptions = {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+      };
+
+      return date.toLocaleString(undefined, { ...defaultOptions, ...options });
+    }
 
     // Upload via fetch
     fileInput.addEventListener('change', async (event) => {
@@ -275,6 +305,18 @@
       }
     }
 
+    const trackRealTime = (pollId) => {
+        window.location.href = `/realtime.html?poll_id=${pollId}`;
+      }
+
+      const dashboard = (pollId) => {
+        window.location.href = `/dashboard.html?poll_id=${pollId}`;
+      }
+
+      const vote = (pollCode) => {
+        window.location.href = `/vote.html?poll_code=${pollCode}`;
+      }
+
     async function finishPoll(pollId) {
       if (!pollId) return;
       if (!confirm("Tem certeza que deseja finalizar esta votação?")) return;
@@ -311,6 +353,7 @@
 
     async function loadPolls(userId) {
       if (!userId) return;
+      const list = document.getElementById('pollsList');
       try {
         const res = await fetch(`/app/Routes/api.php?action=get_polls&user_id=${userId}`, {
           method: 'GET',
@@ -318,7 +361,6 @@
         });
 
         const data = await res.json();
-        const list = document.getElementById('pollsList');
         list.innerHTML = '';
 
         if (data.success && data.polls.length) {
@@ -352,7 +394,7 @@
             </button>
             <button 
               onclick="dashboard('${poll.id}')"
-              class="bg-blue-400 text-white px-4 py-2 rounded hover:bg-blue-500 transition w-full md:w-auto"
+              class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition w-full md:w-auto"
               ${isFinished ? "" : 'disabled style="opacity:0.4;cursor:not-allowed"'}>
               Dashboard
             </button>
@@ -373,79 +415,103 @@
     const user = loadUserData();
     loadPolls(user.userName);
 
-    /**
-     * Converte uma string UTC (ISO ou "YYYY-MM-DD HH:MM:SS") para hora local
-     * @param {string} utcDateTime - Data/hora em UTC
-     * @param {string} [options] - opções de formatação (opcional)
-     * @returns {string} - data/hora formatada em fuso local
-     */
-    function utcToLocal(utcDateTime, options = {}) {
-      // Se receber formato 'YYYY-MM-DD HH:MM:SS', substitui espaço por T
-      let utcString = utcDateTime.replace(' ', 'T') + 'Z'; // garante que é UTC
-      const date = new Date(utcString);
-
-      // Formato padrão: dd/mm/yyyy hh:mm:ss
-      const defaultOptions = {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit',
-      };
-
-      return date.toLocaleString(undefined, { ...defaultOptions, ...options });
+    function loadPollsUI() {
+      loadPolls(loadPolls(user.userName));
     }
 
-    const trackRealTime = (pollId) => {
-      window.location.href = `/realtime.html?poll_id=${pollId}`;
-    }
-
-    const dashboard = (pollId) => {
-      window.location.href = `/dashboard.html?poll_id=${pollId}`;
-    }
-
-    const vote = (pollCode) => {
-      window.location.href = `/vote.html?poll_code=${pollCode}`;
-    }
-
-    function copyToClipboard(text) {
-      navigator.clipboard.writeText(text).then(() => {
-        // Pega o elemento que disparou a função
-        const active = document.activeElement;
-        // Tenta pegar o elemento pelo evento (caso chamado via onclick inline)
-        let trigger = null;
-        try {
-          // Se chamado via onclick inline, 'this' não está disponível, então busca pelo último elemento focado
-          trigger = active && active.classList.contains('clipboard') ? active : null;
-        } catch { }
-        // Se não encontrou, tenta buscar pelo texto
-        if (!trigger) {
-          // Busca todos os spans com classe clipboard e compara o texto
-          const clips = document.querySelectorAll('.clipboard');
-          clips.forEach(el => {
-            if (el.textContent === text) trigger = el;
-          });
-        }
-        if (trigger) {
-          // Remove qualquer span de check anterior
-          const next = trigger.nextElementSibling;
-          if (next && next.classList.contains('copied-check')) {
-            next.remove();
-          }
-          // Cria o span de check
-          const check = document.createElement('span');
-          check.className = 'copied-check ml-2';
-          check.textContent = '✍️';
-          trigger.parentNode.insertBefore(check, trigger.nextSibling);
-          // Remove após 1.5s
-          setTimeout(() => {
-            check.remove();
-          }, 1500);
-        }
-      }).catch(err => {
-        console.error('Erro ao copiar:', err);
+    async function loadMyVotesUI() {
+      const list = document.getElementById('pollsList');
+      list.innerHTML = '';
+      const response = await fetch(`/app/Routes/api.php?action=get_votes&user_id=${user.userName}`, {
+        method: 'GET',
+        credentials: 'include'
       });
+      const data = await response.text();
+      console.log("Resposta ao carregar votos:", data);
+      let result;
+      try {
+        result = JSON.parse(data);
+      } catch {
+        console.warn("⚠️ Resposta não é JSON:", data);
+        list.innerHTML = '<li class="text-gray-500 text-center">Erro ao carregar votos.</li>';
+        return;
+      }
+
+      if (result.success && result.votes.length) {
+        result.votes.forEach(vote => {
+          const li = document.createElement('li');
+          li.className = "bg-pink-50 p-5 rounded-lg shadow hover:shadow-md transition";
+
+          li.innerHTML = `
+      <div class="flex flex-col gap-4">
+        <div class="text-gray-700 space-y-1">
+          <p><strong>Título:</strong> ${vote.title}</p>
+          ${vote.description ? `<p><strong>Descrição:</strong> ${vote.description}</p>` : ''}
+          <p><strong>Código da Votação:</strong>
+            <span onclick="copyToClipboard('${vote.code || "N/A"}')" 
+              class="clipboard font-mono bg-gray-100 px-2 py-0.5 rounded transition-colors cursor-pointer hover:bg-gray-100 hover:text-orange-700">
+              ${vote.code || "N/A"}
+            </span>
+          </p>
+          <p><strong>Status:</strong> <span class="${vote.is_finished ? 'text-red-500' : 'text-green-600'} font-medium">
+            ${vote.is_finished ? "Finalizada" : "Em andamento"}
+          </span></p>
+          <p><strong>Início:</strong> ${utcToLocal(vote.start_time)}</p>
+          <p><strong>Fim:</strong> ${utcToLocal(vote.end_time)}</p>
+        </div>
+        <div class="flex flex-col sm:flex-row gap-3 mt-3">
+          <button 
+            onclick="vote('${vote.code}')"
+            class="bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600 transition w-full md:w-auto">
+            Fazer alguma coisa...
+          </button>
+        </div>
+      </div>
+    `;
+          list.appendChild(li);
+        });
+      } else {
+        list.innerHTML = '<li class="text-gray-500 text-center">Nenhum voto encontrado.</li>';
+      }
+
+      function copyToClipboard(text) {
+        navigator.clipboard.writeText(text).then(() => {
+          // Pega o elemento que disparou a função
+          const active = document.activeElement;
+          // Tenta pegar o elemento pelo evento (caso chamado via onclick inline)
+          let trigger = null;
+          try {
+            // Se chamado via onclick inline, 'this' não está disponível, então busca pelo último elemento focado
+            trigger = active && active.classList.contains('clipboard') ? active : null;
+          } catch { }
+          // Se não encontrou, tenta buscar pelo texto
+          if (!trigger) {
+            // Busca todos os spans com classe clipboard e compara o texto
+            const clips = document.querySelectorAll('.clipboard');
+            clips.forEach(el => {
+              if (el.textContent === text) trigger = el;
+            });
+          }
+          if (trigger) {
+            // Remove qualquer span de check anterior
+            const next = trigger.nextElementSibling;
+            if (next && next.classList.contains('copied-check')) {
+              next.remove();
+            }
+            // Cria o span de check
+            const check = document.createElement('span');
+            check.className = 'copied-check ml-2';
+            check.textContent = '✍️';
+            trigger.parentNode.insertBefore(check, trigger.nextSibling);
+            // Remove após 1.5s
+            setTimeout(() => {
+              check.remove();
+            }, 1500);
+          }
+        }).catch(err => {
+          console.error('Erro ao copiar:', err);
+        });
+      }
     }
   </script>
 
