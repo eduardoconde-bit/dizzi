@@ -198,6 +198,7 @@
                     <td class="py-2 px-4">${percent}%</td>
                 </tr>`;
             });
+            console.log("Atualizando métricas de votos:", { options, votesPerOption, totalVotes });
             html += '</tbody></table>';
             metricsEl.innerHTML = html;
         }
