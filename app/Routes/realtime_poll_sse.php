@@ -3,6 +3,9 @@
 
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
+set_time_limit(0);  // permite que o script rode indefinidamente
+ignore_user_abort(true); // continua rodando mesmo que o cliente desconecte
+
 
 // --- IGNORE ---
 // This file was modified to remove the infinite loop for better compatibility with certain server environments.
