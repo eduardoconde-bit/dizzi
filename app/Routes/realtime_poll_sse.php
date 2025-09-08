@@ -81,7 +81,7 @@ try {
         echo "data: " . json_encode($data) . "\n\n";
         flush(); // apenas flush, sem ob_flush()
 
-        sleep(10); // atualiza a cada 10 segundos
+        sleep(2); // atualiza a cada 2 segundos
     }
 } catch (Throwable $e) {
     echo "data: " . json_encode([
