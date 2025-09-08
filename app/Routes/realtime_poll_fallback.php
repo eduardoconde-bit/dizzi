@@ -1,195 +1,106 @@
 <?php
-// realtime_poll_fallback.php
-// Fallback endpoint for realtime poll data when SSE connection fails or takes too long
 
 ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-// Set JSON response headers
-header("Content-Type: application/json");
-header("Cache-Control: no-cache, no-store, must-revalidate");
-header("Pragma: no-cache");
-header("Expires: 0");
+require __DIR__ . "/../../vendor/autoload.php";
+use Dizzi\Database\Database;
 
-// Handle preflight OPTIONS request
+header('Content-Type: application/json');
+
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(200);
     exit();
 }
 
-// Database connection
-require __DIR__ . '/../../vendor/autoload.php';
-
-use Dizzi\Database\Database;
-
 try {
-    $db = new Database();
-    $connection = $db->getConnection();
-    
-    // Get poll ID from request
-    $pollId = null;
-    
-    if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-        $pollId = $_GET['poll_id'] ?? null;
-    } elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        $input = json_decode(file_get_contents('php://input'), true);
-        $pollId = $input['poll_id'] ?? null;
-    }
-    
-    if (!$pollId) {
-        http_response_code(400);
-        echo json_encode([
-            'success' => false,
-            'error' => 'Poll ID is required',
-            'timestamp' => date('Y-m-d H:i:s')
-        ]);
-        exit();
-    }
-    
-    // Validate poll ID
-    if (!is_numeric($pollId) || $pollId <= 0) {
-        http_response_code(400);
-        echo json_encode([
-            'success' => false,
-            'error' => 'Invalid poll ID format',
-            'timestamp' => date('Y-m-d H:i:s')
-        ]);
-        exit();
-    }
-    
-    // Query to get comprehensive poll data
-    $stmt = $connection->prepare("
-        SELECT
-            p.id AS poll_id,
-            p.title AS poll_title,
-            p.description AS poll_description,
-            p.number_votes AS total_votes,
-            p.is_finished,
-            p.start_time,
-            p.end_time,
-            -- Active codes
-            (SELECT GROUP_CONCAT(code) FROM poll_codes WHERE poll_id = p.id AND is_expired = 0) AS codes,
-            -- Poll options
-            (SELECT GROUP_CONCAT(option_name) FROM poll_options WHERE poll_id = p.id ORDER BY id) AS options,
-            -- Option IDs for vote distribution calculation
-            (SELECT GROUP_CONCAT(id) FROM poll_options WHERE poll_id = p.id ORDER BY id) AS option_ids,
-            -- Users who voted with profile images
-            (
-                SELECT JSON_ARRAYAGG(JSON_OBJECT(
-                    'user_id', u.user_id,
-                    'profile_image', u.profile_image,
-                    'voted_at', l.created_at
-                ))
-                FROM ledger l
-                JOIN users u ON l.user_id = u.user_id
-                WHERE l.poll_id = p.id
-                AND l.previous_hash != REPEAT('0', 64)
-                ORDER BY l.created_at DESC
-            ) AS voted_users,
-            -- Vote distribution per option
-            (
-                SELECT JSON_OBJECTAGG(
-                    option_id,
-                    vote_count
-                )
-                FROM (
-                    SELECT 
-                        l.option_id,
-                        COUNT(*) as vote_count
-                    FROM ledger l
-                    WHERE l.poll_id = p.id 
-                    AND l.previous_hash != REPEAT('0', 64)
-                    AND l.option_id IS NOT NULL
-                    GROUP BY l.option_id
-                ) AS vote_counts
-            ) AS vote_distribution
-        FROM polls p
-        WHERE p.id = :poll_id
+    $dbInstance = new Database();
+    $pdo = $dbInstance->getConnection();
+
+    $poll_id = isset($_GET['poll_id']) ? intval($_GET['poll_id']) : null;
+    if (!$poll_id) throw new Exception('poll_id parameter is required');
+
+    // Poll info
+    $poll_stmt = $pdo->prepare("
+        SELECT *, 
+               (SELECT COUNT(*) FROM ledger WHERE poll_id = polls.id AND previous_hash != REPEAT('0',64)) AS total_votes
+        FROM polls
+        WHERE id = :poll_id
         LIMIT 1
     ");
-    
-    $stmt->bindValue(':poll_id', $pollId, PDO::PARAM_INT);
-    $stmt->execute();
-    $pollData = $stmt->fetch(PDO::FETCH_ASSOC);
-    
-    if (!$pollData) {
-        http_response_code(404);
-        echo json_encode([
-            'success' => false,
-            'error' => 'Poll not found',
-            'timestamp' => date('Y-m-d H:i:s')
-        ]);
-        exit();
-    }
-    
-    // Process and format the data
-    $codes = $pollData['codes'] ? explode(',', $pollData['codes']) : [];
-    $options = $pollData['options'] ? explode(',', $pollData['options']) : [];
-    $optionIds = $pollData['option_ids'] ? explode(',', $pollData['option_ids']) : [];
-    $votedUsers = $pollData['voted_users'] ? json_decode($pollData['voted_users'], true) : [];
-    $voteDistribution = $pollData['vote_distribution'] ? json_decode($pollData['vote_distribution'], true) : [];
-    
-    // Calculate votes per option in order
-    $votesPerOption = [];
-    foreach ($optionIds as $index => $optionId) {
-        $votesPerOption[] = intval($voteDistribution[$optionId] ?? 0);
-    }
-    
-    // Calculate percentages
-    $totalVotes = intval($pollData['total_votes']);
+    $poll_stmt->bindParam(':poll_id', $poll_id, PDO::PARAM_INT);
+    $poll_stmt->execute();
+    $poll = $poll_stmt->fetch(PDO::FETCH_ASSOC);
+    if (!$poll) throw new Exception('Poll not found');
+
+    // Options
+    $options_stmt = $pdo->prepare("SELECT id AS option_id, option_name FROM poll_options WHERE poll_id = :poll_id ORDER BY id");
+    $options_stmt->bindParam(':poll_id', $poll_id, PDO::PARAM_INT);
+    $options_stmt->execute();
+    $options = $options_stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    // Votes per option
+    $votes_stmt = $pdo->prepare("
+        SELECT po.id AS option_id, po.option_name,
+               COUNT(l.id) AS vote_count
+        FROM poll_options po
+        LEFT JOIN ledger l ON po.id = l.option_id AND l.previous_hash != REPEAT('0',64)
+        WHERE po.poll_id = :poll_id
+        GROUP BY po.id, po.option_name
+        ORDER BY po.id
+    ");
+    $votes_stmt->bindParam(':poll_id', $poll_id, PDO::PARAM_INT);
+    $votes_stmt->execute();
+    $votes_per_option = $votes_stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    // Users who voted
+    $users_stmt = $pdo->prepare("
+        SELECT DISTINCT u.user_id, u.user_name AS username, u.profile_image AS profile_picture,
+                        l.timestamp AS voted_at
+        FROM ledger l
+        JOIN users u ON l.user_id = u.user_id
+        WHERE l.poll_id = :poll_id AND l.previous_hash != REPEAT('0',64)
+        ORDER BY l.timestamp DESC
+    ");
+    $users_stmt->bindParam(':poll_id', $poll_id, PDO::PARAM_INT);
+    $users_stmt->execute();
+    $voted_users = $users_stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    // Percentages
+    $total_votes = intval($poll['total_votes']);
     $percentages = [];
-    foreach ($votesPerOption as $votes) {
-        $percentages[] = $totalVotes > 0 ? round(($votes / $totalVotes) * 100, 1) : 0.0;
+    foreach ($votes_per_option as $vote_data) {
+        $percentages[$vote_data['option_id']] = $total_votes > 0 ? round(($vote_data['vote_count'] / $total_votes) * 100, 1) : 0;
     }
-    
-    // Prepare response data
-    $responseData = [
+
+    // Active codes
+    $codes_stmt = $pdo->prepare("SELECT code FROM poll_codes WHERE poll_id = :poll_id AND is_expired = 0");
+    $codes_stmt->bindParam(':poll_id', $poll_id, PDO::PARAM_INT);
+    $codes_stmt->execute();
+    $codes = $codes_stmt->fetchAll(PDO::FETCH_COLUMN);
+
+    // Response
+    echo json_encode([
         'success' => true,
-        'poll_id' => intval($pollData['poll_id']),
-        'poll_title' => $pollData['poll_title'],
-        'poll_description' => $pollData['poll_description'],
-        'total_votes' => $totalVotes,
-        'is_finished' => boolval($pollData['is_finished']),
-        'start_time' => $pollData['start_time'],
-        'end_time' => $pollData['end_time'],
-        'codes' => $codes,
-        'options' => $options,
-        'option_ids' => array_map('intval', $optionIds),
-        'votes_per_option' => $votesPerOption,
+        'poll_id' => $poll_id,
+        'poll_title' => $poll['title'] ?? '',
+        'poll_description' => $poll['description'] ?? '',
+        'total_votes' => $total_votes,
+        'options' => array_column($options, 'option_name'),
+        'option_ids' => array_column($options, 'option_id'),
+        'votes_per_option' => $votes_per_option,
         'percentages' => $percentages,
-        'voted_users' => $votedUsers,
-        'user_count' => count($votedUsers),
-        'timestamp' => date('Y-m-d H:i:s'),
-        'server_time' => time(),
-        'is_fallback' => true
-    ];
-    
-    // Return successful response
-    http_response_code(200);
-    echo json_encode($responseData, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
-    
-} catch (PDOException $e) {
+        'voted_users' => $voted_users,
+        'codes' => $codes,
+        'timestamp' => date('Y-m-d H:i:s')
+    ]);
+
+} catch (Exception $e) {
     http_response_code(500);
     echo json_encode([
         'success' => false,
         'error' => 'Database error: ' . $e->getMessage(),
         'timestamp' => date('Y-m-d H:i:s')
     ]);
-    
-} catch (Exception $e) {
-    http_response_code(500);
-    echo json_encode([
-        'success' => false,
-        'error' => 'Server error: ' . $e->getMessage(),
-        'timestamp' => date('Y-m-d H:i:s')
-    ]);
-    
-} catch (Throwable $e) {
-    http_response_code(500);
-    echo json_encode([
-        'success' => false,
-        'error' => 'Unexpected error: ' . $e->getMessage(),
-        'timestamp' => date('Y-m-d H:i:s')
-    ]);
 }
-?>
