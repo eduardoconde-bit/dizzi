@@ -4,6 +4,10 @@
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
 
+// --- IGNORE ---
+// This file was modified to remove the infinite loop for better compatibility with certain server environments.
+// If you need real-time updates, consider using a different approach or reintroduce the loop with caution.
+// --- IGNORE ---
 header("Content-Type: text/event-stream");
 header("Cache-Control: no-cache");
 header("Connection: keep-alive");
