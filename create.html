@@ -6,25 +6,70 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Dizzi - Criar Votação</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+    .fade-in {
+      animation: fadeIn 0.3s ease-in-out;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .shake {
+      animation: shake 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+    }
+    @keyframes shake {
+      10%, 90% { transform: translate3d(-1px, 0, 0); }
+      20%, 80% { transform: translate3d(2px, 0, 0); }
+      30%, 50%, 70% { transform: translate3d(-3px, 0, 0); }
+      40%, 60% { transform: translate3d(3px, 0, 0); }
+    }
+  </style>
 </head>
 
-<body class="bg-gray-100 font-sans">
+<body class="bg-gray-100 font-sans text-gray-800">
 
   <!-- Header unificado -->
   <header class="bg-gray-900 text-white sticky top-0 z-50 shadow-md">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex justify-between items-center h-16">
         <!-- Logo -->
-        <div class="text-2xl font-bold text-cyan-400">
+        <div class="text-2xl font-bold text-cyan-400 flex items-center">
+          <svg class="w-8 h-8 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
           Dizzi
         </div>
 
         <!-- Menu Desktop -->
         <nav class="hidden md:flex space-x-8">
-          <a href="profile.html" class="hover:text-cyan-400 transition">Home</a>
-          <a href="create.html" class="hover:text-cyan-400 transition">Criar Votação</a>
-          <a href="vote.html" class="hover:text-cyan-400 transition">Votar</a>
-          <a href="#" id="logoutLink" class="hover:text-red-400 transition">Sair</a>
+          <a href="profile.html" class="hover:text-cyan-400 transition flex items-center">
+            <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+            </svg>
+            Home
+          </a>
+          <a href="create.html" class="text-cyan-400 transition flex items-center">
+            <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+            </svg>
+            Criar Votação
+          </a>
+          <a href="vote.html" class="hover:text-cyan-400 transition flex items-center">
+            <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122"></path>
+            </svg>
+            Votar
+          </a>
+          <a href="#" id="logoutLink" class="hover:text-red-400 transition flex items-center">
+            <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+            </svg>
+            Sair
+          </a>
         </nav>
 
         <!-- Botão Menu Mobile -->
@@ -36,61 +81,464 @@
 
     <!-- Menu Mobile -->
     <div id="mobile-menu" class="md:hidden hidden px-4 pb-4 bg-gray-900">
-      <a href="profile.html" class="block py-2 text-white hover:text-cyan-400">Home</a>
-      <a href="create.html" class="block py-2 text-white hover:text-cyan-400">Criar Votação</a>
-      <a href="vote.html" class="block py-2 text-white hover:text-cyan-400">Votar</a>
-      <a href="#" id="logoutLinkMobile" class="block py-2 text-red-400 hover:text-red-300">Sair</a>
+      <a href="profile.html" class="flex items-center py-2 text-white hover:text-cyan-400">
+        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+        </svg>
+        Home
+      </a>
+      <a href="create.html" class="flex items-center py-2 text-cyan-400">
+        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+        </svg>
+        Criar Votação
+      </a>
+      <a href="vote.html" class="flex items-center py-2 text-white hover:text-cyan-400">
+        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122"></path>
+        </svg>
+        Votar
+      </a>
+      <a href="#" id="logoutLinkMobile" class="flex items-center py-2 text-red-400 hover:text-red-300">
+        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+        </svg>
+        Sair
+      </a>
     </div>
   </header>
 
   <!-- Conteúdo -->
-  <main class="flex items-center justify-center min-h-[80vh] px-4">
-    <div class="w-full max-w-xl bg-white p-6 rounded-xl shadow-md">
-      <h2 class="text-3xl font-bold mb-6 text-gray-800 text-center">Criar Votação</h2>
+  <main class="max-w-4xl mx-auto py-12 px-4 sm:px-6">
+    <!-- Barra de progresso -->
+    <div class="bg-white rounded-xl shadow-md p-4 mb-6">
+      <div class="flex justify-between mb-2">
+        <span class="text-sm font-medium text-gray-700">Progresso do formulário</span>
+        <span id="progressText" class="text-sm font-medium text-cyan-600">0%</span>
+      </div>
+      <div class="w-full bg-gray-200 rounded-full h-2.5">
+        <div id="progressBar" class="bg-cyan-500 h-2.5 rounded-full" style="width: 0%"></div>
+      </div>
+    </div>
 
-      <input id="title" placeholder="Título da eleição"
-        class="w-full p-3 mb-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-400" />
-      <textarea id="description" placeholder="Descrição"
-        class="w-full p-3 mb-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-400"></textarea>
-      <input type="checkbox" onchange="setStateDuration(this)" id="set-timer" class="mr-2 mb-3">
-      <label for="set-timer" class="mb-3">Definir duração? (em minutos)</label>
-      <input id="duration" disabled placeholder="Duração em minutos" type="number" min="1"
-        class="w-full p-3 mb-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-400" />
-
-      <h3 class="text-lg font-semibold mb-2">Opções de Voto</h3>
-      <div id="options" class="mb-3"></div>
-      <button type="button" onclick="addOption()"
-        class="mb-4 px-4 py-2 bg-cyan-500 text-white rounded-lg hover:bg-cyan-600 transition">
-        + Adicionar opção
-      </button>
-
-      <hr class="my-4">
-
-      <button type="button" onclick="createPoll()"
-        class="w-full px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition">
-        Criar Votação
-      </button>
-
-      <p id="message" class="bg-white-200 p-3 mt-4 rounded text-sm w-full text-center"></p>
+    <div class="bg-white rounded-xl shadow-md p-6 mb-6">
+      <div class="flex items-center justify-center mb-6">
+        <span class="inline-flex items-center justify-center h-12 w-12 rounded-full bg-cyan-100 text-cyan-600 mr-4">
+          <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+          </svg>
+        </span>
+        <h1 class="text-3xl font-bold text-gray-800">Criar Nova Votação</h1>
+      </div>
+      
+      <!-- Notificação -->
+      <div id="notification" class="mb-6 py-3 px-4 rounded-lg text-center font-medium hidden"></div>
+      
+      <!-- Formulário de criação -->
+      <form id="pollForm" class="space-y-6">
+        <!-- Informações básicas -->
+        <div>
+          <label for="title" class="block text-sm font-medium text-gray-700 mb-1">
+            Título da votação <span class="text-red-500">*</span>
+          </label>
+          <div class="relative">
+            <input 
+              id="title" 
+              placeholder="Ex: Eleição para representante de turma" 
+              class="w-full p-3 pl-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-400 transition"
+              required
+            />
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"></path>
+              </svg>
+            </div>
+          </div>
+          <p id="titleHelp" class="mt-1 text-xs text-gray-500">Escolha um título claro e descritivo para sua votação.</p>
+        </div>
+        
+        <div>
+          <label for="description" class="block text-sm font-medium text-gray-700 mb-1">
+            Descrição (opcional)
+          </label>
+          <div class="relative">
+            <textarea 
+              id="description" 
+              placeholder="Descreva o objetivo desta votação..." 
+              rows="3"
+              class="w-full p-3 pl-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-400 transition"
+            ></textarea>
+            <div class="absolute top-3 left-0 pl-3 flex items-start pointer-events-none">
+              <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"></path>
+              </svg>
+            </div>
+          </div>
+          <p class="mt-1 text-xs text-gray-500">Forneça mais detalhes sobre a finalidade da votação.</p>
+        </div>
+        
+        <!-- Duração -->
+        <div class="bg-blue-50 p-4 rounded-lg">
+          <div class="flex items-start">
+            <div class="flex items-center h-6">
+              <input 
+                id="set-timer" 
+                type="checkbox" 
+                class="h-5 w-5 text-cyan-600 border-gray-300 rounded focus:ring-cyan-500"
+              >
+            </div>
+            <div class="ml-3">
+              <label for="set-timer" class="text-sm font-medium text-gray-700">Definir duração da votação</label>
+              <p class="text-xs text-gray-500">Se não definir, a votação ficará ativa até que você a finalize manualmente</p>
+            </div>
+          </div>
+          
+          <div class="mt-3 transition-all duration-300" id="durationContainer">
+            <label for="duration" class="block text-sm font-medium text-gray-700 mb-1">Duração (em minutos)</label>
+            <div class="relative">
+              <input 
+                id="duration" 
+                disabled 
+                placeholder="Ex: 60 (para 1 hora)" 
+                type="number" 
+                min="1"
+                class="w-full p-3 pl-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-400 transition"
+              />
+              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+              </div>
+            </div>
+            <div class="mt-1 flex items-center space-x-2">
+              <button type="button" id="duration30" class="text-xs bg-gray-200 hover:bg-gray-300 px-2 py-1 rounded transition">30 min</button>
+              <button type="button" id="duration60" class="text-xs bg-gray-200 hover:bg-gray-300 px-2 py-1 rounded transition">1 hora</button>
+              <button type="button" id="duration1440" class="text-xs bg-gray-200 hover:bg-gray-300 px-2 py-1 rounded transition">24 horas</button>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Opções de voto -->
+        <div>
+          <div class="flex justify-between items-center mb-3">
+            <h3 class="text-lg font-semibold text-gray-800">Opções de Voto</h3>
+            <span class="text-sm text-cyan-600 bg-cyan-50 px-2 py-1 rounded-full" id="optionsCounter">2 opções</span>
+          </div>
+          
+          <div id="options" class="space-y-3 mb-3"></div>
+          
+          <button 
+            type="button" 
+            id="addOptionBtn"
+            class="mt-3 flex items-center px-4 py-2 bg-cyan-100 text-cyan-700 rounded-lg hover:bg-cyan-200 transition"
+          >
+            <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+            </svg>
+            Adicionar opção
+          </button>
+        </div>
+        
+        <!-- Botão de criação -->
+        <div class="pt-4 border-t border-gray-200 flex flex-wrap gap-3">
+          <button 
+            type="button" 
+            id="clearFormBtn"
+            class="px-4 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition flex items-center justify-center"
+          >
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+            </svg>
+            Limpar Formulário
+          </button>
+          
+          <button 
+            type="submit" 
+            id="createPollBtn"
+            class="flex-1 px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition flex items-center justify-center"
+          >
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+            </svg>
+            <span id="createBtnText">Criar Votação</span>
+            <span id="createBtnLoader" class="hidden">
+              <svg class="animate-spin h-5 w-5 mr-2 ml-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+            </span>
+          </button>
+        </div>
+        
+        <div id="message" class="p-3 mt-4 rounded text-sm w-full text-center hidden"></div>
+      </form>
+    </div>
+    
+    <!-- Card de ajuda -->
+    <div class="bg-white rounded-xl shadow-md p-6">
+      <div class="flex items-start">
+        <div class="flex-shrink-0 mt-1">
+          <svg class="w-6 h-6 text-cyan-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+        </div>
+        <div class="ml-3">
+          <h3 class="text-lg font-semibold text-gray-800">Dicas para uma boa votação</h3>
+          <ul class="mt-2 text-gray-600 space-y-1 list-disc ml-5">
+            <li>Use um título claro e descritivo</li>
+            <li>Forneça uma descrição detalhada do objetivo da votação</li>
+            <li>Adicione pelo menos duas opções para os votantes escolherem</li>
+            <li>Defina um tempo adequado para a votação se necessário</li>
+            <li>Verifique todas as informações antes de criar a votação</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Diálogo de confirmação -->
+    <div id="confirmDialog" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+      <div class="bg-white rounded-xl shadow-xl p-6 max-w-md w-full mx-4 fade-in">
+        <h3 class="text-xl font-bold text-gray-800 mb-4">Confirmar Criação</h3>
+        <p class="text-gray-600 mb-6">Tem certeza que deseja criar esta votação com os dados informados?</p>
+        
+        <div class="bg-gray-50 p-4 rounded-lg mb-6">
+          <h4 class="font-semibold mb-2" id="confirmTitle"></h4>
+          <p class="text-sm text-gray-600 mb-2" id="confirmDescription"></p>
+          <p class="text-sm" id="confirmDuration"></p>
+          <div class="mt-3">
+            <span class="text-xs font-medium text-gray-500">Opções:</span>
+            <ul class="list-disc ml-5 text-sm" id="confirmOptions"></ul>
+          </div>
+        </div>
+        
+        <div class="flex justify-end space-x-3">
+          <button id="cancelBtn" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition">
+            Cancelar
+          </button>
+          <button id="confirmBtn" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition">
+            Confirmar
+          </button>
+        </div>
+      </div>
     </div>
   </main>
 
   <script>
-    // Habilita/desabilita o campo de duração
-    function setStateDuration(checkbox) {
-      document.getElementById("duration").disabled = !checkbox.checked;
-      if (!checkbox.checked) document.getElementById("duration").value = '';
+    // ============= VARIÁVEIS GLOBAIS =============
+    const elements = {
+      pollForm: document.getElementById('pollForm'),
+      title: document.getElementById('title'),
+      description: document.getElementById('description'),
+      setTimer: document.getElementById('set-timer'),
+      duration: document.getElementById('duration'),
+      options: document.getElementById('options'),
+      message: document.getElementById('message'),
+      notification: document.getElementById('notification'),
+      optionsCounter: document.getElementById('optionsCounter'),
+      menuToggle: document.getElementById('menu-toggle'),
+      mobileMenu: document.getElementById('mobile-menu'),
+      logoutLink: document.getElementById('logoutLink'),
+      logoutLinkMobile: document.getElementById('logoutLinkMobile'),
+      addOptionBtn: document.getElementById('addOptionBtn'),
+      createPollBtn: document.getElementById('createPollBtn'),
+      clearFormBtn: document.getElementById('clearFormBtn'),
+      createBtnText: document.getElementById('createBtnText'),
+      createBtnLoader: document.getElementById('createBtnLoader'),
+      progressBar: document.getElementById('progressBar'),
+      progressText: document.getElementById('progressText'),
+      durationContainer: document.getElementById('durationContainer'),
+      
+      // Botões de duração rápida
+      duration30: document.getElementById('duration30'),
+      duration60: document.getElementById('duration60'),
+      duration1440: document.getElementById('duration1440'),
+      
+      // Diálogo de confirmação
+      confirmDialog: document.getElementById('confirmDialog'),
+      confirmTitle: document.getElementById('confirmTitle'),
+      confirmDescription: document.getElementById('confirmDescription'),
+      confirmDuration: document.getElementById('confirmDuration'),
+      confirmOptions: document.getElementById('confirmOptions'),
+      confirmBtn: document.getElementById('confirmBtn'),
+      cancelBtn: document.getElementById('cancelBtn')
+    };
+
+    let currentUser = null;
+    let optionsCount = 0;
+
+    // ============= FUNÇÕES UTILITÁRIAS =============
+    
+    /**
+     * Analisa JSON de uma resposta de API, tratando erros
+     * @param {string} rawText - Texto JSON a ser analisado
+     * @param {string} errorContext - Contexto para mensagem de erro
+     * @returns {Object|null} - Objeto JSON analisado ou null em caso de erro
+     */
+    function parseApiResponse(rawText, errorContext = "") {
+      try {
+        return JSON.parse(rawText);
+      } catch (err) {
+        console.warn(`⚠️ Resposta não JSON ${errorContext ? `(${errorContext})` : ""}:`, rawText);
+        return null;
+      }
     }
 
-    // Toggle menu mobile
-    document.getElementById('menu-toggle').addEventListener('click', () => {
-      document.getElementById('mobile-menu').classList.toggle('hidden');
-    });
+    /**
+     * Obtém um cookie pelo nome
+     * @param {string} name - Nome do cookie
+     * @returns {string|null} - Valor do cookie ou null
+     */
+    function getCookie(name) {
+      const cookies = document.cookie.split('; ');
+      const cookie = cookies.find(c => c.startsWith(name + '='));
+      return cookie ? decodeURIComponent(cookie.split('=')[1]) : null;
+    }
 
-    // Funções pageshow, getCookie e loadUserData
-    window.addEventListener("pageshow", async function () {
-      const user = loadUserData();
-      const payload = { action: "login", user_name: user, password: crypto.randomUUID() };
+    /**
+     * Exibe uma notificação na UI
+     * @param {string} message - Mensagem a ser exibida
+     * @param {string} type - Tipo de notificação (success, error, warning, info)
+     */
+    function showNotification(message, type = "info") {
+      elements.notification.innerText = message;
+      elements.notification.classList.remove("hidden", "bg-red-100", "text-red-700", "bg-green-100", "text-green-700", "bg-yellow-100", "text-yellow-700", "bg-blue-100", "text-blue-700");
+      elements.notification.classList.add("fade-in");
+
+      switch (type) {
+        case "success":
+          elements.notification.classList.add("bg-green-100", "text-green-700");
+          break;
+        case "error":
+          elements.notification.classList.add("bg-red-100", "text-red-700");
+          break;
+        case "warning":
+          elements.notification.classList.add("bg-yellow-100", "text-yellow-700");
+          break;
+        case "info":
+        default:
+          elements.notification.classList.add("bg-blue-100", "text-blue-700");
+      }
+      
+      elements.notification.classList.remove("hidden");
+      
+      // Esconder notificação após 5 segundos
+      setTimeout(() => {
+        elements.notification.classList.add("hidden");
+      }, 5000);
+    }
+
+    /**
+     * Exibe mensagem de resposta para o usuário
+     * @param {string} text - Texto da mensagem
+     * @param {boolean} isError - Se é uma mensagem de erro
+     * @param {number} [timeout] - Tempo em ms para redirecionamento (opcional)
+     * @param {string} [redirectUrl] - URL para redirecionamento (opcional)
+     */
+    function showMessage(text, isError = false, timeout = 0, redirectUrl = null) {
+      elements.message.textContent = text;
+      elements.message.className = `p-3 mt-4 rounded text-sm w-full text-center fade-in ${isError ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`;
+      elements.message.classList.remove('hidden');
+
+      if (timeout > 0 && redirectUrl) {
+        setTimeout(() => {
+          window.location.href = redirectUrl;
+        }, timeout);
+      }
+    }
+    
+    /**
+     * Atualiza a barra de progresso com base nos campos preenchidos
+     */
+    function updateProgressBar() {
+      const fields = [
+        !!elements.title.value.trim(),
+        !!elements.description.value.trim(),
+        elements.setTimer.checked ? !!elements.duration.value : true,
+        optionsCount >= 2
+      ];
+      
+      const filledFields = fields.filter(field => field).length;
+      const progress = Math.round((filledFields / fields.length) * 100);
+      
+      elements.progressBar.style.width = `${progress}%`;
+      elements.progressText.textContent = `${progress}%`;
+    }
+    
+    /**
+     * Alterna o estado de carregamento do botão
+     * @param {boolean} isLoading - Se o botão deve mostrar estado de carregamento
+     */
+    function toggleLoadingState(isLoading) {
+      if (isLoading) {
+        elements.createBtnText.classList.add('hidden');
+        elements.createBtnLoader.classList.remove('hidden');
+        elements.createPollBtn.disabled = true;
+      } else {
+        elements.createBtnText.classList.remove('hidden');
+        elements.createBtnLoader.classList.add('hidden');
+        elements.createPollBtn.disabled = false;
+      }
+    }
+
+    // ============= FUNÇÕES DE AUTENTICAÇÃO =============
+    
+    /**
+     * Carrega dados do usuário a partir do cookie
+     * @returns {string|null} - Nome do usuário ou null
+     */
+    function loadUserData() {
+      const userData = getCookie('user_data');
+      if (!userData) {
+        window.location.href = "login.html";
+        console.warn('Cookie user_data não encontrado');
+        return null;
+      }
+      
+      try {
+        return JSON.parse(userData).userName;
+      } catch (err) {
+        console.error('Erro ao parsear user_data:', err);
+        return null;
+      }
+    }
+
+    /**
+     * Manipula o logout do usuário
+     */
+    async function handleLogout() {
+      try {
+        const response = await fetch('/app/Routes/api.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ action: 'logout' })
+        });
+        
+        const data = await response.json();
+        if (data.success) {
+          window.location.href = 'login.html';
+        } else {
+          showNotification('Erro ao sair. Tente novamente.', 'error');
+        }
+      } catch (error) {
+        console.error('Erro na requisição de logout:', error);
+        showNotification('Erro ao sair. Tente novamente.', 'error');
+      }
+    }
+
+    /**
+     * Verifica se o usuário está logado
+     */
+    async function verifyLogin() {
+      currentUser = loadUserData();
+      if (!currentUser) return;
+      
+      const payload = { 
+        action: "login", 
+        user_name: currentUser, 
+        password: crypto.randomUUID() 
+      };
+
       try {
         const response = await fetch("/app/Routes/api.php", {
           method: "POST",
@@ -98,49 +546,220 @@
           credentials: "include",
           body: JSON.stringify(payload)
         });
+
         const raw = await response.text();
-        let result;
-        try { result = JSON.parse(raw); } catch { console.warn("⚠️ Resposta não JSON:", raw); return; }
-        if (!result.success) window.location.href = "login.html";
-      } catch (err) { console.error(err); }
-    });
-
-    function getCookie(name) {
-      const cookies = document.cookie.split('; ');
-      const cookie = cookies.find(c => c.startsWith(name + '='));
-      return cookie ? decodeURIComponent(cookie.split('=')[1]) : null;
-    }
-
-    function loadUserData() {
-      const userData = getCookie('user_data');
-      if (!userData) return null;
-      try { return JSON.parse(userData).userName; } catch { return null; }
-    }
-
-    function addOption(name = '') {
-      const div = document.createElement("div");
-      div.className = "option-field flex gap-2 items-center mb-2";
-      div.innerHTML = `
-        <input placeholder="Nome da opção" value="${name}" class="flex-1 p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-400">
-        <button type="button" onclick="removeOption(this)" class="px-3 py-1 bg-red-200 text-white rounded-lg hover:bg-red-300 transition">❌</button>
-      `;
-      document.getElementById("options").appendChild(div);
-    }
-
-    function removeOption(btn) { btn.parentElement.remove(); }
-
-    async function createPoll() {
-      const title = document.getElementById("title").value;
-      const description = document.getElementById("description").value;
-      const duration = document.getElementById("duration").value ?? null;
-      const options = [...document.querySelectorAll("#options .option-field input")].map(i => i.value);
-      const parsedData = JSON.parse(getCookie('user_data') || '{}');
-      const payload = { action: "create_poll", user_id: parsedData.userName || '', title, description, duration, options };
-
-      if (isNaN(duration) && duration.trim() === "") {
-        payload.duration = null;
+        const result = parseApiResponse(raw, "verificação de login");
+        
+        if (!result?.success) {
+          window.location.href = "login.html";
+        }
+      } catch (error) {
+        console.error("Erro de requisição:", error);
       }
-      payload.duration = parseInt(payload.duration);
+    }
+
+    // ============= FUNÇÕES DE GERENCIAMENTO DE OPÇÕES =============
+    
+    /**
+     * Adiciona uma nova opção de voto ao formulário
+     * @param {string} name - Nome da opção (opcional)
+     */
+    function addOption(name = '') {
+      const optionId = Date.now();
+      const div = document.createElement("div");
+      div.className = "option-field flex gap-2 items-center p-3 border border-gray-200 rounded-lg";
+      div.dataset.id = optionId;
+
+      const input = document.createElement("input");
+      input.placeholder = `Opção de voto #${optionsCount + 1}`;
+      input.value = name;
+      input.className = "flex-1 p-2 border-0 focus:outline-none focus:ring-0";
+      input.name = `option-${optionId}`;
+      input.id = `option-${optionId}`;
+      input.required = true;
+      
+      // Adicionar evento de input para atualizar progresso
+      input.addEventListener('input', updateProgressBar);
+
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "flex items-center justify-center w-8 h-8 rounded-full bg-red-100 text-red-600 hover:bg-red-200 transition";
+      button.innerHTML = `
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+        </svg>
+      `;
+      button.addEventListener('click', function() {
+        removeOption(div);
+      });
+      
+      // Adicionar ícone de arrastar para reordenar
+      const dragHandle = document.createElement("div");
+      dragHandle.className = "cursor-move flex items-center justify-center";
+      dragHandle.innerHTML = `
+        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+        </svg>
+      `;
+
+      div.appendChild(dragHandle);
+      div.appendChild(input);
+      div.appendChild(button);
+      elements.options.appendChild(div);
+      
+      optionsCount++;
+      updateOptionsCounter();
+      updateProgressBar();
+      
+      // Foco automático no novo campo
+      input.focus();
+    }
+
+    /**
+     * Remove uma opção de voto do formulário
+     * @param {HTMLElement} element - Elemento a ser removido
+     */
+    function removeOption(element) {
+      if (optionsCount <= 2) {
+        element.classList.add('shake');
+        setTimeout(() => element.classList.remove('shake'), 500);
+        showNotification("Você precisa ter pelo menos duas opções", "warning");
+        return;
+      }
+      
+      // Animação de saída
+      element.style.opacity = '0';
+      element.style.height = '0';
+      element.style.overflow = 'hidden';
+      element.style.margin = '0';
+      element.style.padding = '0';
+      element.style.transition = 'all 0.3s ease-out';
+      
+      setTimeout(() => {
+        element.remove();
+        optionsCount--;
+        updateOptionsCounter();
+        updateProgressBar();
+      }, 300);
+    }
+    
+    /**
+     * Atualiza o contador de opções
+     */
+    function updateOptionsCounter() {
+      elements.optionsCounter.textContent = `${optionsCount} opção${optionsCount !== 1 ? 's' : ''}`;
+    }
+
+    /**
+     * Habilita/desabilita o campo de duração
+     */
+    function toggleDurationField() {
+      elements.duration.disabled = !elements.setTimer.checked;
+      elements.durationContainer.classList.toggle('opacity-50', !elements.setTimer.checked);
+      
+      if (!elements.setTimer.checked) {
+        elements.duration.value = '';
+      } else {
+        elements.duration.focus();
+      }
+      
+      updateProgressBar();
+    }
+    
+    /**
+     * Define um valor rápido para o campo de duração
+     * @param {number} minutes - Duração em minutos
+     */
+    function setQuickDuration(minutes) {
+      elements.setTimer.checked = true;
+      elements.duration.disabled = false;
+      elements.durationContainer.classList.remove('opacity-50');
+      elements.duration.value = minutes;
+      updateProgressBar();
+    }
+    
+    /**
+     * Limpa o formulário
+     */
+    function clearForm() {
+      elements.title.value = '';
+      elements.description.value = '';
+      elements.setTimer.checked = false;
+      elements.duration.value = '';
+      elements.duration.disabled = true;
+      elements.durationContainer.classList.add('opacity-50');
+      
+      elements.options.innerHTML = '';
+      optionsCount = 0;
+      
+      // Adicionar as duas opções iniciais
+      addOption();
+      addOption();
+      
+      // Atualizar progresso
+      updateProgressBar();
+      
+      // Foco no título
+      elements.title.focus();
+    }
+
+    /**
+     * Exibe diálogo de confirmação antes de criar a votação
+     */
+    function showConfirmDialog() {
+      const title = elements.title.value.trim();
+      const description = elements.description.value.trim();
+      const durationEnabled = elements.setTimer.checked;
+      const duration = durationEnabled ? elements.duration.value : null;
+      
+      // Atualizar informações no diálogo
+      elements.confirmTitle.textContent = title;
+      elements.confirmDescription.textContent = description || 'Sem descrição';
+      elements.confirmDuration.textContent = durationEnabled 
+        ? `Duração: ${duration} minutos` 
+        : 'Duração: Sem tempo definido (manual)';
+      
+      // Atualizar opções
+      elements.confirmOptions.innerHTML = '';
+      const optionInputs = elements.options.querySelectorAll(".option-field input");
+      optionInputs.forEach(input => {
+        const li = document.createElement('li');
+        li.textContent = input.value.trim();
+        elements.confirmOptions.appendChild(li);
+      });
+      
+      // Mostrar diálogo
+      elements.confirmDialog.classList.remove('hidden');
+    }
+
+    // ============= FUNÇÃO DE CRIAÇÃO DE VOTAÇÃO =============
+    
+    /**
+     * Cria uma nova votação com os dados do formulário
+     */
+    async function createPoll() {
+      // Obtém valores do formulário
+      const title = elements.title.value.trim();
+      const description = elements.description.value.trim();
+      const durationRaw = elements.duration.value;
+      const duration = elements.setTimer.checked ? parseInt(durationRaw) : null;
+      
+      // Obtém opções de voto
+      const optionInputs = elements.options.querySelectorAll(".option-field input");
+      const options = Array.from(optionInputs).map(input => input.value.trim());
+      
+      // Prepara payload
+      const payload = {
+        action: "create_poll",
+        user_id: currentUser,
+        title,
+        description,
+        duration,
+        options
+      };
+      
+      // Desabilita botão durante o envio
+      toggleLoadingState(true);
       
       try {
         const response = await fetch("/app/Routes/api.php", {
@@ -149,66 +768,112 @@
           credentials: "include",
           body: JSON.stringify(payload)
         });
+        
         const raw = await response.text();
         console.log("Resposta criação votação:", raw);
-        let data;
-        try { data = JSON.parse(raw); } catch {
-          document.getElementById("message").textContent = "⚠️ Erro no Sistema + estamos trabalhando nisso.";
+        
+        const data = parseApiResponse(raw, "criar votação");
+        if (!data) {
+          showNotification("Erro no sistema - estamos trabalhando nisso.", "error");
           return;
         }
+        
         if (data.success) {
-          document.getElementById("message").textContent = "🎉 Votação criada com sucesso!";
-          setTimeout(() => {
-            window.location.href = `profile.html`;
-          }, 1500);
+          showNotification("Votação criada com sucesso!", "success");
+          showMessage("🎉 Votação criada com sucesso! Redirecionando...", false, 1500, "profile.html");
         } else if (data.error) {
-          let msg;
+          let msg = "Erro ao criar votação.";
+          
           if (data.error.code === "MALFORMED_REQUEST") {
-            msg = "\nVerifique os dados informados.";
+            msg = "Dados inválidos. Verifique os campos preenchidos.";
           } else if (data.error.code === "INTERNAL_SERVER_ERROR") {
-            msg = "\nErro interno do servidor.";
+            msg = "Erro interno do servidor. Tente novamente mais tarde.";
           }
-          document.getElementById("message").textContent = msg;
+          
+          showNotification(msg, "error");
         } else {
-          document.getElementById("message").textContent = "⚠️ Erro desconhecido.";
+          showNotification("Erro desconhecido.", "error");
         }
       } catch (err) {
-        document.getElementById("message").textContent = "⚠️ Erro na conexão com o servidor, tente recarregar a página.";
-        console.error(err);
+        console.error("Erro ao criar votação:", err);
+        showNotification("Erro na conexão com o servidor, tente recarregar a página.", "error");
+      } finally {
+        // Re-habilita botão
+        toggleLoadingState(false);
+        
+        // Fechar diálogo
+        elements.confirmDialog.classList.add('hidden');
       }
     }
 
-    addOption();
-    addOption();
+    // ============= INICIALIZAÇÃO =============
+    
+    /**
+     * Configura os event listeners da página
+     */
+    function setupEventListeners() {
+      // Menu mobile
+      elements.menuToggle.addEventListener('click', () => {
+        elements.mobileMenu.classList.toggle('hidden');
+      });
+      
+      // Timer checkbox
+      elements.setTimer.addEventListener('change', toggleDurationField);
+      
+      // Botões de duração rápida
+      elements.duration30.addEventListener('click', () => setQuickDuration(30));
+      elements.duration60.addEventListener('click', () => setQuickDuration(60));
+      elements.duration1440.addEventListener('click', () => setQuickDuration(1440));
+      
+      // Add option button
+      elements.addOptionBtn.addEventListener('click', () => addOption());
+      
+      // Clear form button
+      elements.clearFormBtn.addEventListener('click', clearForm);
+      
+      // Campos de formulário para progresso
+      elements.title.addEventListener('input', updateProgressBar);
+      elements.description.addEventListener('input', updateProgressBar);
+      elements.duration.addEventListener('input', updateProgressBar);
+      
+      // Formulário
+      elements.pollForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        showConfirmDialog();
+      });
+      
+      // Diálogo de confirmação
+      elements.confirmBtn.addEventListener('click', createPoll);
+      elements.cancelBtn.addEventListener('click', () => {
+        elements.confirmDialog.classList.add('hidden');
+      });
+      
+      // Logout links
+      [elements.logoutLink, elements.logoutLinkMobile].forEach(link => {
+        if (link) link.addEventListener('click', handleLogout);
+      });
+    }
 
-    // Logout
-    document.getElementById("logoutLink")?.addEventListener("click", async () => {
-      try {
-        const res = await fetch('/app/Routes/api.php', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          credentials: 'include',
-          body: JSON.stringify({ action: 'logout' })
-        });
-        const data = await res.json();
-        if (data.success) window.location.href = 'login.html';
-        else alert('Erro ao sair.');
-      } catch { alert('Erro ao sair.'); }
-    });
+    /**
+     * Inicializa a página
+     */
+    async function initPage() {
+      // Verificar login
+      await verifyLogin();
+      
+      // Configurar event listeners
+      setupEventListeners();
+      
+      // Adicionar opções iniciais
+      addOption();
+      addOption();
+      
+      // Mostrar dica inicial
+      showNotification("Dica: Lembre-se de que o título da votação é a primeira coisa que os votantes verão.", "info");
+    }
 
-    document.getElementById("logoutLinkMobile")?.addEventListener("click", async () => {
-      try {
-        const res = await fetch('/app/Routes/api.php', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          credentials: 'include',
-          body: JSON.stringify({ action: 'logout' })
-        });
-        const data = await res.json();
-        if (data.success) window.location.href = 'login.html';
-        else alert('Erro ao sair.');
-      } catch { alert('Erro ao sair.'); }
-    });
+    // Inicializa a página ao carregar
+    window.addEventListener("pageshow", initPage);
   </script>
 
 </body>

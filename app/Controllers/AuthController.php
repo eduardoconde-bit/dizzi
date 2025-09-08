@@ -13,10 +13,41 @@ class AuthController
 {
 
     private UserRepository $userRep;
-    private array $invalidCredentials = ["success" => false, "message" => "Username or Password Invalid"];
-    private array $userAuthenticated = ["success" => true, "message" => "The user has already authenticated"];
-    private array $userValid = ["success" => true, "message" => "Login Successful"];
-    private array $userAlreadyExists = ["success" => false, "message" => "User already exists"];
+    private array $invalidCredentials = [
+        "success" => false,
+        "error"   => [
+            "code"    => "MALFORMED_REQUEST",
+            "message" => "Username or Password Invalid"
+        ]
+    ];
+
+    private array $userAuthenticated = [
+        "success" => true,
+        "code"    => "USER_AUTHENTICATED",
+        "message" => "The user has already authenticated"
+    ];
+
+    private array $userValid = [
+        "success" => true,
+        "code"    => "LOGIN_SUCCESSFUL",
+        "message" => "Login Successful"
+    ];
+
+    private array $userAlreadyExists = [
+        "success" => false,
+        "error"   => [
+            "code"    => "USER_ALREADY_EXISTS",
+            "message" => "User already exists"
+        ]
+    ];
+
+    private array $internalServerError = [
+        "success" => false,
+        "error"   => [
+            "code"    => "INTERNAL_SERVER_ERROR",
+            "message" => "Internal Server Error"
+        ]
+    ];
 
     public function __construct()
     {
@@ -45,14 +76,12 @@ class AuthController
 
             $user = new User($data["user_name"], $data['password']);
             echo json_encode(["success" => RegisterService::register($user)]);
-        } catch (\InvalidArgumentException $e) {
+        } catch (\InvalidArgumentException | \TypeError $e) {
             http_response_code(400);
-            echo json_encode(["error" => $e->getMessage()]);
+            echo json_encode($this->invalidCredentials);
         } catch (\Throwable $e) {
             http_response_code(500);
-            echo json_encode([
-                "error" => "Internal Server Error"
-            ]);
+            echo json_encode($this->internalServerError);
         }
     }
 
@@ -87,14 +116,12 @@ class AuthController
             }
             
             echo json_encode($this->userValid);
-        } catch (\InvalidArgumentException $e) {
+        } catch (\InvalidArgumentException | \TypeError $e) {
             http_response_code(400);
-            echo json_encode(["error" => $e->getMessage()]);
+            echo json_encode($this->invalidCredentials);
         } catch (\Throwable $e) {
             http_response_code(500);
-            echo json_encode([
-                "error" => "Internal Server Error"
-            ]);
+            echo json_encode($this->internalServerError);
         }
     }
 

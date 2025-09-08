@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8" />
-    <title>Dizzi - Votação em Tempo Real</title>
+    <title>Dizzi - Dashboard de Votação</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
@@ -19,7 +19,7 @@
 
                 <!-- Menu Desktop -->
                 <nav class="hidden md:flex space-x-8">
-                    <a href="index.html" class="hover:text-cyan-400 transition">Início</a>
+                    <a href="profile.html" class="hover:text-cyan-400 transition">Início</a>
                     <a href="create.html" class="hover:text-cyan-400 transition">Criar Votação</a>
                     <a href="vote.html" class="hover:text-cyan-400 transition">Votar</a>
                     <a href="#" id="logoutLink" class="hover:text-red-400 transition">Sair</a>
@@ -34,7 +34,7 @@
 
         <!-- Menu Mobile -->
         <div id="mobile-menu" class="md:hidden hidden px-4 pb-4 bg-gray-900">
-            <a href="index.html" class="block py-2 text-white hover:text-cyan-400">Início</a>
+            <a href="profile.html" class="block py-2 text-white hover:text-cyan-400">Início</a>
             <a href="create.html" class="block py-2 text-white hover:text-cyan-400">Criar Votação</a>
             <a href="vote.html" class="block py-2 text-white hover:text-cyan-400">Votar</a>
             <a href="#" id="logoutLinkMobile" class="block py-2 text-red-400 hover:text-red-300">Sair</a>
@@ -50,28 +50,63 @@
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
             </svg>
-            <span class="text-xl text-gray-700 font-semibold">Carregando...</span>
+            <span id="loaderText" class="text-xl text-gray-700 font-semibold">Carregando...</span>
+        </div>
+    </div>
+
+    <!-- Notificação de status -->
+    <div id="notification" class="fixed top-20 right-4 max-w-xs bg-white rounded-lg shadow-lg p-4 transition-opacity duration-300 opacity-0 pointer-events-none">
+        <div class="flex items-center">
+            <div id="notificationIcon" class="flex-shrink-0 w-6 h-6 mr-3"></div>
+            <div id="notificationMessage" class="text-sm font-medium"></div>
         </div>
     </div>
 
     <!-- Conteúdo principal -->
     <main id="dashboardContent" class="max-w-4xl mx-auto p-6 space-y-6 hidden">
 
-        <!-- Título da Votação -->
-        <h1 id="pollTitle" class="text-3xl font-bold text-gray-800 mb-6 text-center">
-            Carregando eleição...
-        </h1>
+        <!-- Cabeçalho com informações da votação -->
+        <div class="bg-white rounded-xl shadow p-6">
+            <h1 id="pollTitle" class="text-2xl font-bold text-gray-800 mb-2">Carregando eleição...</h1>
+            <p id="pollDescription" class="text-gray-600 mb-2">Carregando descrição...</p>
+            <div class="flex flex-wrap gap-4 text-sm mt-4">
+                <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full">
+                    Início: <span id="pollStartTime">--/--/----</span>
+                </span>
+                <span class="bg-red-100 text-red-800 px-3 py-1 rounded-full">
+                    Fim: <span id="pollEndTime">--/--/----</span>
+                </span>
+                <span id="pollStatus" class="px-3 py-1 rounded-full">
+                    Status: Carregando...
+                </span>
+            </div>
+        </div>
 
-        <!-- Total de votos -->
-        <section class="bg-white rounded-xl shadow p-6">
-            <h2 class="text-xl font-semibold text-gray-800 mb-2">Total de Votos</h2>
-            <p class="text-3xl font-bold text-cyan-500" id="totalVotes">0</p>
-        </section>
+        <!-- Estatísticas principais -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <!-- Total de votos -->
+            <section class="bg-white rounded-xl shadow p-6">
+                <h2 class="text-xl font-semibold text-gray-800 mb-2">Total de Votos</h2>
+                <p class="text-3xl font-bold text-cyan-500" id="totalVotes">0</p>
+            </section>
+            
+            <!-- Código Ativo -->
+            <section class="bg-white rounded-xl shadow p-6">
+                <h2 class="text-xl font-semibold text-gray-800 mb-2">Código</h2>
+                <p id="pollCode" class="text-lg font-mono bg-gray-100 p-2 rounded cursor-pointer"></p>
+            </section>
+            
+            <!-- Taxa de Participação -->
+            <section class="bg-white rounded-xl shadow p-6">
+                <h2 class="text-xl font-semibold text-gray-800 mb-2">Última Atualização</h2>
+                <p id="lastUpdate" class="text-lg text-gray-700">-</p>
+            </section>
+        </div>
 
-        <!-- Códigos Ativos -->
+        <!-- Métricas de Votos -->
         <section class="bg-white rounded-xl shadow p-6">
-            <h2 class="text-xl font-semibold text-gray-800 mb-2">Código Ativo</h2>
-            <ul id="codes" class="list-disc ml-6 text-gray-700"></ul>
+            <h2 class="text-xl font-semibold text-gray-800 mb-2">Métricas de Votos</h2>
+            <div id="voteMetrics" class="overflow-x-auto"></div>
         </section>
 
         <!-- Opções de Votação -->
@@ -82,167 +117,581 @@
 
         <!-- Usuários que Votaram -->
         <section class="bg-white rounded-xl shadow p-6">
-            <h2 class="text-xl font-semibold text-gray-800 mb-2">Usuários que Votaram</h2>
+            <div class="flex justify-between items-center mb-3">
+                <h2 class="text-xl font-semibold text-gray-800">Usuários que Votaram</h2>
+                <span id="userCount" class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm">0 usuários</span>
+            </div>
             <ul id="votedUsers" class="list-disc ml-6 text-gray-700"></ul>
         </section>
 
-        <section>
-            <h2 class="text-xl font-semibold text-gray-800 mb-2">Exportar Dados</h2>
-            <button id="exportBtn" onclick="exportDashboard()" class="bg-cyan-500 text-white px-4 py-2 rounded">Exportar</button>
+        <!-- Ações -->
+        <section class="bg-white rounded-xl shadow p-6">
+            <h2 class="text-xl font-semibold text-gray-800 mb-4">Ações</h2>
+            <div class="flex flex-wrap gap-3">
+                <button id="refreshBtn" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                    Atualizar Dados
+                </button>
+                <button id="exportBtn" class="bg-cyan-500 text-white px-4 py-2 rounded hover:bg-cyan-600 transition flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    Exportar Relatório
+                </button>
+                <button id="backBtn" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 transition flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                    </svg>
+                    Voltar
+                </button>
+            </div>
         </section>
 
     </main>
 
-
     <!-- Scripts -->
     <script>
-        // Toggle menu mobile
-        const toggleBtn = document.getElementById('menu-toggle');
-        const mobileMenu = document.getElementById('mobile-menu');
-        toggleBtn.addEventListener('click', () => {
-            mobileMenu.classList.toggle('hidden');
-        });
+        // ============= VARIÁVEIS GLOBAIS =============
+        const state = {
+            pollId: null,
+            pollData: null,
+            lastUpdated: null,
+            isLoading: true,
+            error: null
+        };
 
-        // Elementos
-        const pollTitleEl = document.getElementById('pollTitle');
-        const totalVotesEl = document.getElementById('totalVotes');
-        const codesEl = document.getElementById('codes');
-        const optionsEl = document.getElementById('options');
-        const votedUsersEl = document.getElementById('votedUsers');
-        const dashboardContentEl = document.getElementById('dashboardContent');
-        const loaderEl = document.getElementById('loader');
+        const elements = {
+            // Elementos de navegação
+            menuToggle: document.getElementById('menu-toggle'),
+            mobileMenu: document.getElementById('mobile-menu'),
+            logoutLink: document.getElementById('logoutLink'),
+            logoutLinkMobile: document.getElementById('logoutLinkMobile'),
+            
+            // Loader e notificação
+            loader: document.getElementById('loader'),
+            loaderText: document.getElementById('loaderText'),
+            notification: document.getElementById('notification'),
+            notificationIcon: document.getElementById('notificationIcon'),
+            notificationMessage: document.getElementById('notificationMessage'),
+            
+            // Conteúdo principal
+            dashboardContent: document.getElementById('dashboardContent'),
+            
+            // Informações da votação
+            pollTitle: document.getElementById('pollTitle'),
+            pollDescription: document.getElementById('pollDescription'),
+            pollStartTime: document.getElementById('pollStartTime'),
+            pollEndTime: document.getElementById('pollEndTime'),
+            pollStatus: document.getElementById('pollStatus'),
+            pollCode: document.getElementById('pollCode'),
+            
+            // Estatísticas
+            totalVotes: document.getElementById('totalVotes'),
+            lastUpdate: document.getElementById('lastUpdate'),
+            voteMetrics: document.getElementById('voteMetrics'),
+            options: document.getElementById('options'),
+            votedUsers: document.getElementById('votedUsers'),
+            userCount: document.getElementById('userCount'),
+            
+            // Botões de ação
+            refreshBtn: document.getElementById('refreshBtn'),
+            exportBtn: document.getElementById('exportBtn'),
+            backBtn: document.getElementById('backBtn')
+        };
 
-        // Cria elemento para métricas
-        const metricsSection = document.createElement('section');
-        metricsSection.className = "bg-white rounded-xl shadow p-6";
-        metricsSection.innerHTML = `
-            <h2 class="text-xl font-semibold text-gray-800 mb-2">Métricas de Votos</h2>
-            <div id="voteMetrics"></div>
-        `;
-        dashboardContentEl.insertBefore(metricsSection, dashboardContentEl.querySelector('section:last-of-type'));
-
-        // Pega o poll_id da URL
-        const urlParams = new URLSearchParams(window.location.search);
-        const id = urlParams.get('poll_id');
-        if (id) console.log("ID da eleição: " + id);
-
-        async function dashboard() {
+        // ============= FUNÇÕES UTILITÁRIAS =============
+        
+        /**
+         * Formata uma data para exibição
+         * @param {string} dateString - String de data no formato UTC
+         * @returns {string} Data formatada
+         */
+        function formatDate(dateString) {
+            if (!dateString) return '-';
+            
+            // Padroniza o formato de data
+            const normalizedDate = dateString.replace(' ', 'T') + (dateString.includes('Z') ? '' : 'Z');
+            const date = new Date(normalizedDate);
+            
+            return date.toLocaleString('pt-BR', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+        
+        /**
+         * Analisa JSON de uma resposta de API, tratando erros
+         * @param {string} rawText - Texto JSON a ser analisado
+         * @returns {Object|null} - Objeto JSON analisado ou null em caso de erro
+         */
+        function parseApiResponse(rawText) {
             try {
-                const response = await fetch(`/app/Routes/dashboard.php?poll_id=${id}`);
+                // Remove any prefix like "data: " before parsing
+                const jsonString = rawText.trim().startsWith('data:') 
+                    ? rawText.trim().substring(5).trim() 
+                    : rawText.trim();
+                    
+                return JSON.parse(jsonString);
+            } catch (err) {
+                console.error("Erro ao analisar resposta JSON:", err);
+                return null;
+            }
+        }
+        
+        /**
+         * Obtém um cookie pelo nome
+         * @param {string} name - Nome do cookie
+         * @returns {string|null} - Valor do cookie ou null
+         */
+        function getCookie(name) {
+            const cookies = document.cookie.split('; ');
+            const cookie = cookies.find(c => c.startsWith(name + '='));
+            return cookie ? decodeURIComponent(cookie.split('=')[1]) : null;
+        }
+        
+        /**
+         * Exibe uma notificação na interface
+         * @param {string} message - Mensagem a ser exibida
+         * @param {string} type - Tipo de notificação (success, error, info)
+         */
+        function showNotification(message, type = 'info') {
+            const icons = {
+                success: '<svg class="w-6 h-6 text-green-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>',
+                error: '<svg class="w-6 h-6 text-red-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path></svg>',
+                info: '<svg class="w-6 h-6 text-blue-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path></svg>'
+            };
+            
+            elements.notificationIcon.innerHTML = icons[type] || icons.info;
+            elements.notificationMessage.textContent = message;
+            elements.notification.classList.replace('opacity-0', 'opacity-100');
+            
+            // Esconde a notificação após 3 segundos
+            setTimeout(() => {
+                elements.notification.classList.replace('opacity-100', 'opacity-0');
+            }, 3000);
+        }
+        
+        /**
+         * Copia texto para a área de transferência
+         * @param {string} text - Texto a ser copiado
+         */
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text)
+                .then(() => showNotification('Código copiado para a área de transferência!', 'success'))
+                .catch(() => showNotification('Falha ao copiar código', 'error'));
+        }
+
+        /**
+         * Função auxiliar para calcular votes_per_option quando não fornecido pela API
+         * @param {Object} data - Dados da API
+         * @returns {Array} - Array com contagem de votos por opção
+         */
+        function calculateVotesPerOption(data) {
+            // Se não temos votes_per_option na resposta, criamos um array com zeros
+            // igual ao tamanho do array de options
+            if (data.options && Array.isArray(data.options)) {
+                // Por padrão, atribuímos todos os votos à primeira opção,
+                // já que não temos informação sobre a distribuição real
+                const result = new Array(data.options.length).fill(0);
+                
+                // Se houver votos, atribuímos pelo menos 1 à primeira opção
+                if (data.total_votes > 0) {
+                    result[0] = data.total_votes;
+                }
+                
+                return result;
+            }
+            
+            return [];
+        }
+
+        // ============= FUNÇÕES DE AUTENTICAÇÃO =============
+        
+        /**
+         * Manipula o logout do usuário
+         */
+        async function handleLogout() {
+            try {
+                const response = await fetch('/app/Routes/api.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify({ action: 'logout' })
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    window.location.href = 'login.html';
+                } else {
+                    showNotification('Erro ao sair. Tente novamente.', 'error');
+                }
+            } catch (error) {
+                console.error('Erro na requisição de logout:', error);
+                showNotification('Erro ao sair. Tente novamente.', 'error');
+            }
+        }
+        
+        /**
+         * Verifica se o usuário está logado
+         */
+        async function verifyLogin() {
+            const userData = getCookie('user_data');
+            if (!userData) {
+                window.location.href = "login.html";
+                return;
+            }
+            
+            let userName;
+            try {
+                userName = JSON.parse(userData).userName;
+            } catch (err) {
+                console.error('Erro ao parsear user_data:', err);
+                window.location.href = "login.html";
+                return;
+            }
+            
+            try {
+                const response = await fetch("/app/Routes/api.php", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    credentials: "include",
+                    body: JSON.stringify({ 
+                        action: "login", 
+                        user_name: userName, 
+                        password: crypto.randomUUID() 
+                    })
+                });
+
+                const data = await response.json();
+                if (!data.success) {
+                    window.location.href = "login.html";
+                }
+            } catch (error) {
+                console.error("Erro ao verificar login:", error);
+                showNotification("Erro ao verificar login", "error");
+            }
+        }
+
+        // ============= FUNÇÕES DO DASHBOARD =============
+        
+        /**
+         * Carrega os dados do dashboard
+         */
+        async function loadDashboardData() {
+            if (!state.pollId) {
+                showNotification("ID da votação não encontrado", "error");
+                elements.loaderText.textContent = "Erro: ID da votação não encontrado";
+                return;
+            }
+            
+            try {
+                // Mostrar estado de carregamento
+                state.isLoading = true;
+                
+                // Fazer requisição dos dados
+                const response = await fetch(`/app/Routes/dashboard.php?poll_id=${state.pollId}`);
                 const raw = await response.text();
                 if (!raw) {
-                    console.warn("Resposta vazia do dashboard.php");
-                    loaderEl.querySelector('span').textContent = "Erro ao carregar dados!";
-                    return;
+                    throw new Error("Resposta vazia do servidor");
                 }
+                
                 console.log("Resposta bruta do dashboard.php:", raw);
-                // Remove any prefix like "data: " before parsing
-                const jsonString = raw.trim().startsWith('data:') ? raw.trim().substring(5).trim() : raw.trim();
-                const data = JSON.parse(jsonString);
-                console.log("Dados do dashboard:", data);
-
-                if (data.error) {
-                    console.error("Erro ao carregar dados do dashboard:", data.error);
-                    loaderEl.querySelector('span').textContent = "Erro ao carregar dados!";
-                    return;
+                const data = parseApiResponse(raw);
+                
+                if (!data) {
+                    throw new Error("Falha ao analisar dados da resposta");
                 }
-
-                // Atualiza elementos do dashboard com os dados recebidos
-                pollTitleEl.textContent = data.poll_title;
-                totalVotesEl.textContent = data.total_votes;
-
-                updateList(codesEl, data.codes);
-                updateList(optionsEl, data.options);
-                updateList(votedUsersEl, data.voted_users);
-
-                // Atualiza métricas de votos
-                updateVoteMetrics(data.options, data.votes_per_option, data.total_votes);
-
-                // Esconde loader e mostra conteúdo
-                loaderEl.style.display = 'none';
-                dashboardContentEl.classList.remove('hidden');
+                
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+                
+                // Adicionar campos que podem estar faltando na resposta
+                const enhancedData = {
+                    ...data,
+                    poll_description: data.poll_description || "Sem descrição disponível",
+                    start_time: data.start_time || data.timestamp || new Date().toISOString(),
+                    end_time: data.end_time || null,
+                    is_finished: data.is_finished || false,
+                    code: data.codes && data.codes.length > 0 ? data.codes[0] : "N/A",
+                    // Calcular votes_per_option se não existir
+                    votes_per_option: data.votes_per_option || calculateVotesPerOption(data)
+                };
+                
+                // Atualizar estado
+                state.pollData = enhancedData;
+                state.lastUpdated = new Date();
+                state.isLoading = false;
+                state.error = null;
+                
+                // Atualizar UI
+                updateDashboardUI();
+                
+                // Esconder loader se estiver sendo exibido
+                elements.loader.style.display = 'none';
+                elements.dashboardContent.classList.remove('hidden');
+                
+                return enhancedData;
             } catch (err) {
-                console.error("Erro na requisição do dashboard:", err);
-                loaderEl.querySelector('span').textContent = "Erro ao carregar dados!";
+                console.error("Erro ao carregar dados do dashboard:", err);
+                state.error = err.message;
+                state.isLoading = false;
+                
+                elements.loaderText.textContent = `Erro ao carregar dados: ${err.message}`;
+                showNotification(`Erro ao carregar dados: ${err.message}`, "error");
+                
+                return null;
             }
         }
-
+        
+        /**
+         * Atualiza a interface do dashboard com os dados carregados
+         */
+        function updateDashboardUI() {
+            if (!state.pollData) return;
+            
+            const data = state.pollData;
+            
+            // Atualizar informações básicas da votação
+            elements.pollTitle.textContent = data.poll_title || "Sem título";
+            elements.pollDescription.textContent = data.poll_description || "Sem descrição";
+            elements.totalVotes.textContent = data.total_votes || 0;
+            
+            // Atualizar datas - usar timestamp como fallback
+            if (data.start_time) {
+                elements.pollStartTime.textContent = formatDate(data.start_time);
+            } else if (data.timestamp) {
+                elements.pollStartTime.textContent = formatDate(data.timestamp);
+            }
+            
+            if (data.end_time) {
+                elements.pollEndTime.textContent = formatDate(data.end_time);
+            } else {
+                elements.pollEndTime.textContent = "Não definido";
+            }
+            
+            // Atualizar status - assumir em andamento se não especificado
+            if (data.is_finished) {
+                elements.pollStatus.textContent = "Status: Finalizada";
+                elements.pollStatus.className = "bg-red-100 text-red-800 px-3 py-1 rounded-full";
+            } else {
+                elements.pollStatus.textContent = "Status: Em andamento";
+                elements.pollStatus.className = "bg-green-100 text-green-800 px-3 py-1 rounded-full";
+            }
+            
+            // Atualizar código - usar o primeiro código do array codes
+            if (data.codes && data.codes.length > 0) {
+                elements.pollCode.textContent = data.codes[0];
+                elements.pollCode.onclick = () => copyToClipboard(data.codes[0]);
+            } else if (data.code) {
+                elements.pollCode.textContent = data.code;
+                elements.pollCode.onclick = () => copyToClipboard(data.code);
+            } else {
+                elements.pollCode.textContent = "N/A";
+            }
+            
+            // Atualizar hora da última atualização
+            elements.lastUpdate.textContent = formatDate(state.lastUpdated.toISOString());
+            
+            // Atualizar opções
+            updateList(elements.options, data.options || []);
+            
+            // Atualizar usuários que votaram
+            updateList(elements.votedUsers, data.voted_users || []);
+            elements.userCount.textContent = `${data.voted_users?.length || 0} usuários`;
+            
+            // Atualizar métricas de votos
+            updateVoteMetrics(data.options, data.votes_per_option, data.total_votes);
+        }
+        
+        /**
+         * Atualiza uma lista na UI
+         * @param {HTMLElement} element - Elemento DOM da lista
+         * @param {Array} items - Itens a serem exibidos
+         */
         function updateList(element, items) {
             element.innerHTML = '';
-            // Check if this is the votedUsersEl and items are objects
-            if (element.id === 'votedUsers' && items.length > 0 && typeof items[0] === 'object') {
-                items.forEach(user => {
-                    const li = document.createElement('li');
-                    li.innerHTML = `<img src="${user.profile_image}" alt="Avatar" style="width:24px;height:24px;border-radius:50%;display:inline-block;margin-right:8px;vertical-align:middle;"> <span>${user.user_id}</span>`;
-                    element.appendChild(li);
+            
+            if (!items || !items.length) {
+                const li = document.createElement('li');
+                li.textContent = "Nenhum item encontrado";
+                li.className = "text-gray-500 italic";
+                element.appendChild(li);
+                return;
+            }
+            
+            // Verificar se é lista de usuários com imagens de perfil
+            const isUserList = element.id === 'votedUsers' && 
+                               typeof items[0] === 'object' && 
+                               items[0].hasOwnProperty('user_id');
+            
+            items.forEach(item => {
+                const li = document.createElement('li');
+                
+                if (isUserList) {
+                    // Criar elemento para usuário com avatar
+                    const img = document.createElement('img');
+                    img.src = item.profile_image || '/assets/default-avatar.png';
+                    img.alt = "Avatar";
+                    img.className = "w-6 h-6 rounded-full inline-block mr-2 align-middle";
+                    img.onerror = () => img.src = '/assets/default-avatar.png';
+                    
+                    const span = document.createElement('span');
+                    span.textContent = item.user_id;
+                    
+                    li.appendChild(img);
+                    li.appendChild(span);
+                } else {
+                    // Item de texto simples
+                    li.textContent = item;
+                }
+                
+                element.appendChild(li);
+            });
+        }
+        
+        /**
+         * Atualiza a tabela de métricas de votos
+         * @param {Array} options - Lista de opções de voto
+         * @param {Array} votesPerOption - Votos por opção
+         * @param {number} totalVotes - Total de votos
+         */
+        function updateVoteMetrics(options, votesPerOption, totalVotes) {
+            if (!options || !votesPerOption) {
+                elements.voteMetrics.innerHTML = '<p class="text-gray-500 italic">Dados não disponíveis</p>';
+                return;
+            }
+            
+            let html = `
+                <table class="min-w-full border-collapse">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Opção</th>
+                            <th class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Votos</th>
+                            <th class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Porcentagem</th>
+                            <th class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Gráfico</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+            `;
+            
+            options.forEach((option, idx) => {
+                const votes = votesPerOption[idx] || 0;
+                const percent = totalVotes > 0 ? ((votes / totalVotes) * 100).toFixed(1) : '0.0';
+                const barWidth = percent + '%';
+                
+                html += `
+                    <tr class="${idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'}">
+                        <td class="py-4 px-4 text-sm font-medium text-gray-900">${option}</td>
+                        <td class="py-4 px-4 text-sm text-gray-500">${votes}</td>
+                        <td class="py-4 px-4 text-sm text-gray-500">${percent}%</td>
+                        <td class="py-4 px-4">
+                            <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                <div class="bg-cyan-600 h-2.5 rounded-full" style="width: ${barWidth}"></div>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            html += '</tbody></table>';
+            elements.voteMetrics.innerHTML = html;
+        }
+        
+        /**
+         * Exporta os dados do dashboard para PDF
+         */
+        function exportDashboard() {
+            if (!state.pollData) {
+                showNotification("Não há dados para exportar", "error");
+                return;
+            }
+            
+            // Mostrar notificação de início
+            showNotification("Preparando exportação...", "info");
+            
+            // Coleta os dados do dashboard
+            const data = state.pollData;
+            const title = data.poll_title || "Sem título";
+            const description = data.poll_description || "Sem descrição";
+            const totalVotes = data.total_votes || 0;
+            const startTime = formatDate(data.start_time || data.timestamp);
+            const endTime = data.end_time ? formatDate(data.end_time) : "Não definido";
+            const status = data.is_finished ? "Finalizada" : "Em andamento";
+            const code = (data.codes && data.codes.length > 0) ? data.codes[0] : (data.code || "N/A");
+            const options = data.options || [];
+            const votesPerOption = data.votes_per_option || [];
+            
+            // Preparar tabela de votos para o PDF
+            let metricsTable = '<table style="width:100%; border-collapse: collapse; margin-top: 10px;">';
+            metricsTable += '<thead><tr style="background-color: #f3f4f6;"><th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Opção</th><th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Votos</th><th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Porcentagem</th></tr></thead><tbody>';
+            
+            options.forEach((option, idx) => {
+                const votes = votesPerOption[idx] || 0;
+                const percent = totalVotes > 0 ? ((votes / totalVotes) * 100).toFixed(1) : '0.0';
+                metricsTable += `<tr><td style="border: 1px solid #ddd; padding: 8px;">${option}</td><td style="border: 1px solid #ddd; padding: 8px;">${votes}</td><td style="border: 1px solid #ddd; padding: 8px;">${percent}%</td></tr>`;
+            });
+            
+            metricsTable += '</tbody></table>';
+            
+            // Preparar lista de usuários
+            let usersList = '<ul style="margin-left: 20px;">';
+            if (data.voted_users && data.voted_users.length) {
+                data.voted_users.forEach(user => {
+                    if (typeof user === 'object') {
+                        usersList += `<li>${user.user_id}</li>`;
+                    } else {
+                        usersList += `<li>${user}</li>`;
+                    }
                 });
             } else {
-                items.forEach(item => {
-                    const li = document.createElement('li');
-                    li.textContent = item;
-                    element.appendChild(li);
-                });
+                usersList += '<li>Nenhum usuário votou ainda</li>';
             }
-        }
-
-        function updateVoteMetrics(options, votesPerOption, totalVotes) {
-            const metricsEl = document.getElementById('voteMetrics');
-            if (!options || !votesPerOption || !metricsEl) return;
-            let html = '<table class="min-w-full text-left text-sm"><thead><tr><th class="py-2 px-4">Opção</th><th class="py-2 px-4">Votos</th><th class="py-2 px-4">Porcentagem</th></tr></thead><tbody>';
-            options.forEach((option, idx) => {
-                const votes = votesPerOption && votesPerOption[idx] ? votesPerOption[idx] : 0;
-                const percent = totalVotes > 0 ? ((votes / totalVotes) * 100).toFixed(1) : '0.0';
-                html += `<tr>
-                    <td class="py-2 px-4">${option}</td>
-                    <td class="py-2 px-4">${votes}</td>
-                    <td class="py-2 px-4">${percent}%</td>
-                </tr>`;
-            });
-            console.log("Atualizando métricas de votos:", { options, votesPerOption, totalVotes });
-            html += '</tbody></table>';
-            metricsEl.innerHTML = html;
-        }
-
-        dashboard(); // Chama a função para carregar os dados do dashboard  
-
-        function exportDashboard() {
-            // Coleta os dados do dashboard
-            const title = pollTitleEl.textContent;
-            const totalVotes = totalVotesEl.textContent;
-            const codes = Array.from(codesEl.children).map(li => li.textContent);
-            const options = Array.from(optionsEl.children).map(li => li.textContent);
-            const votedUsers = Array.from(votedUsersEl.children).map(li => li.innerText);
-
-            // Coleta métricas de votos
-            const metricsTable = document.getElementById('voteMetrics').innerHTML;
-
-            // Monta o conteúdo do PDF, tudo dentro de um <div> para evitar erro de múltiplos elementos
+            usersList += '</ul>';
+            
+            // Monta o conteúdo do PDF
             let pdfContent = `
                 <div>
-                    <h1>${title}</h1>
-                    <p><strong>Total de Votos:</strong> ${totalVotes}</p>
-                    <h2>Códigos Ativos</h2>
-                    <ul>${codes.map(c => `<li>${c}</li>`).join('')}</ul>
-                    <h2>Opções de Votação</h2>
-                    <ul>${options.map(o => `<li>${o}</li>`).join('')}</ul>
-                    <h2>Métricas de Votos</h2>
+                    <h1 style="color: #0e7490; font-size: 24px; margin-bottom: 16px;">${title}</h1>
+                    <p style="margin-bottom: 12px;">${description}</p>
+                    
+                    <h2 style="color: #334155; font-size: 18px; margin-top: 20px;">Informações Gerais</h2>
+                    <table style="width:100%; border-collapse: collapse; margin-top: 10px;">
+                        <tr><td style="border: 1px solid #ddd; padding: 8px;"><strong>Status:</strong></td><td style="border: 1px solid #ddd; padding: 8px;">${status}</td></tr>
+                        <tr><td style="border: 1px solid #ddd; padding: 8px;"><strong>Início:</strong></td><td style="border: 1px solid #ddd; padding: 8px;">${startTime}</td></tr>
+                        <tr><td style="border: 1px solid #ddd; padding: 8px;"><strong>Fim:</strong></td><td style="border: 1px solid #ddd; padding: 8px;">${endTime}</td></tr>
+                        <tr><td style="border: 1px solid #ddd; padding: 8px;"><strong>Código:</strong></td><td style="border: 1px solid #ddd; padding: 8px;">${code}</td></tr>
+                        <tr><td style="border: 1px solid #ddd; padding: 8px;"><strong>Total de Votos:</strong></td><td style="border: 1px solid #ddd; padding: 8px;">${totalVotes}</td></tr>
+                    </table>
+                    
+                    <h2 style="color: #334155; font-size: 18px; margin-top: 20px;">Resultados</h2>
                     ${metricsTable}
-                    <h2>Usuários que Votaram</h2>
-                    <ul>${votedUsers.map(u => `<li>${u}</li>`).join('')}</ul>
+                    
+                    <h2 style="color: #334155; font-size: 18px; margin-top: 20px;">Usuários que Votaram (${data.voted_users?.length || 0})</h2>
+                    ${usersList}
+                    
+                    <p style="margin-top: 30px; font-size: 12px; color: #64748b;">
+                        Relatório gerado em ${new Date().toLocaleString('pt-BR')} pelo sistema Dizzi
+                    </p>
                 </div>
             `;
-
+            
             // Cria um iframe invisível para imprimir o PDF
             const iframe = document.createElement('iframe');
             iframe.style.display = 'none';
             document.body.appendChild(iframe);
-
+            
             const doc = iframe.contentWindow.document;
             doc.open();
             doc.write(`
                 <html>
                 <head>
-                    <title>Dashboard Export</title>
+                    <title>Dashboard - ${title}</title>
                     <style>
                         body { font-family: Arial, sans-serif; margin: 40px; }
                         h1 { color: #0e7490; }
@@ -252,20 +701,93 @@
                         table { border-collapse: collapse; width: 100%; margin-top: 12px; }
                         th, td { border: 1px solid #ddd; padding: 8px; }
                         th { background: #e0f2fe; }
+                        @media print {
+                            body { margin: 20mm; }
+                            table { page-break-inside: avoid; }
+                        }
                     </style>
                 </head>
                 <body>${pdfContent}</body>
                 </html>
             `);
             doc.close();
-
+            
             // Aguarda o iframe carregar e chama print
             iframe.onload = function () {
-                iframe.contentWindow.focus();
-                iframe.contentWindow.print();
-                setTimeout(() => document.body.removeChild(iframe), 1000);
+                showNotification("Exportando relatório...", "success");
+                setTimeout(() => {
+                    iframe.contentWindow.focus();
+                    iframe.contentWindow.print();
+                    setTimeout(() => document.body.removeChild(iframe), 1000);
+                }, 500);
             };
         }
+
+        // ============= CONFIGURAÇÃO DE EVENTOS =============
+        
+        /**
+         * Configura todos os event listeners
+         */
+        function setupEventListeners() {
+            // Menu mobile
+            elements.menuToggle.addEventListener('click', () => {
+                elements.mobileMenu.classList.toggle('hidden');
+            });
+            
+            // Logout
+            elements.logoutLink.addEventListener('click', handleLogout);
+            elements.logoutLinkMobile.addEventListener('click', handleLogout);
+            
+            // Refresh button
+            elements.refreshBtn.addEventListener('click', async () => {
+                elements.refreshBtn.disabled = true;
+                elements.refreshBtn.classList.add('opacity-50');
+                
+                await loadDashboardData();
+                
+                elements.refreshBtn.disabled = false;
+                elements.refreshBtn.classList.remove('opacity-50');
+                
+                showNotification("Dados atualizados com sucesso!", "success");
+            });
+            
+            // Export button
+            elements.exportBtn.addEventListener('click', exportDashboard);
+            
+            // Back button
+            elements.backBtn.addEventListener('click', () => {
+                window.location.href = "profile.html";
+            });
+        }
+
+        // ============= INICIALIZAÇÃO =============
+        
+        /**
+         * Inicializa a aplicação
+         */
+        async function initApp() {
+            // Verificar login
+            await verifyLogin();
+            
+            // Configurar event listeners
+            setupEventListeners();
+            
+            // Obter ID da votação da URL
+            const urlParams = new URLSearchParams(window.location.search);
+            state.pollId = urlParams.get('poll_id');
+            
+            if (!state.pollId) {
+                elements.loaderText.textContent = "Erro: ID da votação não fornecido";
+                showNotification("ID da votação não fornecido", "error");
+                return;
+            }
+            
+            // Carregar dados do dashboard
+            await loadDashboardData();
+        }
+
+        // Iniciar a aplicação quando o documento estiver pronto
+        document.addEventListener('DOMContentLoaded', initApp);
     </script>
 
 </body>

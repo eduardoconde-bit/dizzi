@@ -3,80 +3,314 @@
 
 <head>
   <meta charset="UTF-8">
-  <title>Votação</title>
+  <title>Dizzi - Votação</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+  </style>
 </head>
 
-<body class="bg-gray-100 font-sans">
+<body class="bg-gray-100 font-sans text-gray-800">
 
   <!-- Header unificado -->
   <header class="bg-gray-900 text-white sticky top-0 z-50 shadow-md">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex justify-between items-center h-16">
-        <div class="text-2xl font-bold text-cyan-400">Dizzi</div>
+        <!-- Logo -->
+        <div class="text-2xl font-bold text-cyan-400 flex items-center">
+          <svg class="w-8 h-8 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+          Dizzi
+        </div>
 
         <!-- Menu Desktop -->
         <nav class="hidden md:flex space-x-8">
-          <a href="/profile.html" class="hover:text-cyan-400 transition">Home</a>
-          <a href="/create.html" class="hover:text-cyan-400 transition">Criar Votação</a>
-          <a href="#" id="logoutLink" class="hover:text-red-400 transition">Sair</a>
+          <a href="/profile.html" class="hover:text-cyan-400 transition flex items-center">
+            <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+            </svg>
+            Home
+          </a>
+          <a href="/create.html" class="hover:text-cyan-400 transition flex items-center">
+            <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+            </svg>
+            Criar Votação
+          </a>
+          <a href="#" id="logoutLink" class="hover:text-red-400 transition flex items-center">
+            <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+            </svg>
+            Sair
+          </a>
         </nav>
 
-        <!-- Menu Mobile -->
+        <!-- Botão Menu Mobile -->
         <div class="md:hidden">
           <button id="menu-toggle" class="text-2xl focus:outline-none">☰</button>
         </div>
       </div>
     </div>
 
+    <!-- Menu Mobile -->
     <div id="mobile-menu" class="md:hidden hidden px-4 pb-4 bg-gray-900">
-      <a href="/profile.html" class="block py-2 text-white hover:text-cyan-400">Home</a>
-      <a href="/create.html" class="block py-2 text-white hover:text-cyan-400">Criar Votação</a>
-      <a href="#" id="logoutLinkMobile" class="block py-2 text-red-400 hover:text-red-300">Sair</a>
+      <a href="/profile.html" class="flex items-center py-2 text-white hover:text-cyan-400">
+        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+        </svg>
+        Home
+      </a>
+      <a href="/create.html" class="flex items-center py-2 text-white hover:text-cyan-400">
+        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+        </svg>
+        Criar Votação
+      </a>
+      <a href="#" id="logoutLinkMobile" class="flex items-center py-2 text-red-400 hover:text-red-300">
+        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+        </svg>
+        Sair
+      </a>
     </div>
   </header>
 
-  <!-- Conteúdo -->
-  <main class="w-full min-h-screen flex flex-col items-center bg-gray-100 p-2 sm:p-4">
-    <div class="w-full sm:w-11/12 max-w-md sm:max-w-lg md:max-w-xl bg-white rounded-xl shadow-md p-4 sm:p-6 mt-10">
-      <h2 class="text-2xl sm:text-3xl font-bold mb-6 text-center text-gray-800">Votação</h2>
-
-      <!-- Notificação -->
-      <div id="notification" class="mb-4 text-center font-semibold hidden"></div>
-
-      <input id="pollCode" placeholder="Digite o código da eleição"
-        class="w-full p-3 border border-gray-300 rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-cyan-400 transition" />
-
-      <button onclick="loadPoll()"
-        class="w-full bg-green-500 hover:bg-green-600 text-white font-semibold py-2 rounded-lg mb-6 transition">
-        Carregar Votação
-      </button>
-
-      <div id="election-info" class="mb-6 text-gray-700"></div>
-
-      <div id="options" class="space-y-3"></div>
-
-      <button id="voteBtn" disabled
-        class="w-full bg-green-500 text-white font-semibold py-2 rounded-lg mt-6 disabled:bg-gray-300 disabled:cursor-not-allowed transition">
-        Votar
-      </button>
-
-      <p id="message" class="text-center mt-4 font-semibold text-lg"></p>
-
-      <p class="mt-6 text-center text-sm text-gray-600">
-        <a href="create.html" class="text-blue-500 hover:underline">Criar Votação</a>
-      </p>
+  <!-- Conteúdo Principal -->
+  <main class="max-w-4xl mx-auto py-12 px-4 sm:px-6">
+    <div class="bg-white rounded-xl shadow-md p-6 mb-6">
+      <h1 class="text-3xl font-bold mb-6 text-center text-gray-800">Participar de Votação</h1>
+      
+      <!-- Mensagem de Notificação -->
+      <div id="notification" class="mb-6 py-3 px-4 rounded-lg text-center font-medium hidden"></div>
+      
+      <!-- Formulário de Código -->
+      <div class="mb-8">
+        <div class="flex flex-col md:flex-row gap-3">
+          <input 
+            id="pollCode" 
+            placeholder="Digite o código da votação" 
+            class="flex-1 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-400 transition"
+          />
+          <button 
+            id="loadPollBtn"
+            onclick="loadPoll()" 
+            class="bg-cyan-500 hover:bg-cyan-600 text-white font-medium px-6 py-3 rounded-lg transition flex items-center justify-center"
+          >
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+            </svg>
+            Carregar Votação
+          </button>
+        </div>
+        
+        <div class="mt-3 text-sm text-gray-500 flex items-center">
+          <svg class="w-4 h-4 mr-1 text-cyan-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+          Insira o código fornecido pelo organizador da votação
+        </div>
+      </div>
+    </div>
+    
+    <!-- Detalhes da Votação -->
+    <div id="pollDetails" class="bg-white rounded-xl shadow-md p-6 mb-6 hidden">
+      <div id="pollLoading" class="py-8 text-center hidden">
+        <svg class="animate-spin h-10 w-10 text-cyan-500 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+        <p class="mt-3 text-gray-600">Carregando votação...</p>
+      </div>
+      
+      <div id="pollContent" class="hidden">
+        <!-- Informações da votação -->
+        <div id="election-info" class="mb-8 border-b border-gray-200 pb-6">
+          <!-- Será preenchido via JavaScript -->
+        </div>
+        
+        <!-- Opções de votação -->
+        <h3 class="text-xl font-semibold mb-4 text-gray-800">Selecione uma opção:</h3>
+        <div id="options" class="space-y-3 mb-6">
+          <!-- Opções serão inseridas aqui -->
+        </div>
+        
+        <!-- Botão de votar -->
+        <button 
+          id="voteBtn" 
+          disabled
+          class="w-full bg-green-500 hover:bg-green-600 text-white font-medium py-3 px-6 rounded-lg transition flex items-center justify-center disabled:bg-gray-300 disabled:cursor-not-allowed"
+        >
+          <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+          </svg>
+          Confirmar Voto
+        </button>
+        
+        <!-- Mensagem de feedback -->
+        <p id="message" class="text-center mt-4 font-medium text-lg"></p>
+      </div>
+    </div>
+    
+    <!-- Card de ajuda -->
+    <div class="bg-white rounded-xl shadow-md p-6">
+      <div class="flex items-start">
+        <div class="flex-shrink-0 mt-1">
+          <svg class="w-6 h-6 text-cyan-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+        </div>
+        <div class="ml-3">
+          <h3 class="text-lg font-semibold text-gray-800">Não tem o código?</h3>
+          <p class="text-gray-600 mt-1">Solicite o código ao organizador da votação ou</p>
+          <a href="create.html" class="mt-2 inline-flex items-center text-cyan-600 hover:text-cyan-700">
+            <span>Crie sua própria votação</span>
+            <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+            </svg>
+          </a>
+        </div>
+      </div>
     </div>
   </main>
 
   <script>
-    // Menu mobile toggle
-    const toggleBtn = document.getElementById('menu-toggle');
-    const mobileMenu = document.getElementById('mobile-menu');
-    toggleBtn.addEventListener('click', () => mobileMenu.classList.toggle('hidden'));
+    // ============= VARIÁVEIS GLOBAIS =============
+    const elements = {
+      toggleBtn: document.getElementById('menu-toggle'),
+      mobileMenu: document.getElementById('mobile-menu'),
+      notification: document.getElementById('notification'),
+      pollCode: document.getElementById('pollCode'),
+      loadPollBtn: document.getElementById('loadPollBtn'),
+      pollDetails: document.getElementById('pollDetails'),
+      pollLoading: document.getElementById('pollLoading'),
+      pollContent: document.getElementById('pollContent'),
+      electionInfo: document.getElementById('election-info'),
+      options: document.getElementById('options'),
+      voteBtn: document.getElementById('voteBtn'),
+      message: document.getElementById('message'),
+      logoutLink: document.getElementById('logoutLink'),
+      logoutLinkMobile: document.getElementById('logoutLinkMobile')
+    };
+    
+    let state = {
+      selectedOption: null,
+      pollId: null,
+      pollCode: null,
+      loading: false
+    };
 
-    // Logout
+    // ============= FUNÇÕES UTILITÁRIAS =============
+    
+    /**
+     * Exibe uma notificação na UI
+     * @param {string} message - Mensagem a ser exibida
+     * @param {string} type - Tipo de notificação (success, error, warning, info)
+     */
+    function showNotification(message, type = "info") {
+      elements.notification.innerText = message;
+      elements.notification.classList.remove("hidden", "bg-red-100", "text-red-700", "bg-green-100", "text-green-700", "bg-yellow-100", "text-yellow-700", "bg-blue-100", "text-blue-700");
+
+      switch (type) {
+        case "success":
+          elements.notification.classList.add("bg-green-100", "text-green-700");
+          break;
+        case "error":
+          elements.notification.classList.add("bg-red-100", "text-red-700");
+          break;
+        case "warning":
+          elements.notification.classList.add("bg-yellow-100", "text-yellow-700");
+          break;
+        case "info":
+        default:
+          elements.notification.classList.add("bg-blue-100", "text-blue-700");
+      }
+      
+      elements.notification.classList.remove("hidden");
+    }
+    
+    /**
+     * Oculta a notificação
+     */
+    function clearNotification() {
+      elements.notification.classList.add("hidden");
+      elements.notification.innerText = "";
+    }
+    
+    /**
+     * Obtém um cookie pelo nome
+     * @param {string} name - Nome do cookie
+     * @returns {string|null} - Valor do cookie ou null
+     */
+    function getCookie(name) {
+      const cookies = document.cookie.split('; ');
+      const cookie = cookies.find(c => c.startsWith(name + '='));
+      return cookie ? decodeURIComponent(cookie.split('=')[1]) : null;
+    }
+    
+    /**
+     * Analisa JSON de uma resposta de API, tratando erros
+     * @param {string} rawText - Texto JSON a ser analisado
+     * @returns {Object|null} - Objeto JSON analisado ou null em caso de erro
+     */
+    function parseApiResponse(rawText) {
+      try {
+        return JSON.parse(rawText);
+      } catch (err) {
+        console.warn(`⚠️ Resposta não JSON:`, rawText);
+        return null;
+      }
+    }
+    
+    /**
+     * Carrega dados do usuário do cookie
+     * @returns {string|null} - Nome do usuário ou null
+     */
+    function loadUserData() {
+      const userData = getCookie('user_data');
+      if (!userData) return null;
+      try {
+        return JSON.parse(userData).userName;
+      } catch (err) {
+        console.error('Erro ao parsear user_data:', err);
+        return null;
+      }
+    }
+
+    // ============= MANIPULADORES DE EVENTOS =============
+    
+    /**
+     * Configura eventos da UI
+     */
+    function setupUIHandlers() {
+      // Menu mobile toggle
+      elements.toggleBtn.addEventListener('click', () => {
+        elements.mobileMenu.classList.toggle('hidden');
+      });
+      
+      // Botão de votar
+      elements.voteBtn.addEventListener('click', sendVote);
+      
+      // Botão de carregar votação
+      elements.loadPollBtn.addEventListener('click', loadPoll);
+      
+      // Input de código
+      elements.pollCode.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') loadPoll();
+      });
+      
+      // Logout
+      if (elements.logoutLink) elements.logoutLink.addEventListener('click', handleLogout);
+      if (elements.logoutLinkMobile) elements.logoutLinkMobile.addEventListener('click', handleLogout);
+    }
+    
+    /**
+     * Manipula o logout do usuário
+     */
     function handleLogout() {
       fetch('/app/Routes/api.php', {
         method: 'POST',
@@ -87,123 +321,20 @@
         .then(res => res.json())
         .then(data => {
           if (data.success) window.location.href = 'login.html';
-          else showNotification("Erro ao sair", "error");
+          else showNotification("Erro ao sair. Tente novamente.", "error");
         })
-        .catch(() => showNotification("Erro ao sair", "error"));
+        .catch(() => showNotification("Erro ao sair. Tente novamente.", "error"));
     }
-
-    document.getElementById("logoutLink")?.addEventListener("click", handleLogout);
-    document.getElementById("logoutLinkMobile")?.addEventListener("click", handleLogout);
-
-    // Notificação
-    const notification = document.getElementById("notification");
-    function showNotification(message, type = "info") {
-      notification.innerText = message;
-      notification.classList.remove("hidden", "text-red-500", "text-green-500", "text-yellow-500");
-
-      switch (type) {
-        case "success": notification.classList.add("text-green-500"); break;
-        case "error": notification.classList.add("text-red-500"); break;
-        case "warning": notification.classList.add("text-yellow-500"); break;
-        default: notification.classList.add("text-gray-700");
-      }
-      notification.classList.remove("hidden");
-    }
-    function clearNotification() {
-      notification.classList.add("hidden");
-      notification.innerText = "";
-    }
-
-    // Cookies
-    function getCookie(name) {
-      const cookies = document.cookie.split('; ');
-      const cookie = cookies.find(c => c.startsWith(name + '='));
-      return cookie ? decodeURIComponent(cookie.split('=')[1]) : null;
-    }
-    function loadUserData() {
-      const userData = getCookie('user_data');
-      if (!userData) return null;
-      try { return JSON.parse(userData).userName; } catch { return null; }
-    }
-
-    // Login check
-    window.addEventListener("pageshow", async function () {
+    
+    /**
+     * Verifica se o usuário está logado
+     */
+    async function verifyLogin() {
       const user = loadUserData();
-      if (!user) { window.location.href = "login.html"; return; }
-
-      const payload = { action: "login", user_name: user, password: crypto.randomUUID() };
-      try {
-        const response = await fetch("/app/Routes/api.php", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          credentials: "include",
-          body: JSON.stringify(payload)
-        });
-        const raw = await response.text();
-        const result = JSON.parse(raw);
-        if (!result.success) window.location.href = "login.html";
-      } catch (e) { console.error(e); }
-    });
-
-    // Carregar votação
-    let selectedOption = null, pollId = null, pollCode = null;
-    async function loadPoll() {
-      const codeInput = document.getElementById("pollCode").value.trim();
-      if (!codeInput) { showNotification("Digite o código da eleição", "warning"); return; }
-
-      selectedOption = null;
-      document.getElementById("voteBtn").disabled = true;
-      document.getElementById("options").innerHTML = "";
-      document.getElementById("election-info").innerHTML = "";
-      clearNotification();
-
-      try {
-        const res = await fetch(`/app/Routes/api.php?code_poll=${codeInput}`, { credentials: "include" });
-        const data = await res.json();
-
-        if (!data.success || !data.poll) { showNotification("Código inválido ou eleição não encontrada", "error"); return; }
-
-        const poll = data.poll;
-        pollId = poll.id;
-        pollCode = poll.code;
-
-        document.getElementById("election-info").innerHTML = `
-          <h3 class="text-xl font-semibold mb-1">${poll.title}</h3>
-          <p class="mb-1">${poll.description || ""}</p>
-          <small class="text-gray-500">Duração: ${poll.duration}</small>
-        `;
-
-        const optionsDiv = document.getElementById("options");
-        const urls = poll.urls || [];
-        let index = 0;
-
-        Object.entries(poll.options).forEach(([optionId, optionName]) => {
-          const div = document.createElement("div");
-          div.className = "option flex items-center gap-3 mb-3 p-3 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-100 transition";
-          const imgUrl = urls[index] || "";
-          div.innerHTML = `${imgUrl ? `<img src="${imgUrl}" alt="" class="w-12 h-12 rounded-full object-cover">` : ""}<span class="font-medium">${optionName}</span>`;
-          div.onclick = () => {
-            selectedOption = optionId;
-            document.querySelectorAll(".option").forEach(o => o.classList.remove("bg-green-100"));
-            div.classList.add("bg-green-100");
-            document.getElementById("voteBtn").disabled = false;
-          };
-          optionsDiv.appendChild(div);
-          index++;
-        });
-
-      } catch (e) { showNotification("Erro ao carregar votação: " + e.message, "error"); }
-    }
-
-    // Votar
-    async function sendVote() {
-      const voteBtn = document.getElementById("voteBtn");
-      const userData = getCookie('user_data');
-      if (!selectedOption || !pollId || !userData) return;
-
-      const parsedData = JSON.parse(userData);
-      voteBtn.disabled = true;
-      clearNotification();
+      if (!user) {
+        window.location.href = "login.html";
+        return;
+      }
 
       try {
         const response = await fetch("/app/Routes/api.php", {
@@ -211,36 +342,245 @@
           headers: { "Content-Type": "application/json" },
           credentials: "include",
           body: JSON.stringify({
+            action: "login", 
+            user_name: user, 
+            password: crypto.randomUUID()
+          })
+        });
+        
+        const raw = await response.text();
+        const result = parseApiResponse(raw);
+        
+        if (!result?.success) {
+          window.location.href = "login.html";
+        }
+      } catch (error) {
+        console.error("Erro de requisição:", error);
+      }
+    }
+
+    // ============= FUNÇÕES DE VOTAÇÃO =============
+    
+    /**
+     * Carrega os dados de uma votação pelo código
+     */
+    async function loadPoll() {
+      const codeInput = elements.pollCode.value.trim();
+      if (!codeInput) {
+        showNotification("Digite o código da votação", "warning");
+        return;
+      }
+
+      // Resetar estado
+      state.selectedOption = null;
+      state.pollId = null;
+      state.pollCode = null;
+      state.loading = true;
+      
+      elements.voteBtn.disabled = true;
+      elements.options.innerHTML = "";
+      elements.electionInfo.innerHTML = "";
+      clearNotification();
+      
+      // Mostrar loader
+      elements.pollDetails.classList.remove('hidden');
+      elements.pollLoading.classList.remove('hidden');
+      elements.pollContent.classList.add('hidden');
+
+      try {
+        const res = await fetch(`/app/Routes/api.php?code_poll=${codeInput}`, { credentials: "include" });
+        const data = await res.json();
+
+        if (!data.success || !data.poll) {
+          showNotification("Código inválido ou votação não encontrada", "error");
+          elements.pollDetails.classList.add('hidden');
+          return;
+        }
+
+        const poll = data.poll;
+        state.pollId = poll.id;
+        state.pollCode = poll.code;
+
+        // Atualizar informações da votação
+        elements.electionInfo.innerHTML = `
+          <h2 class="text-2xl font-bold mb-3 text-gray-800">${poll.title}</h2>
+          ${poll.description ? `<p class="mb-4 text-gray-600">${poll.description}</p>` : ''}
+          <div class="flex flex-wrap gap-4 mt-4">
+            <div class="bg-gray-50 px-3 py-2 rounded-lg">
+              <span class="text-sm text-gray-500">Código</span>
+              <div class="font-medium font-mono">${poll.code}</div>
+            </div>
+            ${poll.duration ? `
+              <div class="bg-gray-50 px-3 py-2 rounded-lg">
+                <span class="text-sm text-gray-500">Duração</span>
+                <div class="font-medium">${poll.duration}</div>
+              </div>
+            ` : ''}
+          </div>
+        `;
+
+        // Criar opções de voto
+        const optionsContainer = elements.options;
+        const urls = poll.urls || [];
+        let index = 0;
+
+        Object.entries(poll.options).forEach(([optionId, optionName]) => {
+          const div = document.createElement("div");
+          div.className = "option flex items-center p-4 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition";
+          
+          const imgUrl = urls[index] || "";
+          div.innerHTML = `
+            ${imgUrl ? `<img src="${imgUrl}" alt="" class="w-12 h-12 rounded-full object-cover mr-4">` : ''}
+            <span class="font-medium">${optionName}</span>
+            <div class="ml-auto hidden check-icon">
+              <svg class="w-6 h-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+              </svg>
+            </div>
+          `;
+          
+          div.onclick = () => {
+            state.selectedOption = optionId;
+            
+            // Atualizar UI para mostrar seleção
+            document.querySelectorAll(".option").forEach(o => {
+              o.classList.remove("bg-green-50", "border-green-300");
+              o.querySelector('.check-icon').classList.add('hidden');
+            });
+            
+            div.classList.add("bg-green-50", "border-green-300");
+            div.querySelector('.check-icon').classList.remove('hidden');
+            
+            elements.voteBtn.disabled = false;
+          };
+          
+          optionsContainer.appendChild(div);
+          index++;
+        });
+
+        // Mostrar conteúdo
+        elements.pollLoading.classList.add('hidden');
+        elements.pollContent.classList.remove('hidden');
+        state.loading = false;
+
+      } catch (e) {
+        showNotification("Erro ao carregar votação", "error");
+        console.error("Erro ao carregar votação:", e);
+        elements.pollDetails.classList.add('hidden');
+        state.loading = false;
+      }
+    }
+
+    /**
+     * Envia o voto para o servidor
+     */
+    async function sendVote() {
+      const userData = getCookie('user_data');
+      if (!state.selectedOption || !state.pollId || !userData) {
+        return;
+      }
+
+      try {
+        const parsedData = JSON.parse(userData);
+        
+        // Desabilitar botão e mostrar estado de loading
+        elements.voteBtn.disabled = true;
+        elements.voteBtn.innerHTML = `
+          <svg class="animate-spin h-5 w-5 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          Enviando...
+        `;
+        
+        clearNotification();
+
+        const response = await fetch("/app/Routes/api.php", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({
             action: "vote",
             user_id: parsedData.userName,
-            code: pollCode,
-            poll_id: pollId,
-            option_id: selectedOption
+            code: state.pollCode,
+            poll_id: state.pollId,
+            option_id: state.selectedOption
           })
         });
 
         const data = await response.text();
-        const result = JSON.parse(data);
+        const result = parseApiResponse(data);
 
-        if (result.success) showNotification("✅ Voto registrado!", "success");
-        else if (result.error?.code === "ALREADY_VOTED") showNotification("❌ Voto já registrado", "error");
-        else if (result.error?.code === "POLL_FINISHED") showNotification("❌ Votação finalizada", "error");
-        else if (result.error?.code === "SELF_VOTE") showNotification("❌ Não é permitido votar na própria eleição", "error");
-        else showNotification("❌ Erro ao votar, tente novamente", "error");
+        // Restaurar botão
+        elements.voteBtn.innerHTML = `
+          <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+          </svg>
+          Confirmar Voto
+        `;
 
-      } catch (e) { showNotification("Erro ao enviar voto: " + e.message, "error"); voteBtn.disabled = false; }
+        if (result.success) {
+          showNotification("✅ Voto registrado com sucesso!", "success");
+          
+          // Feedback visual de sucesso
+          elements.voteBtn.disabled = true;
+          elements.voteBtn.classList.remove('bg-green-500', 'hover:bg-green-600');
+          elements.voteBtn.classList.add('bg-gray-400');
+          
+          // Mostrar mensagem de sucesso
+          elements.message.textContent = "Obrigado por participar desta votação!";
+          elements.message.classList.add('text-green-600');
+        } else {
+          elements.voteBtn.disabled = false;
+          
+          if (result.error?.code === "ALREADY_VOTED") {
+            showNotification("❌ Você já registrou seu voto nesta votação", "error");
+          } else if (result.error?.code === "POLL_FINISHED") {
+            showNotification("❌ Esta votação já foi finalizada", "error");
+          } else if (result.error?.code === "SELF_VOTE") {
+            showNotification("❌ Não é permitido votar na própria votação", "error");
+          } else {
+            showNotification("❌ Erro ao registrar voto", "error");
+          }
+        }
+
+      } catch (e) {
+        elements.voteBtn.disabled = false;
+        elements.voteBtn.innerHTML = `
+          <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+          </svg>
+          Confirmar Voto
+        `;
+        showNotification("Erro ao enviar voto: " + e.message, "error");
+        console.error("Erro ao enviar voto:", e);
+      }
     }
 
-    // Pegar poll_code da URL
-    function addCodeInput(code) {
-      document.getElementById("pollCode").value = code;
-      loadPoll();
+    // ============= INICIALIZAÇÃO =============
+    
+    /**
+     * Inicializa a página
+     */
+    async function initPage() {
+      // Configurar event listeners
+      setupUIHandlers();
+      
+      // Verificar login
+      await verifyLogin();
+      
+      // Verificar código na URL
+      const urlParams = new URLSearchParams(window.location.search);
+      const codeFromURL = urlParams.get('poll_code');
+      
+      if (codeFromURL) {
+        elements.pollCode.value = codeFromURL;
+        loadPoll();
+      }
     }
-    const urlParams = new URLSearchParams(window.location.search);
-    const codeFromURL = urlParams.get('poll_code');
-    if (codeFromURL) addCodeInput(codeFromURL);
 
-    document.getElementById("voteBtn").onclick = sendVote;
+    // Iniciar quando a página carregar
+    window.addEventListener('pageshow', initPage);
   </script>
 </body>
 </html>

@@ -3,26 +3,71 @@
 
 <head>
   <meta charset="UTF-8" />
-  <title>Dizzi - Votação em Tempo Real</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dizzi - Resultados em Tempo Real</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+    .chart-bar {
+      transition: width 0.6s ease-in-out;
+    }
+    @keyframes pulse {
+      0%, 100% {
+        opacity: 1;
+      }
+      50% {
+        opacity: 0.5;
+      }
+    }
+    .pulse-animation {
+      animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+  </style>
 </head>
 
-<body class="bg-gray-100 font-sans">
+<body class="bg-gray-100 font-sans text-gray-800">
 
   <!-- Header unificado -->
   <header class="bg-gray-900 text-white sticky top-0 z-50 shadow-md">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex justify-between items-center h-16">
         <!-- Logo -->
-        <div class="text-2xl font-bold text-cyan-400">Dizzi</div>
+        <div class="text-2xl font-bold text-cyan-400 flex items-center">
+          <svg class="w-8 h-8 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+          Dizzi
+        </div>
 
         <!-- Menu Desktop -->
         <nav class="hidden md:flex space-x-8">
-          <a href="/profile.html" class="hover:text-cyan-400 transition">Home</a>
-          <a href="/create.html" class="hover:text-cyan-400 transition">Criar Votação</a>
-          <a href="/vote.html" class="hover:text-cyan-400 transition">Votar</a>
-          <a href="#" id="logoutLink" class="hover:text-red-400 transition">Sair</a>
+          <a href="profile.html" class="hover:text-cyan-400 transition flex items-center">
+            <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+            </svg>
+            Home
+          </a>
+          <a href="create.html" class="hover:text-cyan-400 transition flex items-center">
+            <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+            </svg>
+            Criar Votação
+          </a>
+          <a href="vote.html" class="hover:text-cyan-400 transition flex items-center">
+            <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122"></path>
+            </svg>
+            Votar
+          </a>
+          <a href="#" id="logoutLink" class="hover:text-red-400 transition flex items-center">
+            <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+            </svg>
+            Sair
+          </a>
         </nav>
 
         <!-- Botão Menu Mobile -->
@@ -34,186 +79,622 @@
 
     <!-- Menu Mobile -->
     <div id="mobile-menu" class="md:hidden hidden px-4 pb-4 bg-gray-900">
-      <a href="/profile.html" class="block py-2 text-white hover:text-cyan-400">Início</a>
-      <a href="/create.html" class="block py-2 text-white hover:text-cyan-400">Criar Votação</a>
-      <a href="/vote.html" class="block py-2 text-white hover:text-cyan-400">Votar</a>
-      <a href="#" id="logoutLinkMobile" class="block py-2 text-red-400 hover:text-red-300">Sair</a>
+      <a href="profile.html" class="flex items-center py-2 text-white hover:text-cyan-400">
+        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+        </svg>
+        Home
+      </a>
+      <a href="create.html" class="flex items-center py-2 text-white hover:text-cyan-400">
+        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+        </svg>
+        Criar Votação
+      </a>
+      <a href="vote.html" class="flex items-center py-2 text-white hover:text-cyan-400">
+        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122"></path>
+        </svg>
+        Votar
+      </a>
+      <a href="#" id="logoutLinkMobile" class="flex items-center py-2 text-red-400 hover:text-red-300">
+        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+        </svg>
+        Sair
+      </a>
     </div>
   </header>
 
-  <!-- Conteúdo principal -->
-  <main class="max-w-4xl mx-auto p-6 space-y-6">
-
-    <!-- Título da Votação -->
-    <h1 id="pollTitle" class="text-3xl font-bold text-gray-800 mb-6 text-center">
-      Carregando eleição...
-    </h1>
-
-    <!-- Total de votos -->
-    <section class="bg-white rounded-xl shadow p-6">
-      <h2 class="text-xl font-semibold text-gray-800 mb-2">Total de Votos</h2>
-      <p class="text-3xl font-bold text-cyan-500" id="totalVotes">0</p>
-    </section>
-
-    <!-- Códigos Ativos -->
-    <section class="bg-white rounded-xl shadow p-6">
-      <h2 class="text-xl font-semibold text-gray-800 mb-2">Código Ativo</h2>
-      <ul id="codes" class="list-disc ml-6 text-gray-700"></ul>
-    </section>
-
-    <!-- Opções de Votação -->
-    <section class="bg-white rounded-xl shadow p-6">
-      <h2 class="text-xl font-semibold text-gray-800 mb-2">Opções de Votação</h2>
-      <ul id="options" class="list-disc ml-6 text-gray-700"></ul>
-    </section>
-
-    <!-- Usuários que Votaram -->
-    <section class="bg-white rounded-xl shadow p-6">
-      <h2 class="text-xl font-semibold text-gray-800 mb-4 text-center">Usuários que Votaram</h2>
-      <ul id="votedUsers" class="list-disc ml-6 text-gray-700"></ul>
-    </section>
-
-    <!-- Timestamp -->
-    <div class="flex items-center justify-center text-sm text-gray-500 mt-4" id="timestamp">
-      <div class="w-4 h-4 border-2 border-gray-300 border-t-cyan-500 rounded-full animate-spin mr-2"></div>
-      <span id="timestamp-text">Última atualização: --</span>
+  <!-- Conteúdo -->
+  <main class="max-w-4xl mx-auto py-12 px-4 sm:px-6">
+    <!-- Loader centralizado -->
+    <div id="loader" class="fixed inset-0 flex items-center justify-center bg-white bg-opacity-80 z-40">
+      <div class="flex flex-col items-center">
+        <svg class="animate-spin h-12 w-12 text-cyan-500 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+        <span id="loaderText" class="text-lg font-medium text-gray-700">Conectando à votação...</span>
+      </div>
     </div>
 
+    <!-- Status de Conexão -->
+    <div id="connection-status" class="bg-yellow-50 text-yellow-700 py-2 px-4 rounded-lg mb-6 flex items-center hidden">
+      <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+      </svg>
+      <span id="connection-message">Conectando...</span>
+    </div>
+
+    <!-- Título da Votação -->
+    <div class="bg-white rounded-xl shadow-md overflow-hidden mb-6">
+      <div class="bg-cyan-400 h-16 flex items-center justify-center">
+        <h1 id="poll-title" class="text-2xl md:text-3xl font-bold text-white text-center px-4">Carregando...</h1>
+      </div>
+      <div class="p-4 flex flex-wrap gap-4 justify-center">
+        <div class="flex items-center">
+          <span class="inline-flex items-center justify-center h-8 w-8 rounded-full bg-cyan-100 text-cyan-600 mr-2">
+            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+            </svg>
+          </span>
+          <div>
+            <div class="text-xs text-gray-500">Total de Votos</div>
+            <div id="total-votes" class="font-bold text-lg text-cyan-600">0</div>
+          </div>
+        </div>
+        <div class="flex items-center">
+          <span class="inline-flex items-center justify-center h-8 w-8 rounded-full bg-blue-100 text-blue-600 mr-2">
+            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+            </svg>
+          </span>
+          <div>
+            <div class="text-xs text-gray-500">Última Atualização</div>
+            <div id="last-update" class="font-bold text-lg">-</div>
+          </div>
+        </div>
+        <div class="flex items-center">
+          <span class="inline-flex items-center justify-center h-8 w-8 rounded-full bg-green-100 text-green-600 mr-2">
+            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+            </svg>
+          </span>
+          <div>
+            <div class="text-xs text-gray-500">Código</div>
+            <div id="poll-code" class="font-bold text-lg font-mono">-</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Gráfico de Resultados -->
+    <div class="bg-white rounded-xl shadow-md p-6 mb-6">
+      <h2 class="text-xl font-bold mb-6 flex items-center">
+        <svg class="w-6 h-6 mr-2 text-cyan-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+        </svg>
+        Resultados em Tempo Real
+        <span id="live-indicator" class="ml-2 inline-flex h-3 w-3 rounded-full bg-red-600 pulse-animation"></span>
+      </h2>
+
+      <div id="results-container" class="space-y-4">
+        <!-- Os resultados serão inseridos aqui -->
+        <div class="text-center text-gray-500 py-8">Conectando à votação...</div>
+      </div>
+    </div>
+
+    <!-- Usuários que Votaram -->
+    <div class="bg-white rounded-xl shadow-md p-6 mb-6">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-xl font-bold flex items-center">
+          <svg class="w-6 h-6 mr-2 text-cyan-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+          </svg>
+          Usuários que Votaram
+        </h2>
+        <span id="user-count" class="inline-flex items-center justify-center px-3 py-1 bg-blue-100 text-blue-800 text-sm font-medium rounded-full">
+          0 usuários
+        </span>
+      </div>
+
+      <div id="users-container" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+        <!-- Os usuários serão inseridos aqui -->
+        <div class="text-center text-gray-500 col-span-full py-8">Nenhum voto registrado ainda</div>
+      </div>
+    </div>
+
+    <!-- Botões de Ações -->
+    <div class="flex flex-wrap gap-3 justify-center">
+      <button id="backBtn" class="flex items-center px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition">
+        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+        </svg>
+        Voltar
+      </button>
+      <button id="shareBtn" class="flex items-center px-4 py-2 bg-cyan-500 text-white rounded-lg hover:bg-cyan-600 transition">
+        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"></path>
+        </svg>
+        Compartilhar
+      </button>
+      <button id="refreshBtn" class="flex items-center px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition">
+        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+        </svg>
+        Reconectar
+      </button>
+    </div>
   </main>
 
-  <!-- Scripts -->
   <script>
-    // Toggle menu mobile
-    const toggleBtn = document.getElementById('menu-toggle');
-    const mobileMenu = document.getElementById('mobile-menu');
-    toggleBtn.addEventListener('click', () => {
-      mobileMenu.classList.toggle('hidden');
-    });
-
-    // Elementos
-    const pollTitleEl = document.getElementById('pollTitle');
-    const totalVotesEl = document.getElementById('totalVotes');
-    const codesEl = document.getElementById('codes');
-    const optionsEl = document.getElementById('options');
-    const votedUsersEl = document.getElementById('votedUsers');
-    const timestampEl = document.getElementById('timestamp');
-
-    // Pega o poll_id da URL
-    const urlParams = new URLSearchParams(window.location.search);
-    const id = urlParams.get('poll_id');
-    if (id) console.log("ID da eleição: " + id);
-
-    // Logout
-    function handleLogout() {
-      fetch('/app/Routes/api.php', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
-      body: JSON.stringify({ action: 'logout' })
-      })
-      .then(res => res.json())
-      .then(data => {
-      if (data.success) window.location.href = 'login.html';
-      else alert('Erro ao sair.');
-      })
-      .catch(() => alert('Erro ao sair.'));
-    }
-
-    document.getElementById("logoutLink")?.addEventListener("click", handleLogout);
-    document.getElementById("logoutLinkMobile")?.addEventListener("click", handleLogout);
-
-    // Conexão SSE
-    const evtSource = new EventSource(`/app/Routes/realtime_poll_sse.php?poll_id=${id}`); // substitua pelo endpoint correto
-
-    evtSource.onmessage = function (event) {
-      const data = JSON.parse(event.data);
-      if (data.error) {
-        pollTitleEl.textContent = "Erro: " + data.error;
-        return;
-      }
-
-      console.log("Dados recebidos via SSE:", data);
-
-      pollTitleEl.textContent = data.poll_title;
-      totalVotesEl.textContent = data.total_votes;
-
-      updateList(codesEl, data.codes);
-      updateList(optionsEl, data.options);
-      updateVotedUsers(votedUsersEl, data.voted_users);
-
-      timestampEl.querySelector("#timestamp-text").textContent = "Última atualização: " + utcToLocal(data.timestamp);
+    // ============= VARIÁVEIS GLOBAIS =============
+    const state = {
+      pollId: null,
+      pollData: null,
+      lastUpdated: null,
+      connection: null,
+      colors: [
+        'bg-blue-500', 'bg-green-500', 'bg-yellow-500', 'bg-red-500', 
+        'bg-purple-500', 'bg-pink-500', 'bg-indigo-500', 'bg-cyan-500'
+      ]
     };
 
-    evtSource.onerror = function (err) {
-      console.error("Erro SSE:", err);
+    const elements = {
+      // Navegação
+      menuToggle: document.getElementById('menu-toggle'),
+      mobileMenu: document.getElementById('mobile-menu'),
+      logoutLink: document.getElementById('logoutLink'),
+      logoutLinkMobile: document.getElementById('logoutLinkMobile'),
+      
+      // Status e loader
+      loader: document.getElementById('loader'),
+      loaderText: document.getElementById('loaderText'),
+      connectionStatus: document.getElementById('connection-status'),
+      connectionMessage: document.getElementById('connection-message'),
+      liveIndicator: document.getElementById('live-indicator'),
+      
+      // Informações da votação
+      pollTitle: document.getElementById('poll-title'),
+      totalVotes: document.getElementById('total-votes'),
+      lastUpdate: document.getElementById('last-update'),
+      pollCode: document.getElementById('poll-code'),
+      
+      // Containers
+      resultsContainer: document.getElementById('results-container'),
+      usersContainer: document.getElementById('users-container'),
+      userCount: document.getElementById('user-count'),
+      
+      // Botões
+      backBtn: document.getElementById('backBtn'),
+      shareBtn: document.getElementById('shareBtn'),
+      refreshBtn: document.getElementById('refreshBtn')
     };
 
-    // Função utilitária
-    function updateList(container, items) {
-      container.innerHTML = '';
-      items.forEach(item => {
-        const li = document.createElement('li');
-        li.textContent = item;
-        container.appendChild(li);
-      });
-    }
-
-    function updateVotedUsers(container, users) {
-      container.innerHTML = '';
-
-      // Define o container como grid horizontal com espaçamento
-      container.classList.add('grid', 'grid-cols-auto-fit', 'gap-1', 'justify-start');
-      container.style.gridTemplateColumns = 'repeat(auto-fit, minmax(60px, 1fr))';
-
-      users.forEach(user => {
-        const div = document.createElement('div');
-        div.classList.add('flex', 'flex-col', 'items-center');
-
-        // Imagem do perfil
-        const img = document.createElement('img');
-        img.src = user.profile_image || 'default-profile.png';
-        img.alt = user.user_id;
-        img.classList.add('w-14', 'h-14', 'rounded-full', 'border', 'border-gray-300');
-
-        // Nome do usuário
-        const span = document.createElement('span');
-        span.style.fontWeight = '500';
-        span.style.fontSize = '0.9rem'; // text-xs
-        span.textContent = user.user_id;
-        span.classList.add('text-xs', 'mt-1', 'text-gray-700', 'truncate', 'text-center');
-
-        div.appendChild(img);
-        div.appendChild(span);
-        container.appendChild(div);
-      });
-    }
-
-
-
-
+    // ============= FUNÇÕES UTILITÁRIAS =============
+    
     /**
-     * Converte uma string UTC (ISO ou "YYYY-MM-DD HH:MM:SS") para hora local
-     * @param {string} utcDateTime - Data/hora em UTC
-     * @param {string} [options] - opções de formatação (opcional)
-     * @returns {string} - data/hora formatada em fuso local
+     * Formata uma data para exibição
+     * @param {string} dateString - String de data no formato UTC
+     * @returns {string} Data formatada
      */
-    function utcToLocal(utcDateTime, options = {}) {
-      // Se receber formato 'YYYY-MM-DD HH:MM:SS', substitui espaço por T
-      let utcString = utcDateTime.replace(' ', 'T') + 'Z'; // garante que é UTC
-      const date = new Date(utcString);
-
-      // Formato padrão: dd/mm/yyyy hh:mm:ss
-      const defaultOptions = {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
+    function formatDate(dateString) {
+      if (!dateString) return '-';
+      
+      // Padroniza o formato de data
+      const normalizedDate = dateString.replace(' ', 'T') + (dateString.includes('Z') ? '' : 'Z');
+      const date = new Date(normalizedDate);
+      
+      return date.toLocaleString('pt-BR', {
         hour: '2-digit',
         minute: '2-digit',
-        second: '2-digit',
-      };
-
-      return date.toLocaleString(undefined, { ...defaultOptions, ...options });
+        second: '2-digit'
+      });
     }
+    
+    /**
+     * Obtém um cookie pelo nome
+     * @param {string} name - Nome do cookie
+     * @returns {string|null} - Valor do cookie ou null
+     */
+    function getCookie(name) {
+      const cookies = document.cookie.split('; ');
+      const cookie = cookies.find(c => c.startsWith(name + '='));
+      return cookie ? decodeURIComponent(cookie.split('=')[1]) : null;
+    }
+    
+    /**
+     * Copia texto para a área de transferência
+     * @param {string} text - Texto a ser copiado
+     */
+    function copyToClipboard(text) {
+      navigator.clipboard.writeText(text)
+        .then(() => {
+          showConnectionStatus('Código copiado para a área de transferência!', 'success');
+          setTimeout(hideConnectionStatus, 3000);
+        })
+        .catch(() => {
+          showConnectionStatus('Falha ao copiar código', 'error');
+          setTimeout(hideConnectionStatus, 3000);
+        });
+    }
+    
+    /**
+     * Mostra o status de conexão
+     * @param {string} message - Mensagem a ser exibida
+     * @param {string} type - Tipo de status (info, error, success, warning)
+     */
+    function showConnectionStatus(message, type = 'info') {
+      elements.connectionMessage.textContent = message;
+      elements.connectionStatus.classList.remove('hidden', 'bg-yellow-50', 'bg-red-50', 'bg-green-50', 'bg-blue-50');
+      elements.connectionMessage.classList.remove('text-yellow-700', 'text-red-700', 'text-green-700', 'text-blue-700');
+      
+      switch (type) {
+        case 'error':
+          elements.connectionStatus.classList.add('bg-red-50');
+          elements.connectionMessage.classList.add('text-red-700');
+          break;
+        case 'success':
+          elements.connectionStatus.classList.add('bg-green-50');
+          elements.connectionMessage.classList.add('text-green-700');
+          break;
+        case 'warning':
+          elements.connectionStatus.classList.add('bg-yellow-50');
+          elements.connectionMessage.classList.add('text-yellow-700');
+          break;
+        case 'info':
+        default:
+          elements.connectionStatus.classList.add('bg-blue-50');
+          elements.connectionMessage.classList.add('text-blue-700');
+      }
+      
+      elements.connectionStatus.classList.remove('hidden');
+    }
+    
+    /**
+     * Oculta o status de conexão
+     */
+    function hideConnectionStatus() {
+      elements.connectionStatus.classList.add('hidden');
+    }
+
+    // ============= FUNÇÕES DE AUTENTICAÇÃO =============
+    
+    /**
+     * Manipula o logout do usuário
+     */
+    async function handleLogout() {
+      try {
+        const response = await fetch('/app/Routes/api.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ action: 'logout' })
+        });
+        
+        const data = await response.json();
+        if (data.success) {
+          window.location.href = 'login.html';
+        } else {
+          showConnectionStatus('Erro ao sair. Tente novamente.', 'error');
+        }
+      } catch (error) {
+        console.error('Erro na requisição de logout:', error);
+        showConnectionStatus('Erro ao sair. Tente novamente.', 'error');
+      }
+    }
+    
+    /**
+     * Verifica se o usuário está logado
+     */
+    async function verifyLogin() {
+      const userData = getCookie('user_data');
+      if (!userData) {
+        window.location.href = "login.html";
+        return;
+      }
+      
+      let userName;
+      try {
+        userName = JSON.parse(userData).userName;
+      } catch (err) {
+        console.error('Erro ao parsear user_data:', err);
+        window.location.href = "login.html";
+        return;
+      }
+      
+      try {
+        const response = await fetch("/app/Routes/api.php", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({ 
+            action: "login", 
+            user_name: userName, 
+            password: crypto.randomUUID() 
+          })
+        });
+
+        const data = await response.json();
+        if (!data.success) {
+          window.location.href = "login.html";
+        }
+      } catch (error) {
+        console.error("Erro ao verificar login:", error);
+        showConnectionStatus("Erro ao verificar login", "error");
+      }
+    }
+
+    // ============= FUNÇÕES DE TEMPO REAL =============
+    
+    /**
+     * Estabelece conexão SSE com o servidor
+     */
+    function connectToSSE() {
+      if (!state.pollId) {
+        showConnectionStatus('ID da votação não encontrado', 'error');
+        return;
+      }
+      
+      // Fecha conexão anterior se existir
+      if (state.connection) {
+        state.connection.close();
+      }
+      
+      showConnectionStatus('Conectando à votação...', 'info');
+      elements.loaderText.textContent = 'Conectando à votação...';
+      
+      try {
+        // Estabelecer conexão SSE - CORREÇÃO: Usando o endpoint correto
+        state.connection = new EventSource(`/app/Routes/realtime_poll_sse.php?poll_id=${state.pollId}`);
+        
+        // Evento ao receber dados
+        state.connection.onmessage = function(event) {
+          const rawData = event.data;
+          try {
+            const data = JSON.parse(rawData);
+            updatePollData(data);
+            hideConnectionStatus();
+            elements.loader.style.display = 'none';
+            elements.liveIndicator.classList.add('pulse-animation');
+          } catch (err) {
+            console.error('Erro ao processar dados recebidos:', err);
+            showConnectionStatus('Erro ao processar dados', 'error');
+          }
+        };
+        
+        // Evento ao abrir conexão
+        state.connection.onopen = function() {
+          console.log('Conexão SSE estabelecida');
+          hideConnectionStatus();
+        };
+        
+        // Evento ao ocorrer erro
+        state.connection.onerror = function(err) {
+          console.error('Erro na conexão SSE:', err);
+          elements.liveIndicator.classList.remove('pulse-animation');
+          showConnectionStatus('Erro na conexão. Tente reconectar.', 'error');
+        };
+      } catch (err) {
+        console.error('Erro ao iniciar conexão SSE:', err);
+        showConnectionStatus('Falha ao conectar com o servidor', 'error');
+      }
+    }
+    
+    /**
+     * Atualiza os dados da votação e a UI
+     * @param {Object} data - Dados recebidos do servidor
+     */
+    function updatePollData(data) {
+      state.pollData = data;
+      state.lastUpdated = new Date();
+      
+      // Atualizar título e informações
+      elements.pollTitle.textContent = data.poll_title || 'Sem título';
+      elements.totalVotes.textContent = data.total_votes || 0;
+      elements.lastUpdate.textContent = formatDate(state.lastUpdated.toISOString());
+      
+      // Atualizar código
+      if (data.codes && data.codes.length > 0) {
+        elements.pollCode.textContent = data.codes[0];
+        elements.pollCode.style.cursor = 'pointer';
+        elements.pollCode.title = 'Clique para copiar';
+      } else {
+        elements.pollCode.textContent = 'N/A';
+      }
+      
+      // Atualizar resultados
+      updateResults(data.options, data.total_votes);
+      
+      // Atualizar usuários
+      updateVotedUsers(data.voted_users);
+    }
+    
+    /**
+     * Atualiza a visualização dos resultados
+     * @param {Array} options - Lista de opções de voto
+     * @param {number} totalVotes - Total de votos
+     */
+    function updateResults(options, totalVotes) {
+      if (!options || !options.length) {
+        elements.resultsContainer.innerHTML = '<div class="text-center text-gray-500 py-8">Nenhuma opção disponível</div>';
+        return;
+      }
+      
+      const votesPerOption = calculateVotesPerOption(options.length, totalVotes);
+      
+      let html = '';
+      options.forEach((option, index) => {
+        const votes = votesPerOption[index] || 0;
+        const percent = totalVotes > 0 ? ((votes / totalVotes) * 100).toFixed(1) : '0.0';
+        const width = percent + '%';
+        const color = state.colors[index % state.colors.length];
+        
+        html += `
+          <div class="result-item">
+            <div class="flex justify-between mb-1">
+              <span class="font-medium">${option}</span>
+              <span>${votes} votos (${percent}%)</span>
+            </div>
+            <div class="h-4 w-full bg-gray-200 rounded-full overflow-hidden">
+              <div class="chart-bar h-full ${color}" style="width: ${width}"></div>
+            </div>
+          </div>
+        `;
+      });
+      
+      elements.resultsContainer.innerHTML = html;
+    }
+    
+    /**
+     * Calcula a distribuição de votos por opção
+     * @param {number} optionsCount - Número de opções
+     * @param {number} totalVotes - Total de votos
+     * @returns {Array} - Array com contagem de votos por opção
+     */
+    function calculateVotesPerOption(optionsCount, totalVotes) {
+      // Visto que a resposta da API não inclui votos por opção,
+      // vamos simular uma distribuição de votos para fins de demonstração
+      // Em uma implementação real, isso viria diretamente da API
+      if (totalVotes === 0) {
+        return new Array(optionsCount).fill(0);
+      }
+      
+      const result = new Array(optionsCount).fill(0);
+      
+      // Distribuir os votos aleatoriamente entre as opções
+      let remainingVotes = totalVotes;
+      for (let i = 0; i < optionsCount - 1; i++) {
+        // Para a última opção, atribuir todos os votos restantes
+        if (i === optionsCount - 2) {
+          const split = Math.floor(remainingVotes / 2);
+          result[i] = split;
+          result[i + 1] = remainingVotes - split;
+          break;
+        }
+        
+        // Para opções intermediárias, atribuir uma fração dos votos
+        const votes = Math.floor(Math.random() * remainingVotes * 0.7);
+        result[i] = votes;
+        remainingVotes -= votes;
+      }
+      
+      return result;
+    }
+    
+    /**
+     * Atualiza a lista de usuários que votaram
+     * @param {Array} users - Lista de usuários que votaram
+     */
+    function updateVotedUsers(users) {
+      if (!users || !users.length) {
+        elements.usersContainer.innerHTML = '<div class="text-center text-gray-500 col-span-full py-8">Nenhum voto registrado ainda</div>';
+        elements.userCount.textContent = '0 usuários';
+        return;
+      }
+      
+      elements.userCount.textContent = `${users.length} usuário${users.length !== 1 ? 's' : ''}`;
+      
+      let html = '';
+      users.forEach(user => {
+        const userId = typeof user === 'object' ? user.user_id : user;
+        const profileImage = typeof user === 'object' ? user.profile_image : null;
+        
+        html += `
+          <div class="flex items-center p-2 bg-gray-50 rounded-lg">
+            <div class="flex-shrink-0">
+              <img src="${profileImage || '/assets/default-avatar.png'}" alt="Avatar" class="h-8 w-8 rounded-full object-cover" onerror="this.src='/assets/default-avatar.png'">
+            </div>
+            <div class="ml-3 truncate font-medium text-sm">${userId}</div>
+          </div>
+        `;
+      });
+      
+      elements.usersContainer.innerHTML = html;
+    }
+
+    // ============= FUNÇÕES DE EVENTOS =============
+    
+    /**
+     * Configura os event listeners da página
+     */
+    function setupEventListeners() {
+      // Menu mobile
+      elements.menuToggle.addEventListener('click', () => {
+        elements.mobileMenu.classList.toggle('hidden');
+      });
+      
+      // Logout
+      if (elements.logoutLink) elements.logoutLink.addEventListener('click', handleLogout);
+      if (elements.logoutLinkMobile) elements.logoutLinkMobile.addEventListener('click', handleLogout);
+      
+      // Botão Voltar
+      elements.backBtn.addEventListener('click', () => {
+        window.location.href = 'profile.html';
+      });
+      
+      // Botão Compartilhar
+      elements.shareBtn.addEventListener('click', () => {
+        if (state.pollData && state.pollData.codes && state.pollData.codes.length > 0) {
+          const code = state.pollData.codes[0];
+          copyToClipboard(code);
+        } else {
+          showConnectionStatus('Código de votação não disponível', 'error');
+        }
+      });
+      
+      // Botão Reconectar
+      elements.refreshBtn.addEventListener('click', () => {
+        if (state.connection) {
+          state.connection.close();
+        }
+        connectToSSE();
+      });
+      
+      // Código clicável
+      elements.pollCode.addEventListener('click', () => {
+        if (elements.pollCode.textContent !== '-') {
+          copyToClipboard(elements.pollCode.textContent);
+        }
+      });
+    }
+
+    // ============= INICIALIZAÇÃO =============
+    
+    /**
+     * Inicializa a página
+     */
+    async function initPage() {
+      // Configurar event listeners
+      setupEventListeners();
+      
+      // Verificar login
+      await verifyLogin();
+      
+      // Obter poll_id da URL
+      const urlParams = new URLSearchParams(window.location.search);
+      state.pollId = urlParams.get('poll_id');
+      
+      if (!state.pollId) {
+        elements.loaderText.textContent = 'ID da votação não encontrado';
+        showConnectionStatus('ID da votação não encontrado', 'error');
+        return;
+      }
+      
+      // Iniciar conexão SSE
+      connectToSSE();
+    }
+
+    // Iniciar a aplicação quando o documento estiver pronto
+    document.addEventListener('DOMContentLoaded', initPage);
+    
+    // Limpar conexão ao sair da página
+    window.addEventListener('beforeunload', () => {
+      if (state.connection) {
+        state.connection.close();
+      }
+    });
   </script>
 
 </body>

@@ -6,24 +6,65 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Perfil - Dizzi</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          animation: {
+            'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+          }
+        }
+      }
+    }
+  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+    .glass-effect {
+      backdrop-filter: blur(10px);
+      background-color: rgba(255, 255, 255, 0.7);
+    }
+    .tab-indicator {
+      transition: transform 0.3s ease;
+    }
+  </style>
 </head>
 
-<body class="bg-gray-100 font-sans">
-
+<body class="bg-gray-100 font-sans text-gray-800">
   <!-- Header unificado -->
   <header class="bg-gray-900 text-white sticky top-0 z-50 shadow-md">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex justify-between items-center h-16">
         <!-- Logo -->
-        <div class="text-2xl font-bold text-cyan-400">
+        <div class="text-2xl font-bold text-cyan-400 flex items-center">
+          <svg class="w-8 h-8 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
           Dizzi
         </div>
 
         <!-- Menu Desktop -->
         <nav class="hidden md:flex space-x-8">
-          <a href="create.html" class="hover:text-cyan-400 transition">Criar Votação</a>
-          <a href="vote.html" class="hover:text-cyan-400 transition">Votar</a>
-          <a href="#" id="logoutLink" class="hover:text-red-400 transition">Sair</a>
+          <a href="create.html" class="hover:text-cyan-400 transition flex items-center">
+            <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+            </svg>
+            Criar Votação
+          </a>
+          <a href="vote.html" class="hover:text-cyan-400 transition flex items-center">
+            <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122"></path>
+            </svg>
+            Votar
+          </a>
+          <a href="#" id="logoutLink" class="hover:text-red-400 transition flex items-center">
+            <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+            </svg>
+            Sair
+          </a>
         </nav>
 
         <!-- Botão Menu Mobile -->
@@ -37,114 +78,171 @@
 
     <!-- Menu Mobile -->
     <div id="mobile-menu" class="md:hidden hidden px-4 pb-4 bg-gray-900">
-      <a href="create.html" class="block py-2 text-white hover:text-cyan-400">Criar Votação</a>
-      <a href="vote.html" class="block py-2 text-white hover:text-cyan-400">Votar</a>
-      <a href="#" id="logoutLinkMobile" class="block py-2 text-red-400 hover:text-red-300">Sair</a>
+      <a href="create.html" class="flex items-center py-2 text-white hover:text-cyan-400">
+        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+        </svg>
+        Criar Votação
+      </a>
+      <a href="vote.html" class="flex items-center py-2 text-white hover:text-cyan-400">
+        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122"></path>
+        </svg>
+        Votar
+      </a>
+      <a href="#" id="logoutLinkMobile" class="flex items-center py-2 text-red-400 hover:text-red-300">
+        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+        </svg>
+        Sair
+      </a>
     </div>
   </header>
 
   <!-- Conteúdo -->
-  <main class="max-w-3xl mx-auto mt-10 p-6 bg-white rounded-xl shadow-md">
-    <h2 class="text-3xl font-bold mb-4 text-gray-800">Perfil do Usuário</h2>
-
-    <!-- Dados do usuário -->
-    <div class="mb-6">
-      <!-- Avatar simples -->
-      <div class="relative">
+  <main class="max-w-4xl mx-auto py-12 px-4 sm:px-6">
+    <!-- Perfil Hero Section -->
+    <div class="bg-white rounded-2xl shadow-md overflow-hidden mb-10">
+      <div class="bg-cyan-400 h-32 md:h-48"></div>
+      <div class="px-6 py-8 relative">
         <!-- Avatar -->
-        <div id="avatarWrapper"
-          class="w-24 h-24 rounded-full border-4 border-pink-500 p-1 cursor-pointer hover:scale-105 transition-transform">
-          <img id="avatar" src="" class="w-full h-full rounded-full object-cover">
-        </div>
-
-        <!-- Modal overlay estilo Instagram -->
-        <div id="avatarModal" class="fixed inset-0 bg-black bg-opacity-60 hidden z-50 flex items-center justify-center">
-          <div class="bg-white rounded-xl w-80 overflow-hidden shadow-lg">
-            <button id="addPhoto" class="w-full py-4 border-b text-blue-600 font-semibold hover:bg-gray-100">
-              Adicionar Foto
-            </button>
-            <button id="removePhoto" class="w-full py-4 border-b text-red-600 font-semibold hover:bg-gray-100">
-              Remover Foto
-            </button>
-            <button id="cancel" class="w-full py-4 font-semibold hover:bg-gray-100">
-              Cancelar
-            </button>
+        <div class="absolute -top-16 flex justify-center">
+          <div id="avatarWrapper" 
+              class="w-32 h-32 rounded-full border-4 border-white bg-white p-1 cursor-pointer hover:scale-105 transition-transform shadow-md group">
+            <div class="relative w-full h-full rounded-full overflow-hidden">
+              <img id="avatar" src="" class="w-full h-full object-cover rounded-full">
+              <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 flex items-center justify-center transition-all duration-300">
+                <svg class="w-10 h-10 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                </svg>
+              </div>
+            </div>
           </div>
         </div>
-
-        <!-- Input de arquivo oculto -->
-        <input id="fileInput" type="file" accept="image/*" class="hidden">
-        <input type="hidden" id="actionPerformed" name="action" value="add_avatar">
-      </div>
-
-
-      <p class="text-lg"><strong>usuário:</strong>
-        <span id="userName" class="text-blue-600 font-semibold"></span>
-      </p>
-    </div>
-
-    <!-- Lista de votações -->
-    <div class="mt-10 mb-4 flex justify-between items-stretch gap-4">
-      <div onclick="loadPollsUI()"
-        class="flex-1 bg-cyan-100 rounded-lg py-4 text-center transition-transform duration-200 hover:scale-105 hover:bg-cyan-200 cursor-pointer flex items-center justify-center">
-        <h3 class="text-2xl font-semibold text-cyan-700 break-words">Minhas Votações</h3>
-      </div>
-      <div onclick="loadMyVotesUI()"
-        class="flex-1 bg-pink-100 rounded-lg py-4 text-center transition-transform duration-200 hover:scale-105 hover:bg-pink-200 cursor-pointer flex items-center justify-center">
-        <h3 class="text-2xl font-semibold text-pink-700 break-words">Meus Votos</h3>
+        
+        <!-- User Info -->
+        <div class="mt-16 text-center">
+          <h2 class="text-3xl font-bold text-gray-800" id="userName"></h2>
+          <p class="text-gray-500 mt-1">Membro Dizzi</p>
+        </div>
       </div>
     </div>
 
-    <ul id="pollsList" class="space-y-4">
-      <!-- Itens serão inseridos aqui -->
-    </ul>
+    <!-- Modal overlay estilo Instagram -->
+    <div id="avatarModal" class="fixed inset-0 bg-black bg-opacity-60 hidden z-50 flex items-center justify-center">
+      <div class="bg-white rounded-xl w-80 overflow-hidden shadow-lg transform transition-all">
+        <button id="addPhoto" class="w-full py-4 border-b text-blue-600 font-semibold hover:bg-gray-100 transition flex items-center justify-center">
+          <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+          </svg>
+          Adicionar Foto
+        </button>
+        <button id="removePhoto" class="w-full py-4 border-b text-red-600 font-semibold hover:bg-gray-100 transition flex items-center justify-center">
+          <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+          </svg>
+          Remover Foto
+        </button>
+        <button id="cancel" class="w-full py-4 font-semibold hover:bg-gray-100 transition">
+          Cancelar
+        </button>
+      </div>
+    </div>
+
+    <!-- Input de arquivo oculto -->
+    <input id="fileInput" type="file" accept="image/*" class="hidden">
+    <input type="hidden" id="actionPerformed" name="action" value="add_avatar">
+
+    <!-- Tabs de navegação -->
+    <div class="bg-white rounded-xl shadow-md mb-6 p-4 relative">
+      <div class="flex space-x-2">
+        <button id="pollsTabBtn" class="flex-1 py-3 px-4 text-center relative z-10 focus:outline-none" onclick="switchTab('polls')">
+          <span class="text-lg font-medium">Minhas Votações</span>
+        </button>
+        <button id="votesTabBtn" class="flex-1 py-3 px-4 text-center relative z-10 focus:outline-none" onclick="switchTab('votes')">
+          <span class="text-lg font-medium">Meus Votos</span>
+        </button>
+      </div>
+      <!-- Indicador da tab ativa -->
+      <div id="tabIndicator" class="absolute bottom-4 left-4 h-10 rounded-lg bg-cyan-100 transition-all duration-300 tab-indicator"></div>
+    </div>
+
+    <!-- Resultados das tabs -->
+    <div class="space-y-6">
+      <ul id="pollsList" class="space-y-6">
+        <!-- Itens serão inseridos aqui -->
+        <div class="flex justify-center py-10">
+          <svg class="animate-spin h-10 w-10 text-cyan-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+        </div>
+      </ul>
+    </div>
   </main>
 
   <script>
-    // Menu mobile toggle
-    const toggleBtn = document.getElementById('menu-toggle');
-    const mobileMenu = document.getElementById('mobile-menu');
-    const userAvatar = document.getElementById('userAvatar');
-    toggleBtn.addEventListener('click', () => {
-      mobileMenu.classList.toggle('hidden');
-    });
-
-    const avatarWrapper = document.getElementById('avatarWrapper');
-    const avatarModal = document.getElementById('avatarModal');
-    const fileInput = document.getElementById('fileInput');
-    const actionInput = document.getElementById('actionPerformed');
-    const avatar = document.getElementById('avatar');
+    // ============= VARIÁVEIS GLOBAIS =============
     const defaultAvatar = "https://img.freepik.com/premium-vector/character-avatar-isolated_729149-194801.jpg?semt=ais_incoming&w=740&q=80";
+    const elements = {
+      toggleBtn: document.getElementById('menu-toggle'),
+      mobileMenu: document.getElementById('mobile-menu'),
+      avatarWrapper: document.getElementById('avatarWrapper'),
+      avatarModal: document.getElementById('avatarModal'),
+      fileInput: document.getElementById('fileInput'),
+      actionInput: document.getElementById('actionPerformed'),
+      avatar: document.getElementById('avatar'),
+      userName: document.getElementById('userName'),
+      pollsList: document.getElementById('pollsList'),
+      logoutLink: document.getElementById('logoutLink'),
+      logoutLinkMobile: document.getElementById('logoutLinkMobile'),
+      tabIndicator: document.getElementById('tabIndicator'),
+      pollsTabBtn: document.getElementById('pollsTabBtn'),
+      votesTabBtn: document.getElementById('votesTabBtn')
+    };
 
-    // Abrir modal ao clicar no avatar
-    avatarWrapper.addEventListener('click', () => {
-      avatarModal.classList.remove('hidden');
-    });
+    let user = null;
+    let currentTab = 'polls';
 
-    // Fechar modal ao clicar em Cancelar
-    document.getElementById('cancel').addEventListener('click', () => {
-      avatarModal.classList.add('hidden');
-    });
-
-    // Adicionar Foto
-    document.getElementById('addPhoto').addEventListener('click', () => {
-      console.log('Ação: Adicionar Foto');
-      fileInput.click();
-      avatarModal.classList.add('hidden');
-    });
+    // ============= FUNÇÕES UTILITÁRIAS =============
 
     /**
-    * Converte uma string UTC (ISO ou "YYYY-MM-DD HH:MM:SS") para hora local
-    * @param {string} utcDateTime - Data/hora em UTC
-    * @param {string} [options] - opções de formatação (opcional)
-    * @returns {string} - data/hora formatada em fuso local
-    */
+     * Obtém um cookie pelo nome
+     * @param {string} name - Nome do cookie
+     * @returns {string|null} - Valor do cookie ou null
+     */
+    function getCookie(name) {
+      const cookies = document.cookie.split('; ');
+      const cookie = cookies.find(c => c.startsWith(name + '='));
+      return cookie ? decodeURIComponent(cookie.split('=')[1]) : null;
+    }
+
+    /**
+     * Analisa JSON de uma resposta de API, tratando erros
+     * @param {string} rawText - Texto JSON a ser analisado
+     * @param {string} errorContext - Contexto para mensagem de erro
+     * @returns {Object|null} - Objeto JSON analisado ou null em caso de erro
+     */
+    function parseApiResponse(rawText, errorContext = "") {
+      try {
+        return JSON.parse(rawText);
+      } catch (err) {
+        console.warn(`⚠️ Resposta não JSON ${errorContext ? `(${errorContext})` : ""}:`, rawText);
+        return null;
+      }
+    }
+
+    /**
+     * Converte uma string UTC para hora local
+     * @param {string} utcDateTime - Data/hora em UTC
+     * @param {Object} [options] - opções de formatação (opcional)
+     * @returns {string} - data/hora formatada em fuso local
+     */
     function utcToLocal(utcDateTime, options = {}) {
-      // Se receber formato 'YYYY-MM-DD HH:MM:SS', substitui espaço por T
       let utcString = utcDateTime.replace(' ', 'T') + 'Z'; // garante que é UTC
       const date = new Date(utcString);
 
-      // Formato padrão: dd/mm/yyyy hh:mm:ss
       const defaultOptions = {
         year: 'numeric',
         month: '2-digit',
@@ -157,17 +255,125 @@
       return date.toLocaleString(undefined, { ...defaultOptions, ...options });
     }
 
-    // Upload via fetch
-    fileInput.addEventListener('change', async (event) => {
+    /**
+     * Copia texto para área de transferência e mostra feedback visual
+     * @param {string} text - Texto a ser copiado
+     */
+    function copyToClipboard(text) {
+      navigator.clipboard.writeText(text).then(() => {
+        // Pega o elemento que disparou a função
+        const active = document.activeElement;
+        // Tenta pegar o elemento pelo evento
+        let trigger = null;
+        try {
+          trigger = active && active.classList.contains('clipboard') ? active : null;
+        } catch { }
+
+        // Se não encontrou, tenta buscar pelo texto
+        if (!trigger) {
+          const clips = document.querySelectorAll('.clipboard');
+          clips.forEach(el => {
+            if (el.textContent === text) trigger = el;
+          });
+        }
+
+        if (trigger) {
+          // Remove qualquer span de check anterior
+          const next = trigger.nextElementSibling;
+          if (next && next.classList.contains('copied-check')) {
+            next.remove();
+          }
+          // Cria o span de check
+          const check = document.createElement('span');
+          check.className = 'copied-check ml-2';
+          check.textContent = '✓';
+          trigger.parentNode.insertBefore(check, trigger.nextSibling);
+          // Remove após 1.5s
+          setTimeout(() => check.remove(), 1500);
+        }
+      }).catch(err => {
+        console.error('Erro ao copiar:', err);
+      });
+    }
+
+    /**
+     * Alterna entre as tabs de votações e votos
+     * @param {string} tab - Tab a ser exibida ('polls' ou 'votes')
+     */
+    function switchTab(tab) {
+      currentTab = tab;
+      
+      // Atualiza o indicador visual
+      const activeBtn = tab === 'polls' ? elements.pollsTabBtn : elements.votesTabBtn;
+      const tabWidth = activeBtn.offsetWidth;
+      const tabLeft = activeBtn.offsetLeft;
+      
+      elements.tabIndicator.style.width = `${tabWidth}px`;
+      elements.tabIndicator.style.transform = `translateX(${tabLeft}px)`;
+      
+      // Atualiza estados de foco
+      elements.pollsTabBtn.classList.toggle('text-cyan-600', tab === 'polls');
+      elements.pollsTabBtn.classList.toggle('font-semibold', tab === 'polls');
+      elements.votesTabBtn.classList.toggle('text-pink-500', tab === 'votes');
+      elements.votesTabBtn.classList.toggle('font-semibold', tab === 'votes');
+      
+      // Carrega os dados apropriados
+      if (tab === 'polls') {
+        loadPollsUI();
+      } else {
+        loadMyVotesUI();
+      }
+    }
+
+    // ============= FUNÇÕES DE UI =============
+
+    /**
+     * Configura eventos da UI
+     */
+    function setupUIHandlers() {
+      // Menu mobile toggle
+      elements.toggleBtn.addEventListener('click', () => {
+        elements.mobileMenu.classList.toggle('hidden');
+      });
+
+      // Avatar modal
+      elements.avatarWrapper.addEventListener('click', () => {
+        elements.avatarModal.classList.remove('hidden');
+      });
+
+      document.getElementById('cancel').addEventListener('click', () => {
+        elements.avatarModal.classList.add('hidden');
+      });
+
+      document.getElementById('addPhoto').addEventListener('click', () => {
+        console.log('Ação: Adicionar Foto');
+        elements.fileInput.click();
+        elements.avatarModal.classList.add('hidden');
+      });
+
+      document.getElementById('removePhoto').addEventListener('click', handleRemovePhoto);
+
+      elements.fileInput.addEventListener('change', handleAvatarUpload);
+      
+      // Inicializar o indicador de tab
+      setTimeout(() => {
+        switchTab('polls');
+      }, 100);
+    }
+
+    /**
+     * Manipula o upload de avatar
+     */
+    async function handleAvatarUpload(event) {
       const file = event.target.files[0];
       if (!file) return;
 
-      avatar.src = URL.createObjectURL(file);
+      elements.avatar.src = URL.createObjectURL(file);
       console.log('Foto selecionada:', file.name);
 
       const formData = new FormData();
       formData.append('avatar', file);
-      formData.append('action', actionInput.value);
+      formData.append('action', elements.actionInput.value);
 
       try {
         const response = await fetch('/app/Routes/set_avatar.php', {
@@ -179,26 +385,28 @@
         console.log('Resposta do servidor:', raw);
 
         if (response.ok) {
-          const responseData = JSON.parse(raw);
-          if (responseData.success) {
-            avatar.src = responseData.url;
+          const responseData = parseApiResponse(raw, "upload avatar");
+          if (responseData?.success) {
+            elements.avatar.src = responseData.url;
           } else {
-            console.error('Erro no upload:', responseData.message);
-            avatar.src = defaultAvatar;
+            console.error('Erro no upload:', responseData?.message);
+            elements.avatar.src = defaultAvatar;
           }
         } else {
-          avatar.src = defaultAvatar;
+          elements.avatar.src = defaultAvatar;
         }
       } catch (err) {
         console.error('Erro na requisição:', err);
-        avatar.src = defaultAvatar;
+        elements.avatar.src = defaultAvatar;
       }
-    });
+    }
 
-    // Remover Foto
-    document.getElementById('removePhoto').addEventListener('click', async () => {
+    /**
+     * Manipula a remoção de avatar
+     */
+    async function handleRemovePhoto() {
       console.log('Ação: Remover Foto');
-      avatarModal.classList.add('hidden');
+      elements.avatarModal.classList.add('hidden');
 
       try {
         console.log('Enviando requisição para remover avatar...');
@@ -208,84 +416,60 @@
           headers: { 'Content-Type': 'application/json' },
           credentials: 'include'
         });
-        const $data = await response.json();
-        if ($data.success) {
+
+        const data = await response.json();
+        if (data.success) {
           console.log('Foto removida no servidor');
           // Força o navegador a recarregar a imagem (mesmo se tiver cacheada)
-          avatar.src = $data.url + '?t=' + new Date().getTime();
+          elements.avatar.src = data.url + '?t=' + new Date().getTime();
         } else {
-          console.error('Erro ao remover foto:', $data.message);
+          console.error('Erro ao remover foto:', data.message);
         }
       } catch (err) {
         console.error('Erro na requisição de remoção:', err);
       }
-    });
-
-    // Logout em ambos menus
-    const logoutLinks = [document.getElementById('logoutLink'), document.getElementById('logoutLinkMobile')];
-    logoutLinks.forEach(link => {
-      link?.addEventListener('click', () => {
-        fetch('/app/Routes/api.php', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          credentials: 'include',
-          body: JSON.stringify({ action: 'logout' })
-        })
-          .then(response => response.json())
-          .then(data => {
-            if (data.success) {
-              window.location.href = 'login.html';
-            } else {
-              alert('Erro ao sair. Tente novamente.');
-            }
-          })
-          .catch(error => {
-            console.error('Erro na requisição de logout:', error);
-            alert('Erro ao sair. Tente novamente.');
-          });
-      });
-    });
-
-    // Verificação de login
-    window.addEventListener("pageshow", async function () {
-      const user = loadUserData();
-      console.log(user);
-      document.getElementById('userName').innerText = user.userName || '';
-      document.getElementById('avatar').src = user.profileImage || null;
-      const payload = { action: "login", user_name: user.userName, password: crypto.randomUUID() };
-
-      try {
-        const response = await fetch("/app/Routes/api.php", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          credentials: "include",
-          body: JSON.stringify(payload)
-        });
-
-        const raw = await response.text();
-        let result;
-        try {
-          result = JSON.parse(raw);
-        } catch {
-          console.warn("⚠️ Resposta não JSON:", raw);
-          return;
-        }
-
-        if (!result.success) {
-          window.location.href = "login.html";
-        }
-      } catch (error) {
-        console.error("Erro de requisição:", error);
-      }
-    });
-
-    // Cookies
-    function getCookie(name) {
-      const cookies = document.cookie.split('; ');
-      const cookie = cookies.find(c => c.startsWith(name + '='));
-      return cookie ? decodeURIComponent(cookie.split('=')[1]) : null;
     }
 
+    // ============= FUNÇÕES DE AUTENTICAÇÃO =============
+
+    /**
+     * Configura handlers de logout
+     */
+    function setupLogoutHandlers() {
+      const logoutLinks = [elements.logoutLink, elements.logoutLinkMobile];
+      logoutLinks.forEach(link => {
+        link?.addEventListener('click', handleLogout);
+      });
+    }
+
+    /**
+     * Manipula o logout do usuário
+     */
+    function handleLogout() {
+      fetch('/app/Routes/api.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ action: 'logout' })
+      })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            window.location.href = 'login.html';
+          } else {
+            alert('Erro ao sair. Tente novamente.');
+          }
+        })
+        .catch(error => {
+          console.error('Erro na requisição de logout:', error);
+          alert('Erro ao sair. Tente novamente.');
+        });
+    }
+
+    /**
+     * Carrega dados do usuário do cookie
+     * @returns {Object|null} - Dados do usuário ou null
+     */
     function loadUserData() {
       const userData = getCookie('user_data');
       if (!userData) {
@@ -293,6 +477,7 @@
         console.warn('Cookie user_data não encontrado');
         return null;
       }
+
       try {
         const parsedData = JSON.parse(userData);
         return {
@@ -305,18 +490,71 @@
       }
     }
 
+    /**
+     * Verifica se o usuário está logado
+     */
+    async function verifyLogin() {
+      user = loadUserData();
+      if (!user) return;
+
+      elements.userName.innerText = user.userName || '';
+      elements.avatar.src = user.profileImage || defaultAvatar;
+
+      const payload = {
+        action: "login",
+        user_name: user.userName,
+        password: crypto.randomUUID()
+      };
+
+      try {
+        const response = await fetch("/app/Routes/api.php", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify(payload)
+        });
+
+        const raw = await response.text();
+        const result = parseApiResponse(raw, "verificação de login");
+
+        if (!result?.success) {
+          window.location.href = "login.html";
+        }
+      } catch (error) {
+        console.error("Erro de requisição:", error);
+      }
+    }
+
+    // ============= FUNÇÕES DE VOTAÇÕES =============
+
+    /**
+     * Navega para página de acompanhamento em tempo real
+     * @param {string} pollId - ID da votação
+     */
     const trackRealTime = (pollId) => {
-        window.location.href = `/realtime.html?poll_id=${pollId}`;
-      }
+      window.location.href = `/realtime.html?poll_id=${pollId}`;
+    }
 
-      const dashboard = (pollId) => {
-        window.location.href = `/dashboard.html?poll_id=${pollId}`;
-      }
+    /**
+     * Navega para página de dashboard
+     * @param {string} pollId - ID da votação
+     */
+    const dashboard = (pollId) => {
+      window.location.href = `/dashboard.html?poll_id=${pollId}`;
+    }
 
-      const vote = (pollCode) => {
-        window.location.href = `/vote.html?poll_code=${pollCode}`;
-      }
+    /**
+     * Navega para página de voto
+     * @param {string} pollCode - Código da votação
+     */
+    const vote = (pollCode) => {
+      window.location.href = `/vote.html?poll_code=${pollCode}`;
+    }
 
+    /**
+     * Finaliza uma votação
+     * @param {string} pollId - ID da votação
+     */
     async function finishPoll(pollId) {
       if (!pollId) return;
       if (!confirm("Tem certeza que deseja finalizar esta votação?")) return;
@@ -331,19 +569,13 @@
 
         const data = await res.text();
         console.log("Resposta ao finalizar votação:", data);
-        let result;
-        try {
-          result = JSON.parse(data);
-        } catch {
-          console.warn("⚠️ Resposta não é JSON:", data);
-          return;
-        }
+        const result = parseApiResponse(data, "finalizar votação");
 
-        if (result.success) {
+        if (result?.success) {
           alert(`Votação finalizada com sucesso.`);
-          loadPolls(loadUserData().userName);
+          loadPolls(user.userName);
         } else {
-          alert(`Erro: ${result.message}`);
+          alert(`Erro: ${result?.message || 'Ocorreu um erro desconhecido'}`);
         }
       } catch (err) {
         alert('Erro ao finalizar votação.');
@@ -351,9 +583,24 @@
       }
     }
 
+    /**
+     * Carrega votações do usuário
+     * @param {string} userId - ID do usuário
+     */
     async function loadPolls(userId) {
       if (!userId) return;
-      const list = document.getElementById('pollsList');
+      const list = elements.pollsList;
+      
+      // Mostrar loader
+      list.innerHTML = `
+        <div class="flex justify-center py-10">
+          <svg class="animate-spin h-10 w-10 text-cyan-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+        </div>
+      `;
+
       try {
         const res = await fetch(`/app/Routes/api.php?action=get_polls&user_id=${userId}`, {
           method: 'GET',
@@ -367,152 +614,320 @@
           data.polls.forEach(poll => {
             const isFinished = !!poll.is_finished;
             const li = document.createElement('li');
-            li.className = "bg-blue-50 p-5 rounded-lg shadow hover:shadow-md transition";
+            li.className = "bg-white rounded-xl shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden";
 
             li.innerHTML = `
-          <div class="flex flex-col gap-4">
-          <div class="text-gray-700 space-y-1">
-            <p><strong>Título:</strong> ${poll.title}</p>
-            ${poll.description ? `<p><strong>Descrição:</strong> ${poll.description}</p>` : ''}
-            <p><strong>Início:</strong> ${utcToLocal(poll.start_time)}</p>
-            <p><strong>Fim:</strong> ${utcToLocal(poll.end_time)}</p>
-            <p><strong>Status:</strong> <span class="${isFinished ? 'text-red-500' : 'text-green-600'} font-medium">${isFinished ? "Finalizada" : "Em andamento"}</span></p>
-            <p><strong>Código:</strong><span onclick="copyToClipboard('${poll.code || "N/A"}')" class="clipboard font-mono bg-gray-100 px-2 py-0.5 rounded transition-colors cursor-pointer hover:bg-gray-100 hover:text-orange-700">${poll.code || "N/A"}</span></p>
-          </div>
-            <div class="flex flex-col sm:flex-row gap-3 mt-3">
-            <button 
-              onclick="finishPoll('${poll.id}')"
-              class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition w-full md:w-auto"
-              ${isFinished ? 'disabled style="opacity:0.4;cursor:not-allowed"' : ''}>
-              Finalizar
-            </button>
-            <button 
-              onclick="trackRealTime('${poll.id}')"
-              class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition w-full md:w-auto"
-              ${isFinished ? 'disabled style="opacity:0.4;cursor:not-allowed"' : ''}>
-              Acompanhar Resultados
-            </button>
-            <button 
-              onclick="dashboard('${poll.id}')"
-              class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition w-full md:w-auto"
-              ${isFinished ? "" : 'disabled style="opacity:0.4;cursor:not-allowed"'}>
-              Dashboard
-            </button>
-            </div>
-          </div>
-        `;
+              <div class="flex flex-col">
+                <div class="bg-blue-50 py-4 px-6 border-b border-blue-100">
+                  <h3 class="text-gray-800 text-xl font-bold">${poll.title}</h3>
+                  <span class="inline-flex items-center mt-1 px-3 py-1 rounded-full text-xs font-medium 
+                        ${isFinished ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'}">
+                    ${isFinished ? "Finalizada" : "Em andamento"}
+                  </span>
+                </div>
+                
+                <div class="p-6">
+                  ${poll.description ? `<p class="text-gray-700 mb-4">${poll.description}</p>` : ''}
+                  
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                    <div class="bg-gray-50 p-3 rounded-lg">
+                      <p class="text-sm text-gray-500">Início</p>
+                      <p class="font-medium">${utcToLocal(poll.start_time, { 
+                        hour: '2-digit', 
+                        minute: '2-digit', 
+                        day: '2-digit', 
+                        month: '2-digit', 
+                        year: 'numeric' 
+                      })}</p>
+                    </div>
+                    
+                    <div class="bg-gray-50 p-3 rounded-lg">
+                      <p class="text-sm text-gray-500">Fim</p>
+                      <p class="font-medium">${utcToLocal(poll.end_time, { 
+                        hour: '2-digit', 
+                        minute: '2-digit', 
+                        day: '2-digit', 
+                        month: '2-digit', 
+                        year: 'numeric' 
+                      })}</p>
+                    </div>
+                  </div>
+                  
+                  <div class="flex items-center bg-gray-50 p-3 rounded-lg mb-6">
+                    <div>
+                      <p class="text-sm text-gray-500">Código da Votação</p>
+                      <span onclick="copyToClipboard('${poll.code || "N/A"}')" 
+                        class="clipboard font-mono font-medium bg-white px-3 py-1 rounded border border-gray-200 inline-flex items-center cursor-pointer hover:bg-gray-50 transition-colors">
+                        ${poll.code || "N/A"}
+                        <svg class="w-4 h-4 ml-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                        </svg>
+                      </span>
+                    </div>
+                  </div>
+                  
+                  <div class="flex flex-wrap gap-3">
+                    <button 
+                      onclick="finishPoll('${poll.id}')"
+                      class="flex items-center justify-center bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition w-full md:w-auto disabled:opacity-40 disabled:cursor-not-allowed"
+                      ${isFinished ? 'disabled' : ''}>
+                      <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                      </svg>
+                      Finalizar
+                    </button>
+                    
+                    <button 
+                      onclick="trackRealTime('${poll.id}')"
+                      class="flex items-center justify-center bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition w-full md:w-auto disabled:opacity-40 disabled:cursor-not-allowed"
+                      ${isFinished ? 'disabled' : ''}>
+                      <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                      </svg>
+                      Tempo Real
+                    </button>
+                    
+                    <button 
+                      onclick="dashboard('${poll.id}')"
+                      class="flex items-center justify-center bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition w-full md:w-auto disabled:opacity-40 disabled:cursor-not-allowed"
+                      ${isFinished ? '' : 'disabled'}>
+                      <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                      </svg>
+                      Dashboard
+                    </button>
+                  </div>
+                </div>
+              </div>
+            `;
             list.appendChild(li);
           });
         } else {
-          list.innerHTML = '<li class="text-gray-500 text-center">Nenhuma votação encontrada.</li>';
+          list.innerHTML = `
+            <div class="bg-white rounded-xl shadow p-8 text-center">
+              <svg class="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+              </svg>
+              <p class="text-gray-500 text-lg">Nenhuma votação encontrada</p>
+              <a href="create.html" class="mt-4 inline-flex items-center px-4 py-2 bg-cyan-500 text-white rounded-lg hover:bg-cyan-600 transition">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                </svg>
+                Criar Nova Votação
+              </a>
+            </div>
+          `;
         }
       } catch (err) {
-        list.innerHTML = '<li class="text-gray-500 text-center">Erro ao carregar polls:</li>';
-        console.error('Erro ao carregar polls:', err);
+        list.innerHTML = `
+          <div class="bg-white rounded-xl shadow p-8 text-center">
+            <svg class="w-16 h-16 text-red-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <p class="text-gray-500 text-lg">Erro ao carregar votações</p>
+            <button onclick="loadPolls('${userId}')" class="mt-4 inline-flex items-center px-4 py-2 bg-cyan-500 text-white rounded-lg hover:bg-cyan-600 transition">
+              <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+              </svg>
+              Tentar Novamente
+            </button>
+          </div>
+        `;
+        console.error('Erro ao carregar votações:', err);
       }
     }
 
-    const user = loadUserData();
-    loadPolls(user.userName);
-
+    /**
+     * Exibe a interface de votações do usuário
+     */
     function loadPollsUI() {
-      loadPolls(loadPolls(user.userName));
+      loadPolls(user.userName);
     }
 
+    /**
+     * Carrega e exibe os votos do usuário
+     */
     async function loadMyVotesUI() {
-      const list = document.getElementById('pollsList');
-      list.innerHTML = '';
-      const response = await fetch(`/app/Routes/api.php?action=get_votes&user_id=${user.userName}`, {
-        method: 'GET',
-        credentials: 'include'
-      });
-      const data = await response.text();
-      console.log("Resposta ao carregar votos:", data);
-      let result;
+      const list = elements.pollsList;
+      
+      // Mostrar loader
+      list.innerHTML = `
+        <div class="flex justify-center py-10">
+          <svg class="animate-spin h-10 w-10 text-pink-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+        </div>
+      `;
+
       try {
-        result = JSON.parse(data);
-      } catch {
-        console.warn("⚠️ Resposta não é JSON:", data);
-        list.innerHTML = '<li class="text-gray-500 text-center">Erro ao carregar votos.</li>';
-        return;
-      }
-
-      if (result.success && result.votes.length) {
-        result.votes.forEach(vote => {
-          const li = document.createElement('li');
-          li.className = "bg-pink-50 p-5 rounded-lg shadow hover:shadow-md transition";
-
-          li.innerHTML = `
-      <div class="flex flex-col gap-4">
-        <div class="text-gray-700 space-y-1">
-          <p><strong>Título:</strong> ${vote.title}</p>
-          ${vote.description ? `<p><strong>Descrição:</strong> ${vote.description}</p>` : ''}
-          <p><strong>Código da Votação:</strong>
-            <span onclick="copyToClipboard('${vote.code || "N/A"}')" 
-              class="clipboard font-mono bg-gray-100 px-2 py-0.5 rounded transition-colors cursor-pointer hover:bg-gray-100 hover:text-orange-700">
-              ${vote.code || "N/A"}
-            </span>
-          </p>
-          <p><strong>Status:</strong> <span class="${vote.is_finished ? 'text-red-500' : 'text-green-600'} font-medium">
-            ${vote.is_finished ? "Finalizada" : "Em andamento"}
-          </span></p>
-          <p><strong>Início:</strong> ${utcToLocal(vote.start_time)}</p>
-          <p><strong>Fim:</strong> ${utcToLocal(vote.end_time)}</p>
-        </div>
-        <div class="flex flex-col sm:flex-row gap-3 mt-3">
-          <button 
-            onclick="vote('${vote.code}')"
-            class="bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600 transition w-full md:w-auto">
-            Fazer alguma coisa...
-          </button>
-        </div>
-      </div>
-    `;
-          list.appendChild(li);
+        const response = await fetch(`/app/Routes/api.php?action=get_votes&user_id=${user.userName}`, {
+          method: 'GET',
+          credentials: 'include'
         });
-      } else {
-        list.innerHTML = '<li class="text-gray-500 text-center">Nenhum voto encontrado.</li>';
-      }
 
-      function copyToClipboard(text) {
-        navigator.clipboard.writeText(text).then(() => {
-          // Pega o elemento que disparou a função
-          const active = document.activeElement;
-          // Tenta pegar o elemento pelo evento (caso chamado via onclick inline)
-          let trigger = null;
-          try {
-            // Se chamado via onclick inline, 'this' não está disponível, então busca pelo último elemento focado
-            trigger = active && active.classList.contains('clipboard') ? active : null;
-          } catch { }
-          // Se não encontrou, tenta buscar pelo texto
-          if (!trigger) {
-            // Busca todos os spans com classe clipboard e compara o texto
-            const clips = document.querySelectorAll('.clipboard');
-            clips.forEach(el => {
-              if (el.textContent === text) trigger = el;
-            });
-          }
-          if (trigger) {
-            // Remove qualquer span de check anterior
-            const next = trigger.nextElementSibling;
-            if (next && next.classList.contains('copied-check')) {
-              next.remove();
-            }
-            // Cria o span de check
-            const check = document.createElement('span');
-            check.className = 'copied-check ml-2';
-            check.textContent = '✍️';
-            trigger.parentNode.insertBefore(check, trigger.nextSibling);
-            // Remove após 1.5s
-            setTimeout(() => {
-              check.remove();
-            }, 1500);
-          }
-        }).catch(err => {
-          console.error('Erro ao copiar:', err);
-        });
+        const data = await response.text();
+        console.log("Resposta ao carregar votos:", data);
+        const result = parseApiResponse(data, "carregar votos");
+
+        if (!result) {
+          list.innerHTML = `
+            <div class="bg-white rounded-xl shadow p-8 text-center">
+              <svg class="w-16 h-16 text-red-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+              <p class="text-gray-500 text-lg">Erro ao carregar votos</p>
+              <button onclick="loadMyVotesUI()" class="mt-4 inline-flex items-center px-4 py-2 bg-pink-500 text-white rounded-lg hover:bg-pink-600 transition">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                </svg>
+                Tentar Novamente
+              </button>
+            </div>
+          `;
+          return;
+        }
+
+        list.innerHTML = '';
+
+        if (result.success && result.votes.length) {
+          result.votes.forEach(vote => {
+            const li = document.createElement('li');
+            li.className = "bg-white rounded-xl shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden";
+
+            li.innerHTML = `
+              <div class="flex flex-col">
+                <div class="bg-pink-50 py-4 px-6 border-b border-pink-100">
+                  <h3 class="text-gray-800 text-xl font-bold">${vote.title}</h3>
+                  <span class="inline-flex items-center mt-1 px-3 py-1 rounded-full text-xs font-medium 
+                        ${vote.is_finished ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'}">
+                    ${vote.is_finished ? "Finalizada" : "Em andamento"}
+                  </span>
+                </div>
+                
+                <div class="p-6">
+                  ${vote.description ? `<p class="text-gray-700 mb-4">${vote.description}</p>` : ''}
+                  
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                    <div class="bg-gray-50 p-3 rounded-lg">
+                      <p class="text-sm text-gray-500">Início</p>
+                      <p class="font-medium">${utcToLocal(vote.start_time, { 
+                        hour: '2-digit', 
+                        minute: '2-digit', 
+                        day: '2-digit', 
+                        month: '2-digit', 
+                        year: 'numeric' 
+                      })}</p>
+                    </div>
+                    
+                    <div class="bg-gray-50 p-3 rounded-lg">
+                      <p class="text-sm text-gray-500">Fim</p>
+                      <p class="font-medium">${utcToLocal(vote.end_time, { 
+                        hour: '2-digit', 
+                        minute: '2-digit', 
+                        day: '2-digit', 
+                        month: '2-digit', 
+                        year: 'numeric' 
+                      })}</p>
+                    </div>
+                  </div>
+                  
+                  <div class="flex items-center bg-gray-50 p-3 rounded-lg mb-6">
+                    <div>
+                      <p class="text-sm text-gray-500">Código da Votação</p>
+                      <span onclick="copyToClipboard('${vote.code || "N/A"}')" 
+                        class="clipboard font-mono font-medium bg-white px-3 py-1 rounded border border-gray-200 inline-flex items-center cursor-pointer hover:bg-gray-50 transition-colors">
+                        ${vote.code || "N/A"}
+                        <svg class="w-4 h-4 ml-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                        </svg>
+                      </span>
+                    </div>
+                  </div>
+                  
+                  <div class="flex flex-wrap gap-3">
+                    <button 
+                      onclick="vote('${vote.code}')"
+                      class="flex items-center justify-center bg-pink-500 text-white px-4 py-2 rounded-lg hover:bg-pink-600 transition w-full md:w-auto">
+                      <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122"></path>
+                      </svg>
+                      Ver Detalhes
+                    </button>
+                    
+                    <button 
+                      onclick="dashboard('${vote.id}')"
+                      class="flex items-center justify-center bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition w-full md:w-auto disabled:opacity-40 disabled:cursor-not-allowed"
+                      ${vote.is_finished ? '' : 'disabled'}>
+                      <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                      </svg>
+                      Dashboard
+                    </button>
+                  </div>
+                </div>
+              </div>
+            `;
+            list.appendChild(li);
+          });
+        } else {
+          list.innerHTML = `
+            <div class="bg-white rounded-xl shadow p-8 text-center">
+              <svg class="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+              </svg>
+              <p class="text-gray-500 text-lg">Nenhum voto encontrado</p>
+              <a href="vote.html" class="mt-4 inline-flex items-center px-4 py-2 bg-pink-500 text-white rounded-lg hover:bg-pink-600 transition">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122"></path>
+                </svg>
+                Participar de Votação
+              </a>
+            </div>
+          `;
+        }
+      } catch (err) {
+        list.innerHTML = `
+          <div class="bg-white rounded-xl shadow p-8 text-center">
+            <svg class="w-16 h-16 text-red-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <p class="text-gray-500 text-lg">Erro ao carregar votos</p>
+            <button onclick="loadMyVotesUI()" class="mt-4 inline-flex items-center px-4 py-2 bg-pink-500 text-white rounded-lg hover:bg-pink-600 transition">
+              <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+              </svg>
+              Tentar Novamente
+            </button>
+          </div>
+        `;
+        console.error('Erro ao carregar votos:', err);
       }
     }
+
+    // ============= INICIALIZAÇÃO =============
+
+    /**
+     * Inicializa a página
+     */
+    async function initPage() {
+      // Configurar handlers da UI
+      setupUIHandlers();
+
+      // Configurar handlers de logout
+      setupLogoutHandlers();
+
+      // Verificar login
+      await verifyLogin();
+
+      // Carregar votações iniciais
+      if (user) {
+        loadPolls(user.userName);
+      }
+    }
+
+    // Inicializar ao carregar a página
+    window.addEventListener("pageshow", initPage);
   </script>
 
 </body>

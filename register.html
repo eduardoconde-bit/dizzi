@@ -2,106 +2,494 @@
 <html lang="pt-BR">
 
 <head>
-  <meta charset="UTF-8">
-  <title>Dizzi - Registro</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dizzi - Criar Conta</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+    .fade-in {
+      animation: fadeIn 0.5s ease-in-out;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .password-strength-meter {
+      height: 5px;
+      border-radius: 3px;
+      transition: all 0.3s ease-in-out;
+    }
+  </style>
 </head>
 
-<body class="bg-gray-100 font-sans min-h-screen flex flex-col">
+<body class="bg-gray-100 font-sans text-gray-800">
+  <!-- Background pattern -->
+  <div class="fixed inset-0 z-0 opacity-5">
+    <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+      <defs>
+        <pattern id="dots" width="20" height="20" patternUnits="userSpaceOnUse">
+          <circle cx="10" cy="10" r="1.5" fill="#4B5563" />
+        </pattern>
+      </defs>
+      <rect width="100%" height="100%" fill="url(#dots)" />
+    </svg>
+  </div>
 
-  <!-- Header -->
-  <header class="bg-gray-900 text-cyan-400 py-4 px-6 shadow-md fixed w-full top-0 z-10">
-    <h1 class="text-2xl font-bold">Dizzi</h1>
+  <!-- Header simples -->
+  <header class="bg-gray-900 text-white shadow-md relative z-10">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center h-16">
+        <div class="text-2xl font-bold text-cyan-400 flex items-center">
+          <svg class="w-8 h-8 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+          Dizzi
+        </div>
+      </div>
+    </div>
   </header>
 
-  <!-- Container central -->
-  <main class="flex-grow flex items-center justify-center pt-20 px-4">
-    <div class="bg-white p-8 rounded-2xl shadow-lg w-full max-w-sm">
-      <h2 class="text-2xl font-bold text-gray-900 text-center mb-6">Criar Conta</h2>
-      <form id="registerForm" class="space-y-4">
-        <input type="text" id="user_name" placeholder="Nome de usuário" required
-          class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-cyan-400 focus:outline-none">
-        <input type="password" id="password" placeholder="Senha" required
-          class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-cyan-400 focus:outline-none">
-        <input type="password" id="confirm_password" placeholder="Confirme a senha" required
-          class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-cyan-400 focus:outline-none">
-        <div id="formMessage" class="text-center text-sm text-red-500"></div>
-        <button type="submit"
-          class="w-full bg-cyan-500 hover:bg-cyan-600 text-white py-2 rounded-lg font-semibold transition">Registrar</button>
-      </form>
+  <main class="flex flex-col md:flex-row items-stretch min-h-[calc(100vh-4rem)] relative z-10">
+    <!-- Left side (illustration) - hidden on mobile -->
+    <div class="hidden md:flex md:w-1/2 bg-gradient-to-br from-blue-500 to-cyan-600 text-white p-12 flex-col justify-center items-center">
+      <div class="max-w-md mx-auto">
+        <svg class="w-32 h-32 mb-8 mx-auto text-white opacity-90" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path>
+        </svg>
+        <h1 class="text-4xl font-bold mb-6 text-center">Crie sua conta hoje</h1>
+        <p class="text-lg text-center mb-8">Junte-se à nossa plataforma e comece a criar votações online de forma simples e segura.</p>
+        <div class="space-y-6">
+          <div class="flex items-center">
+            <span class="bg-white bg-opacity-20 p-2 rounded-full mr-4">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+              </svg>
+            </span>
+            <span>Crie votações ilimitadas</span>
+          </div>
+          <div class="flex items-center">
+            <span class="bg-white bg-opacity-20 p-2 rounded-full mr-4">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+              </svg>
+            </span>
+            <span>Acompanhe resultados em tempo real</span>
+          </div>
+          <div class="flex items-center">
+            <span class="bg-white bg-opacity-20 p-2 rounded-full mr-4">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+              </svg>
+            </span>
+            <span>Sistema seguro e confiável</span>
+          </div>
+        </div>
+      </div>
+    </div>
 
-      <div class="mt-6 text-center space-y-2">
-        <a href="login.html" class="text-cyan-600 hover:underline">Já tem conta? Faça login</a><br>
-        <a href="index.html" class="text-gray-600 hover:underline">Voltar</a>
+    <!-- Right side (register form) -->
+    <div class="w-full md:w-1/2 flex items-center justify-center p-6 sm:p-12">
+      <div class="w-full max-w-md">
+        <!-- Register card -->
+        <div class="bg-white rounded-xl shadow-lg p-8">
+          <div class="text-center mb-8">
+            <h2 class="text-3xl font-bold text-gray-800">Criar Conta</h2>
+            <p class="text-gray-500 mt-2">Registre-se para começar a usar o Dizzi</p>
+          </div>
+
+          <!-- Mensagem de resposta -->
+          <div id="formMessage" class="mb-6 p-3 rounded-lg text-center text-sm hidden"></div>
+
+          <form id="registerForm" class="space-y-6">
+            <!-- Username field -->
+            <div class="space-y-2">
+              <label for="user_name" class="block text-sm font-medium text-gray-700">Nome de usuário</label>
+              <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                  </svg>
+                </div>
+                <input 
+                  type="text" 
+                  id="user_name" 
+                  placeholder="Escolha um nome de usuário" 
+                  required
+                  minlength="3"
+                  class="w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-colors"
+                />
+              </div>
+              <p class="text-xs text-gray-500" id="usernameHelp">Mínimo de 3 caracteres, sem espaços.</p>
+            </div>
+
+            <!-- Password field -->
+            <div class="space-y-2">
+              <label for="password" class="block text-sm font-medium text-gray-700">Senha</label>
+              <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                  </svg>
+                </div>
+                <input 
+                  type="password" 
+                  id="password" 
+                  placeholder="Crie uma senha" 
+                  required
+                  minlength="8"
+                  class="w-full pl-10 pr-10 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-colors"
+                />
+                <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
+                  <button type="button" id="togglePassword" class="text-gray-400 hover:text-gray-600 focus:outline-none">
+                    <svg id="eyeOpen" class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                    </svg>
+                    <svg id="eyeClosed" class="h-5 w-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"></path>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+              
+              <!-- Password strength meter -->
+              <div class="mt-1">
+                <div class="flex w-full h-1 bg-gray-200 rounded-full overflow-hidden">
+                  <div id="passwordStrength" class="password-strength-meter w-0 bg-red-500"></div>
+                </div>
+                <p class="text-xs text-gray-500 mt-1" id="passwordHelp">Mínimo de 8 caracteres.</p>
+              </div>
+            </div>
+
+            <!-- Confirm Password field -->
+            <div class="space-y-2">
+              <label for="confirm_password" class="block text-sm font-medium text-gray-700">Confirme a senha</label>
+              <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                  </svg>
+                </div>
+                <input 
+                  type="password" 
+                  id="confirm_password" 
+                  placeholder="Digite a senha novamente" 
+                  required
+                  minlength="8"
+                  class="w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent transition-colors"
+                />
+              </div>
+              <p class="text-xs text-gray-500" id="confirmHelp">As senhas devem coincidir.</p>
+            </div>
+
+            <button 
+              type="submit" 
+              id="registerBtn"
+              class="w-full bg-cyan-500 text-white py-3 px-4 rounded-lg hover:bg-cyan-600 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 transition-colors flex items-center justify-center"
+            >
+              <span id="registerText">Criar Conta</span>
+              <span id="loadingIndicator" class="hidden">
+                <svg class="animate-spin h-5 w-5 ml-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+              </span>
+            </button>
+          </form>
+
+          <div class="mt-8 text-center">
+            <a href="login.html" class="text-cyan-600 hover:text-cyan-700 font-medium transition-colors">
+              Já tem uma conta? Faça login
+            </a>
+          </div>
+        </div>
+
+        <!-- Security note -->
+        <div class="mt-6 text-center text-gray-500 text-sm flex items-center justify-center">
+          <svg class="w-4 h-4 mr-1 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+          </svg>
+          Seus dados estão seguros conosco
+        </div>
       </div>
     </div>
   </main>
 
   <script>
-    document.getElementById("registerForm").addEventListener("submit", async function (event) {
+    // ============= ELEMENTOS DOM =============
+    const elements = {
+      registerForm: document.getElementById('registerForm'),
+      userName: document.getElementById('user_name'),
+      password: document.getElementById('password'),
+      confirmPassword: document.getElementById('confirm_password'),
+      formMessage: document.getElementById('formMessage'),
+      usernameHelp: document.getElementById('usernameHelp'),
+      passwordHelp: document.getElementById('passwordHelp'),
+      confirmHelp: document.getElementById('confirmHelp'),
+      togglePassword: document.getElementById('togglePassword'),
+      eyeOpen: document.getElementById('eyeOpen'),
+      eyeClosed: document.getElementById('eyeClosed'),
+      registerBtn: document.getElementById('registerBtn'),
+      registerText: document.getElementById('registerText'),
+      loadingIndicator: document.getElementById('loadingIndicator'),
+      passwordStrength: document.getElementById('passwordStrength')
+    };
+
+    // ============= FUNÇÕES UTILITÁRIAS =============
+    
+    /**
+     * Exibe uma mensagem para o usuário
+     * @param {string} text - Texto da mensagem
+     * @param {string} type - Tipo de mensagem (success, error, info)
+     */
+    function showMessage(text, type = "info") {
+      elements.formMessage.textContent = text;
+      elements.formMessage.classList.remove("hidden", "bg-green-100", "text-green-700", "bg-red-100", "text-red-700", "bg-blue-100", "text-blue-700");
+      elements.formMessage.classList.add("fade-in");
+      
+      switch (type) {
+        case "success":
+          elements.formMessage.classList.add("bg-green-100", "text-green-700");
+          break;
+        case "error":
+          elements.formMessage.classList.add("bg-red-100", "text-red-700");
+          break;
+        case "info":
+        default:
+          elements.formMessage.classList.add("bg-blue-100", "text-blue-700");
+      }
+    }
+
+    /**
+     * Alterna o estado de carregamento do botão de registro
+     * @param {boolean} isLoading - Se o botão deve mostrar estado de carregamento
+     */
+    function toggleLoading(isLoading) {
+      if (isLoading) {
+        elements.registerText.textContent = "Criando conta...";
+        elements.loadingIndicator.classList.remove("hidden");
+        elements.registerBtn.disabled = true;
+        elements.registerBtn.classList.add("opacity-75", "cursor-not-allowed");
+      } else {
+        elements.registerText.textContent = "Criar Conta";
+        elements.loadingIndicator.classList.add("hidden");
+        elements.registerBtn.disabled = false;
+        elements.registerBtn.classList.remove("opacity-75", "cursor-not-allowed");
+      }
+    }
+
+    /**
+     * Valida o nome de usuário em tempo real
+     */
+    function validateUsername() {
+      const userName = elements.userName.value.trim();
+      const isValid = /^[\w\d!@#$%^&*()\-_=+\[\]{};:'",.<>/?\\|`~]{3,}$/.test(userName);
+      
+      if (userName.length === 0) {
+        elements.usernameHelp.textContent = "Mínimo de 3 caracteres, sem espaços.";
+        elements.usernameHelp.classList.remove("text-red-500", "text-green-500");
+        elements.usernameHelp.classList.add("text-gray-500");
+        elements.userName.classList.remove("border-red-500", "border-green-500");
+        return false;
+      } else if (!isValid) {
+        elements.usernameHelp.textContent = "Nome de usuário inválido. Evite espaços.";
+        elements.usernameHelp.classList.remove("text-gray-500", "text-green-500");
+        elements.usernameHelp.classList.add("text-red-500");
+        elements.userName.classList.remove("border-green-500");
+        elements.userName.classList.add("border-red-500");
+        return false;
+      } else {
+        elements.usernameHelp.textContent = "Nome de usuário válido!";
+        elements.usernameHelp.classList.remove("text-gray-500", "text-red-500");
+        elements.usernameHelp.classList.add("text-green-500");
+        elements.userName.classList.remove("border-red-500");
+        elements.userName.classList.add("border-green-500");
+        return true;
+      }
+    }
+
+    /**
+     * Avalia a força da senha e atualiza o medidor
+     */
+    function evaluatePasswordStrength() {
+      const password = elements.password.value;
+      
+      // Critérios de força
+      const hasMinLength = password.length >= 8;
+      const hasUpperCase = /[A-Z]/.test(password);
+      const hasLowerCase = /[a-z]/.test(password);
+      const hasNumbers = /[0-9]/.test(password);
+      const hasSpecialChars = /[^A-Za-z0-9]/.test(password);
+      
+      // Calcular pontuação (0-4)
+      let score = 0;
+      if (hasMinLength) score++;
+      if (hasUpperCase) score++;
+      if (hasLowerCase) score++;
+      if (hasNumbers) score++;
+      if (hasSpecialChars) score++;
+      
+      // Definir cor com base na pontuação
+      let color = "bg-red-500"; // Fraca
+      let width = "20%";
+      let text = "Senha muito fraca";
+      
+      if (score >= 4) {
+        color = "bg-green-500"; // Forte
+        width = "100%";
+        text = "Senha forte";
+      } else if (score >= 3) {
+        color = "bg-yellow-500"; // Média
+        width = "66%";
+        text = "Senha média";
+      } else if (score >= 2) {
+        color = "bg-orange-400"; // Fraca
+        width = "33%";
+        text = "Senha fraca";
+      }
+      
+      // Atualizar UI
+      elements.passwordStrength.className = `password-strength-meter ${color}`;
+      elements.passwordStrength.style.width = width;
+      elements.passwordHelp.textContent = text;
+      
+      return hasMinLength;
+    }
+
+    /**
+     * Verifica se as senhas coincidem
+     */
+    function checkPasswordsMatch() {
+      const password = elements.password.value;
+      const confirmPassword = elements.confirmPassword.value;
+      
+      if (confirmPassword.length === 0) {
+        elements.confirmHelp.textContent = "As senhas devem coincidir.";
+        elements.confirmHelp.classList.remove("text-red-500", "text-green-500");
+        elements.confirmHelp.classList.add("text-gray-500");
+        elements.confirmPassword.classList.remove("border-red-500", "border-green-500");
+        return false;
+      } else if (password !== confirmPassword) {
+        elements.confirmHelp.textContent = "As senhas não coincidem!";
+        elements.confirmHelp.classList.remove("text-gray-500", "text-green-500");
+        elements.confirmHelp.classList.add("text-red-500");
+        elements.confirmPassword.classList.remove("border-green-500");
+        elements.confirmPassword.classList.add("border-red-500");
+        return false;
+      } else {
+        elements.confirmHelp.textContent = "As senhas coincidem!";
+        elements.confirmHelp.classList.remove("text-gray-500", "text-red-500");
+        elements.confirmHelp.classList.add("text-green-500");
+        elements.confirmPassword.classList.remove("border-red-500");
+        elements.confirmPassword.classList.add("border-green-500");
+        return true;
+      }
+    }
+
+    // ============= HANDLERS DE EVENTOS =============
+    
+    /**
+     * Manipula o evento de submissão do formulário
+     * @param {Event} event - Evento de submissão
+     */
+    async function handleRegisterSubmit(event) {
       event.preventDefault();
-
-      const messageDiv = document.getElementById("formMessage");
-      messageDiv.textContent = "";
-
-      const user_name = document.getElementById("user_name").value;
-      const password = document.getElementById("password").value;
-      const confirm_password = document.getElementById("confirm_password").value;
-
-      // Validação do nome de usuário (mínimo 3 caracteres, sem espaços)
-      function validateUserName(user_name) {
-        return /^[\w\d!@#$%^&*()\-_=+\[\]{};:'",.<>/?\\|`~]{3,}$/.test(user_name);
-      }
-
-      if (!validateUserName(user_name)) {
-        messageDiv.textContent = "Nome de usuário inválido. Use pelo menos 3 caracteres e não use espaços.";
+      
+      const userName = elements.userName.value.trim();
+      const password = elements.password.value;
+      const confirmPassword = elements.confirmPassword.value;
+      
+      // Validar todos os campos
+      const isUsernameValid = validateUsername();
+      const isPasswordValid = evaluatePasswordStrength();
+      const doPasswordsMatch = checkPasswordsMatch();
+      
+      // Se qualquer validação falhar, interromper
+      if (!isUsernameValid || !isPasswordValid || !doPasswordsMatch) {
+        showMessage("Por favor, corrija os erros no formulário antes de continuar.", "error");
         return;
       }
-
-      if (password.length < 6) {
-        messageDiv.textContent = "A senha deve ter pelo menos 6 caracteres.";
-        return;
-      }
-
-      if (password !== confirm_password) {
-        messageDiv.textContent = "As senhas não coincidem.";
-        return;
-      }
-
-      const payload = { action: "register", user_name, password };
-
+      
+      // Iniciar estado de loading
+      toggleLoading(true);
+      
       try {
         const response = await fetch("/app/Routes/api.php", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload)
+          body: JSON.stringify({
+            action: "register",
+            user_name: userName,
+            password: password
+          })
         });
-
+        
         const raw = await response.text();
         let result;
-
+        
         try {
           result = JSON.parse(raw);
         } catch {
-          messageDiv.textContent = "Erro inesperado do servidor. Tente novamente.";
+          showMessage("Erro inesperado do servidor. Tente novamente.", "error");
+          toggleLoading(false);
           return;
         }
-
+        
         if (result.success) {
-          messageDiv.classList.remove("text-red-500");
-          messageDiv.classList.add("text-green-500");
-          messageDiv.textContent = "Registro realizado com sucesso! Você será redirecionado para o login...";
+          showMessage("Conta criada com sucesso! Redirecionando para o login...", "success");
           setTimeout(() => window.location.href = "login.html", 2000);
         } else {
-          messageDiv.textContent = "Erro: " + (result.message || "Não foi possível registrar. Tente outro nome de usuário.");
+          let errorMessage = "Não foi possível registrar. Tente outro nome de usuário.";
+          
+          if (result.message) {
+            errorMessage = result.message;
+          } else if (result.error && result.error.code === "USER_EXISTS") {
+            errorMessage = "Este nome de usuário já está em uso. Por favor, escolha outro.";
+          }
+          
+          showMessage("Erro: " + errorMessage, "error");
+          toggleLoading(false);
         }
       } catch (error) {
         console.error("Erro na requisição:", error);
-        messageDiv.textContent = "Erro na conexão com o servidor. Tente novamente mais tarde.";
+        showMessage("Erro na conexão com o servidor. Tente novamente mais tarde.", "error");
+        toggleLoading(false);
+      }
+    }
+
+    /**
+     * Alterna a visibilidade da senha
+     */
+    function togglePasswordVisibility() {
+      const type = elements.password.getAttribute('type') === 'password' ? 'text' : 'password';
+      elements.password.setAttribute('type', type);
+      elements.eyeOpen.classList.toggle('hidden');
+      elements.eyeClosed.classList.toggle('hidden');
+    }
+
+    // ============= INICIALIZAÇÃO =============
+    
+    // Configurar listeners
+    elements.registerForm.addEventListener("submit", handleRegisterSubmit);
+    elements.togglePassword.addEventListener("click", togglePasswordVisibility);
+    
+    // Validações em tempo real
+    elements.userName.addEventListener("input", validateUsername);
+    elements.password.addEventListener("input", evaluatePasswordStrength);
+    elements.confirmPassword.addEventListener("input", checkPasswordsMatch);
+    
+    // Validar também quando o campo password mudar (para atualizar a validação de confirmação)
+    elements.password.addEventListener("input", () => {
+      if (elements.confirmPassword.value) {
+        checkPasswordsMatch();
       }
     });
   </script>
 
 </body>
 
-</html>
+</html> 
